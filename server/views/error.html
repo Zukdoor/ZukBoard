@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>服务器开小差儿了~</title>
+    <style media="screen">
+        html {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            font-size: 62.5%;
+        }
+
+        body {
+            margin: 0;
+            font-size: 1.4rem;
+            line-height: 1.5;
+            color: #333;
+            background-color: #eee;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .error-404 {
+            width: 40%;
+            margin: 20% auto 1rem;
+        }
+
+        .error-tip {
+            font-size: 1.4rem;
+            margin: 0 1.5rem;
+            text-align: center;
+            color: #795B3F;
+        }
+
+        .error-404 img {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-404">
+        <img id="logo" src="https://piccdn.luojilab.com/fe/fe-image/cd5a9661bc2f0a77ec85b0ebc8e0134f.png" alt="">
+    </div>
+    <p class="error-tip" id="detail" data-details="##error.stack##">服务器开小差儿了~</p>
+    {% if ENV === 'development' %}
+    <h2>## error.message ##</h2> <p>## error.stack ##</p> {% endif %}
+    <script>
+        var _$_ = function(id) {
+            return document.getElementById(id);
+        };
+        var _$_detailNode = _$_("detail");
+        var message = _$_detailNode.dataset.details;
+
+        var _$_logoNode = _$_("logo");
+
+        var t = 0;
+        _$_logoNode.addEventListener("touchstart", function() {
+            if (++t > 2) {
+                _$_detailNode.innerHTML = message;
+            }
+        });
+    </script>
+</body>
+
+</html>

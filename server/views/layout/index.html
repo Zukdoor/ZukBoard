@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>##title##</title>
+  <link rel="dns-prefetch" href="//staticcdn.luojilab.com">
+  <link rel="dns-prefetch" href="//passport.luojilab.com">
+  <link rel="dns-prefetch" href="//piccdn.luojilab.com">
+  <meta name="MobileOptimized" content="320"/>
+  <meta http-equiv="cleartype" content="on">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="format-detection" content="telephone=no, email=no" />
+  <meta name="msapplication-tap-highlight" content="no"/>
+  {% include "include/viewport.html"%}
+  <script>
+    window.__dataset = JSON.parse(decodeURIComponent('##dataset##' || '{}'))
+  </script>
+  {% if ENV !== 'development' %}
+  <link rel="stylesheet" href="##staticBaseUrl####WEBPACK_HASH_MAP.css[bundle]##">
+  {% endif %}
+</head>
+
+<body>
+<script>
+// !(function(c,b,d,a){c[a]||(c[a]={});c[a].config={pid:"bbfxzjz69f@80ba25e0c7c1851",imgUrl:"https://arms-retcode.aliyuncs.com/r.png?"};
+// with(b)with(body)with(insertBefore(createElement("script"),firstChild))setAttribute("crossorigin","",src=d)
+// })(window,document,"https://retcode.alicdn.com/retcode/bl.js","__bl");
+</script>
+  <div id="app"></div>
+  {% if ENV === 'development' %}
+    <script src="##staticBaseUrl##dist/##bundle##.js"></script>
+  {% else %}
+    <script type="text/javascript">
+      window.staticBaseUrl = "##staticBaseUrl##";
+    </script>
+    <script src="##staticBaseUrl####WEBPACK_HASH_MAP.js.manifest##"></script>
+    <script src="##staticBaseUrl####WEBPACK_HASH_MAP.js.vendor##"></script>
+    <script src="##staticBaseUrl####WEBPACK_HASH_MAP.js[bundle]##"></script>
+  {% endif %}
+</body>
+
+</html>

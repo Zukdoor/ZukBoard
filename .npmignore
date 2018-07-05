@@ -1,0 +1,7 @@
+.DS_Store
+/node_modules/*
+*/.DS_Store
+npm-debug.log
+!.gitkeep
+package-lock.json
+.vscode
