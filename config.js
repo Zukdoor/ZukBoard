@@ -3,7 +3,6 @@ const CURRENT_PATH = process.cwd()
 const { join } = require('path')
 const port = require('read-pkg-up').sync().pkg.port
 
-
 module.exports = {
   port: port,
   ENV_VAR: {

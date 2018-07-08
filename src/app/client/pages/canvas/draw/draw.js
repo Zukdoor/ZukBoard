@@ -20,6 +20,8 @@ class Draw {
     this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
       this.drawing = false
       this.emitEvents('mouseup', ev)
+      ev.preventDefault()
+      ev.stopPropagation()
     })
     this.layerDraw.canvas.addEventListener('mousedown', (ev) => {
       this.drawing = true
@@ -32,6 +34,7 @@ class Draw {
       this.emitEvents('mousemove', ev)
     }, true)
     document.body.addEventListener('mouseup', (ev) => {
+      console.log(ev)
       this.drawing = false
       this.emitEvents('mouseup', ev)
     })
@@ -50,6 +53,12 @@ class Draw {
     Object.keys(plugins).forEach(key => {
       plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
+  }
+  syncBoard(opt) {
+    plugins[opt.key].syncBoard.call(this.vm, opt.data, this.layerDraw)
+  }
+  syncBoardWithPoint(opt) {
+    plugins[opt.key].syncBoardWithPoint.call(this.vm, opt, this.layerDraw)
   }
 }
 
