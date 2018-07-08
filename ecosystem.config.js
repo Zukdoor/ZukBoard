@@ -37,7 +37,7 @@ module.exports = {
       user: 'root',
       host: '47.94.80.19',
       ref: 'origin/release',
-      repo: 'git@gitlab.com:qianyuchang/kugga-board.git',
+      repo: 'ssh://git@39.104.53.64:2222/kuggaboard/kugga-board-web.git',
       path: `/data/${projectName}`,
       'post-deploy': 'git pull && npm install && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing '
     }
