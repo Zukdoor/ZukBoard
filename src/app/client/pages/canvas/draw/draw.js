@@ -14,24 +14,41 @@ class Draw {
     this.layerCover = this._scene.layer('canvas-cover')
     this.layerDraw = this._scene.layer('canvas-draw')
     this.registerEvents()
+    this.callInit()
   }
   registerEvents() {
-    this.layerCover.on('mouseup', (ev) => {
+    this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
       this.drawing = false
       this.emitEvents('mouseup', ev)
     })
-    this.layerCover.on('mousedown', (ev) => {
+    this.layerDraw.canvas.addEventListener('mousedown', (ev) => {
       this.drawing = true
       this.emitEvents('mousedown', ev)
     })
-    this.layerCover.on('mousemove', (ev) => {
+    this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
+      ev.stopImmediatePropagation()
+      ev.preventDefault()
       if (!this.drawing) return
       this.emitEvents('mousemove', ev)
+    }, true)
+    document.body.addEventListener('mouseup', (ev) => {
+      this.drawing = false
+      this.emitEvents('mouseup', ev)
     })
+    // document.body.addEventListener('mousemove', (ev) => {
+    //   if (!this.drawing) return
+    //   this.drawing = false
+    //   this.emitEvents('mouseup', ev)
+    // })
   }
   emitEvents(event, ev) {
     Object.keys(plugins).forEach(key => {
       plugins[key].draw[event] && plugins[key].draw[event].call(this.vm, ev, this.layerDraw)
+    })
+  }
+  callInit() {
+    Object.keys(plugins).forEach(key => {
+      plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
   }
 }

@@ -6,6 +6,9 @@ let points = []
 
 export default {
   name: 'brush',
+  init() {
+
+  },
   data: {
 
   },
@@ -14,6 +17,13 @@ export default {
   },
   draw: {
     mouseup(ev, layer) {
+      if (points.length === 0) {
+        points = []
+        return
+      }
+      points.forEach(p => (d += getL(p[0], p[1])))
+      points = []
+      drawPath(d, layer, this)
     },
     mousedown(ev, layer) {
       started = true
@@ -29,7 +39,6 @@ export default {
         x = ev.offsetX
         y = ev.offsetY
       }
-
       if (!started) {
         d = getM(x, y)
         points.push([x, y])
@@ -41,30 +50,33 @@ export default {
       if (points.length !== 3) return
 
       d += ' ' + getC(points)
-      const p = new Path()
       points = []
-      console.log(d)
-      p.attr({
-        path: {
-          d: d
-        },
-        lineCap: 'round',
-        lineJoin: 'round',
-        strokeColor: this.setting.brush.color,
-        lineWidth: this.setting.brush.width,
-        fillColor: 'transparent'
-      })
-      layer.appendChild(p)
+      drawPath(d, layer, this)
     }
   }
+
 }
 
 const getM = (x, y) => {
   return `M${x} ${y}`
 }
-// const getL = (x, y) => {
-//   return `L${x} ${y}`
-// }
+const getL = (x, y) => {
+  return `L${x} ${y}`
+}
 const getC = (points) => {
   return 'C' + (points.map(p => `${p[0]},${p[1]}`).join(' '))
+}
+const drawPath = (d, layer, vm) => {
+  const p = new Path()
+  p.attr({
+    path: {
+      d: d
+    },
+    lineCap: 'round',
+    lineJoin: 'round',
+    strokeColor: vm.setting.brush.color,
+    lineWidth: vm.setting.brush.width,
+    fillColor: 'transparent'
+  })
+  requestAnimationFrame(() => layer.appendChild(p))
 }
