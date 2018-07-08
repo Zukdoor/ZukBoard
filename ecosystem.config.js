@@ -11,8 +11,6 @@ module.exports = {
       script: './app.js',
       watch: true,
       max_memory_restart: '1024M',
-      instances: '4',
-      exec_mode: 'cluster',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       error_file: `/data/logs/node/${projectName}/err.log`,
       out_file: `/data/logs/node/${projectName}/out.log`,
