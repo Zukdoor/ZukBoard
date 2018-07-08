@@ -13,7 +13,7 @@
 <script>
 import io from 'socket.io-client'
 import Draw from '../draw.js'
-const socket = io()
+const socket = io('/')
 export default {
   data() {
     return {
