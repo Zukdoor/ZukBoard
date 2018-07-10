@@ -11,7 +11,9 @@
 </template>
 
 <script>
+import io from 'socket.io-client'
 import Draw from '../draw.js'
+const socket = io('/')
 export default {
   data() {
     return {
@@ -21,15 +23,27 @@ export default {
         roomId: ''
       },
       renderList: [],
+      socket,
+      current: {
+        type: '',
+        data: {}
+      },
       setting: {
         brush: {
           color: 'rgb(222, 18, 33)',
           width: 3
         }
-      }
+      },
+      drawer: {}
     }
   },
   created() {
+    this.socket.on('drawline', (r) => {
+      // this.drawer.syncBoard(r)
+    })
+    this.socket.on('drawpoint', (r) => {
+      this.drawer.syncBoardWithPoint(r)
+    })
     let id = this.getQueryString('id')
     if (id) {
       this.getBoard(id)
@@ -38,7 +52,8 @@ export default {
     this.createBoard()
   },
   mounted() {
-    new Draw(this, '#canvas', 1000, 500).init()
+    this.drawer = new Draw(this, '#canvas', 1000, 500)
+    this.drawer.init()
   },
   methods: {
     createBoard() {
@@ -79,6 +94,26 @@ export default {
       let r = location.search.substr(1).match(reg)
       if (r != null) return unescape(decodeURI(r[2]))
       return null
+    },
+    sync(key, id, data) {
+      let item = {
+        id,
+        key,
+        data: Object.assign([], data),
+        time: new Date().getTime()
+      }
+      this.renderList.push(item)
+      this.socket.emit('drawline', item)
+    },
+    syncPoint(key, id, type, point) {
+      let item = {
+        id,
+        key,
+        type,
+        points: point,
+        time: new Date().getTime()
+      }
+      this.socket.emit('drawpoint', item)
     }
   }
 }

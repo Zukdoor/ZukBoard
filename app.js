@@ -2,6 +2,10 @@ const CURRENT_PATH = process.cwd()
 const env = process.env.NODE_ENV || 'development'
 const Koa = require('koa')
 const app = new Koa()
+const server = require('http').createServer(app.callback())
+const io = require('socket.io')(server, {
+  transports: [ 'websocket', 'polling' ]
+})
 const views = require('koa-views')
 const json = require('koa-json')
 const favicon = require('koa-favicon')
@@ -72,7 +76,17 @@ if (env === 'development') {
 }
 
 app.use(router)
+io.on('connection', (socket) => {
+  socket.on('drawline', (res) => {
+    socket.broadcast.emit('drawline', res)
+  })
+  socket.on('drawpoint', (res) => {
+    socket.broadcast.emit('drawpoint', res)
+  })
+  socket.on('disconnect', () => {
+  })
+})
 
-app.listen(renderConf.port, () => {
+server.listen(renderConf.port, () => {
   console.log(`App (${env}) is now running on port => ${renderConf.port}`)
 })

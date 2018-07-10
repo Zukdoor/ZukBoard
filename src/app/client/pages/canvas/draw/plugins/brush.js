@@ -1,24 +1,65 @@
 import * as spritejs from 'spritejs'
-const {Path} = spritejs
-let started = false
-let d = ''
-let points = []
+import uuid from 'node-uuid'
 
+const {Path} = spritejs
+// 是否开始画线
+let started = false
+// 每条线的唯一ID
+let _id = ''
+// 每条线对应的SVG Path路径
+let d = ''
+// 贝塞尔曲线的点，三个一组
+let points = []
+// 一条线的所有的点
+let data = []
+const PLUGIN_NAME = 'brush'
+// vue instance
+let _vm = {}
+// sync对象，根据不同id识别不同线
+const drawing = {}
 export default {
-  name: 'brush',
+  name: PLUGIN_NAME,
+  init() {
+    _vm = this
+  },
   data: {
 
   },
   cover: {
 
   },
+  syncBoard(data, layer) {
+    drawPath(getPath(data), layer)
+  },
+  syncBoardWithPoint(data, layer) {
+    const key = data.id
+    if (!drawing[key]) {
+      drawing[key] = {
+        d: ''
+      }
+    }
+    drawing[key].d += getPath(data, true)
+    drawPath(drawing[key].d, layer)
+  },
   draw: {
     mouseup(ev, layer) {
+      started = false
+      _id = ''
+      if (points.length === 0) {
+        points = []
+        report()
+        return
+      }
+      points.forEach(p => (d += getL(p[0], p[1])))
+      report(this)
+      drawPath(d, layer)
     },
     mousedown(ev, layer) {
-      started = true
+      this.current.type = 'line'
       points = []
+      data = []
       d = ''
+      _id = uuid.v4()
     },
     mousemove(ev, layer) {
       var x, y
@@ -29,10 +70,10 @@ export default {
         x = ev.offsetX
         y = ev.offsetY
       }
-
       if (!started) {
         d = getM(x, y)
         points.push([x, y])
+
         started = true
         return
       }
@@ -41,30 +82,79 @@ export default {
       if (points.length !== 3) return
 
       d += ' ' + getC(points)
-      const p = new Path()
       points = []
-      console.log(d)
-      p.attr({
-        path: {
-          d: d
-        },
-        lineCap: 'round',
-        lineJoin: 'round',
-        strokeColor: this.setting.brush.color,
-        lineWidth: this.setting.brush.width,
-        fillColor: 'transparent'
-      })
-      layer.appendChild(p)
+      drawPath(d, layer)
     }
   }
-}
 
-const getM = (x, y) => {
+}
+// help methods
+const getPath = (data, isPoint, isSync = true) => {
+  let d = ''
+  if (isPoint) data = [data]
+  data.map(item => {
+    if (item.type === 'L') {
+      d += getL(item.points[0], item.points[1], true)
+      return
+    }
+    if (item.type === 'M') {
+      d += getM(item.points[0], item.points[1], true)
+      return
+    }
+    d += getC(item.points, true)
+  })
+  return d
+}
+const getM = (x, y, isSync) => {
+  if (!isSync) {
+    reportPoint('M', [x, y])
+  }
+  data.push({
+    type: 'M',
+    points: [x, y]
+  })
   return `M${x} ${y}`
 }
-// const getL = (x, y) => {
-//   return `L${x} ${y}`
-// }
-const getC = (points) => {
+const getL = (x, y, isSync) => {
+  if (!isSync) {
+    reportPoint('L', [x, y])
+  }
+  data.push({
+    type: 'L',
+    points: [x, y]
+  })
+  return `L${x} ${y}`
+}
+const getC = (points, isSync) => {
+  if (!isSync) {
+    reportPoint('C', points)
+  }
+  data.push({
+    type: 'C',
+    points
+  })
   return 'C' + (points.map(p => `${p[0]},${p[1]}`).join(' '))
+}
+// const path = '';
+const drawPath = (d, layer) => {
+  const p = new Path()
+  p.attr({
+    path: {
+      d: d
+    },
+    lineCap: 'round',
+    lineJoin: 'round',
+    strokeColor: _vm.setting[PLUGIN_NAME].color,
+    lineWidth: _vm.setting[PLUGIN_NAME].width,
+    fillColor: 'transparent'
+  })
+  requestAnimationFrame(() => layer.appendChild(p))
+}
+const report = () => {
+  _vm.sync(PLUGIN_NAME, _id, data)
+  data = []
+}
+const reportPoint = (type, point) => {
+  if (!_id) return
+  _vm.syncPoint(PLUGIN_NAME, _id, type, point)
 }
