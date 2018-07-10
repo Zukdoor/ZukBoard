@@ -15,6 +15,11 @@ import Draw from '../draw.js'
 export default {
   data() {
     return {
+      board: {
+        _id: '',
+        name: '',
+        roomId: ''
+      },
       renderList: [],
       setting: {
         brush: {
@@ -24,10 +29,57 @@ export default {
       }
     }
   },
+  created() {
+    let id = this.getQueryString('id')
+    if (id) {
+      this.getBoard(id)
+      return
+    }
+    this.createBoard()
+  },
   mounted() {
     new Draw(this, '#canvas', 1000, 500).init()
   },
   methods: {
+    createBoard() {
+      this.$http.post('/api/board/create').then(res => {
+        const { code, msg, data } = res.data
+        if (code !== 0) {
+          this.$message.error(msg)
+        }
+        delete data.canvas
+        this.board = data
+      })
+    },
+    saveBoard() {
+      this.$http.post('/api/board/save', {
+        id: this.board._id,
+        canvas: this.renderList
+      }).then(res => {
+
+      })
+    },
+    getBoard(id) {
+      this.$http.get('/api/board/get', {
+        params: {
+          id: id
+        }
+      }).then(res => {
+        const { code, msg, data } = res.data
+        if (code !== 0) {
+          this.$message.error(msg)
+        }
+        this.renderList = Object.assign([], data.canvas)
+        delete data.canvas
+        this.board = data
+      })
+    },
+    getQueryString(name) {
+      let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
+      let r = location.search.substr(1).match(reg)
+      if (r != null) return unescape(decodeURI(r[2]))
+      return null
+    }
   }
 }
 </script>
