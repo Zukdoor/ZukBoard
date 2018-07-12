@@ -29,7 +29,7 @@ export default {
 
   },
   syncBoard(data, layer) {
-    drawPath(getPath(data), layer)
+    drawPath(data, layer)
   },
   syncBoardWithPoint(data, layer) {
     const key = data.id
@@ -44,14 +44,15 @@ export default {
   draw: {
     mouseup(ev, layer) {
       started = false
-      _id = ''
       if (points.length === 0) {
         points = []
         report()
+        _id = ''
         return
       }
       points.forEach(p => (d += getL(p[0], p[1])))
       report(this)
+      _id = ''
       drawPath(d, layer)
     },
     mousedown(ev, layer) {
@@ -151,7 +152,7 @@ const drawPath = (d, layer) => {
   requestAnimationFrame(() => layer.appendChild(p))
 }
 const report = () => {
-  _vm.sync(PLUGIN_NAME, _id, data)
+  _vm.sync(PLUGIN_NAME, _id, d)
   data = []
 }
 const reportPoint = (type, point) => {

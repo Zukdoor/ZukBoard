@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "drawing board by canvas",
   "scripts": {
-    "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w src/**/server/*.js app.js",
+    "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "npm run lint && node build/build.js",
     "publish": "pm2 deploy ecosystem.config.js testing",
     "lint": "eslint src/* server/* test/* build/* app.js",
