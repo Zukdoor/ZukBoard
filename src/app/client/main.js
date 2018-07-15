@@ -2,7 +2,7 @@ import Vue from 'vue'
 import ElementUI from 'element-ui'
 import './assets/element-variables.scss'
 import VueResource from 'vue-resource'
-import 'ionicons/dist/css/ionicons.min.css'
+import '../client/assets/ionicons.css'
 
 import App from './App'
 import router from './router'
