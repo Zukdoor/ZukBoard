@@ -1,7 +1,6 @@
-import * as spritejs from 'spritejs'
 import uuid from 'node-uuid'
+import { paintPath } from './util'
 
-const {Path} = spritejs
 // 是否开始画线
 let started = false
 // 每条线的唯一ID
@@ -29,7 +28,7 @@ export default {
 
   },
   syncBoard(data, layer) {
-    drawPath(data, layer)
+    drawPath(data.data, layer, data.setting)
   },
   syncBoardWithPoint(data, layer) {
     const key = data.id
@@ -39,7 +38,7 @@ export default {
       }
     }
     drawing[key].d += getPath(data, true)
-    drawPath(drawing[key].d, layer)
+    drawPath(drawing[key].d, layer, data.setting)
   },
   draw: {
     mouseup(ev, layer) {
@@ -137,19 +136,8 @@ const getC = (points, isSync) => {
   return 'C' + (points.map(p => `${p[0]},${p[1]}`).join(' '))
 }
 // const path = '';
-const drawPath = (d, layer) => {
-  const p = new Path()
-  p.attr({
-    path: {
-      d: d
-    },
-    lineCap: 'round',
-    lineJoin: 'round',
-    strokeColor: _vm.setting[PLUGIN_NAME].color,
-    lineWidth: _vm.setting[PLUGIN_NAME].width,
-    fillColor: 'transparent'
-  })
-  requestAnimationFrame(() => layer.appendChild(p))
+const drawPath = (d, layer, setting) => {
+  paintPath(d, layer, setting || _vm.plugins[PLUGIN_NAME].setting)
 }
 const report = () => {
   _vm.sync(PLUGIN_NAME, _id, d)

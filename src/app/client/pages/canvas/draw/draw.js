@@ -12,7 +12,9 @@ class Draw {
   }
   init() {
     this.layerCover = this._scene.layer('canvas-cover')
-    this.layerDraw = this._scene.layer('canvas-draw')
+    this.layerDraw = this._scene.layer('canvas-draw', {
+      renderMode: 'repaintAll'
+    })
     this.registerEvents()
     this.callInit()
   }
@@ -49,13 +51,24 @@ class Draw {
       plugins[key].draw[event] && plugins[key].draw[event].call(this.vm, ev, this.layerDraw)
     })
   }
+  clear() {
+    // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
+    // this.layerDraw.clearContext(canvas.getContext('2d'))
+    this.layerDraw.clearContext(this.layerDraw.context)
+  }
   callInit() {
     Object.keys(plugins).forEach(key => {
       plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
   }
   syncBoard(opt) {
-    plugins[opt.key].syncBoard.call(this.vm, opt.data, this.layerDraw)
+    plugins[opt.key].syncBoard.call(this.vm, opt, this.layerDraw)
+  }
+  redo(opt) {
+    plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
+  }
+  undo(opt) {
+    plugins[opt.key].undo.call(this.vm, opt, this.layerDraw)
   }
   syncBoardWithPoint(opt) {
     plugins[opt.key].syncBoardWithPoint.call(this.vm, opt, this.layerDraw)
