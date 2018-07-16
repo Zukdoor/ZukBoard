@@ -8,6 +8,7 @@ class Draw {
     this.layerCover = null
     this.layerDraw = null
     this.drawing = false
+    this.current = 'brush'
     this.vm = vm
   }
   init() {
@@ -48,6 +49,10 @@ class Draw {
   }
   emitEvents(event, ev) {
     Object.keys(plugins).forEach(key => {
+      if (key !== this.current) {
+        return
+      }
+      console.log(key, event)
       plugins[key].draw[event] && plugins[key].draw[event].call(this.vm, ev, this.layerDraw)
     })
   }

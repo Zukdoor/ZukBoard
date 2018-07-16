@@ -221,9 +221,10 @@ export default {
       // this.redoList.push(item)
     },
     choose(chooseKey) {
-      if (chooseKey === 'eraser') {
-        this.$message.info('暂未实现！')
-      }
+      // if (chooseKey === 'eraser') {
+      //   this.$message.info('暂未实现！')
+      // }
+      this.drawer.current = chooseKey
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
       })
