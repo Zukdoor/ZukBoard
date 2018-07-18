@@ -1,5 +1,8 @@
 import uuid from 'node-uuid'
+import * as spritejs from 'spritejs'
 import { paintPath } from './util'
+
+const { Sprite } = spritejs
 
 // 是否开始画线
 let started = false
@@ -24,9 +27,6 @@ export default {
   data: {
 
   },
-  cover: {
-
-  },
   syncBoard(data, layer) {
     drawPath(data.data, layer, data.setting)
   },
@@ -39,6 +39,26 @@ export default {
     }
     drawing[key].d += getPath(data, true)
     drawPath(drawing[key].d, layer, data.setting)
+  },
+  cover: {
+    mousemove(ev, layer) {
+      var x, y
+      if (ev.layerX || ev.layerX === 0) { // Firefox
+        x = ev.layerX
+        y = ev.layerY
+      } else if (ev.offsetX || ev.offsetX === 0) { // Opera
+        x = ev.offsetX
+        y = ev.offsetY
+      }
+      console.log(x, y)
+      const box4 = new Sprite({
+        size: [400, 400],
+        pos: [100, 100],
+        bgcolor: '#000',
+        borderRadius: 200
+      })
+      layer.append(box4)
+    }
   },
   draw: {
     mouseup(ev, layer) {

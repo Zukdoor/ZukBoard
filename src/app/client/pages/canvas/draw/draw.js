@@ -16,30 +16,48 @@ class Draw {
     this.layerDraw = this._scene.layer('canvas-draw', {
       renderMode: 'repaintAll'
     })
+    this.layerCover.context.fillStyle = 'black'
+    this.layerCover.context.fillRect(0, 0, 1000, 500)
     this.registerEvents()
     this.callInit()
   }
   registerEvents() {
     this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
       this.drawing = false
-      this.emitEvents('mouseup', ev)
+      this.emitEvents('mouseup', 'draw', ev)
       ev.preventDefault()
       ev.stopPropagation()
     })
     this.layerDraw.canvas.addEventListener('mousedown', (ev) => {
       this.drawing = true
-      this.emitEvents('mousedown', ev)
+      this.emitEvents('mousedown', 'draw', ev)
+    })
+    this.layerCover.canvas.addEventListener('mousemove', (ev) => {
+      ev.stopImmediatePropagation()
+      ev.preventDefault()
+      if (!this.drawing) return
+      this.emitEvents('mousemove', 'draw', ev)
+    }, true)
+    this.layerCover.canvas.addEventListener('mouseup', (ev) => {
+      // this.moving = false
+      this.emitEvents('mouseup', 'cover', ev)
+      ev.preventDefault()
+      ev.stopPropagation()
+    })
+    this.layerCover.canvas.addEventListener('mousedown', (ev) => {
+      // this.moving = true
+      this.emitEvents('mousedown', 'cover', ev)
     })
     this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
       ev.stopImmediatePropagation()
       ev.preventDefault()
-      if (!this.drawing) return
-      this.emitEvents('mousemove', ev)
+      // if (!this.moving) return
+      this.emitEvents('mousemove', 'cover', ev)
     }, true)
     document.body.addEventListener('mouseup', (ev) => {
       console.log(ev)
       this.drawing = false
-      this.emitEvents('mouseup', ev)
+      this.emitEvents('mouseup', 'draw', ev)
     })
     // document.body.addEventListener('mousemove', (ev) => {
     //   if (!this.drawing) return
@@ -47,13 +65,13 @@ class Draw {
     //   this.emitEvents('mouseup', ev)
     // })
   }
-  emitEvents(event, ev) {
+  emitEvents(event, canvas, ev) {
     Object.keys(plugins).forEach(key => {
       if (key !== this.current) {
         return
       }
       console.log(key, event)
-      plugins[key].draw[event] && plugins[key].draw[event].call(this.vm, ev, this.layerDraw)
+      plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
     })
   }
   clear() {

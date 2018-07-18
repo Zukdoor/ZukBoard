@@ -248,6 +248,9 @@ export default {
 <style lang='scss'>
 .board {
   // margin: 20px;
+  canvas[data-layer-id=canvas-cover] {
+    z-index: 1 !important;
+  }
 }
 .actions {
   width: 100%;
