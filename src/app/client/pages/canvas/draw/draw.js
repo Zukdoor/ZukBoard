@@ -12,12 +12,12 @@ class Draw {
     this.vm = vm
   }
   init() {
-    this.layerCover = this._scene.layer('canvas-cover')
+    this.layerCover = this._scene.layer('canvas-cover', {
+      renderMode: 'repaintAll'
+    })
     this.layerDraw = this._scene.layer('canvas-draw', {
       renderMode: 'repaintAll'
     })
-    this.layerCover.context.fillStyle = 'black'
-    this.layerCover.context.fillRect(0, 0, 1000, 500)
     this.registerEvents()
     this.callInit()
   }
@@ -32,45 +32,25 @@ class Draw {
       this.drawing = true
       this.emitEvents('mousedown', 'draw', ev)
     })
-    this.layerCover.canvas.addEventListener('mousemove', (ev) => {
-      ev.stopImmediatePropagation()
-      ev.preventDefault()
-      if (!this.drawing) return
-      this.emitEvents('mousemove', 'draw', ev)
-    }, true)
-    this.layerCover.canvas.addEventListener('mouseup', (ev) => {
-      // this.moving = false
-      this.emitEvents('mouseup', 'cover', ev)
-      ev.preventDefault()
-      ev.stopPropagation()
-    })
-    this.layerCover.canvas.addEventListener('mousedown', (ev) => {
-      // this.moving = true
-      this.emitEvents('mousedown', 'cover', ev)
-    })
     this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
       ev.stopImmediatePropagation()
       ev.preventDefault()
-      // if (!this.moving) return
       this.emitEvents('mousemove', 'cover', ev)
+      if (!this.drawing) return
+      this.emitEvents('mousemove', 'draw', ev)
     }, true)
     document.body.addEventListener('mouseup', (ev) => {
       console.log(ev)
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)
     })
-    // document.body.addEventListener('mousemove', (ev) => {
-    //   if (!this.drawing) return
-    //   this.drawing = false
-    //   this.emitEvents('mouseup', ev)
-    // })
   }
   emitEvents(event, canvas, ev) {
     Object.keys(plugins).forEach(key => {
       if (key !== this.current) {
         return
       }
-      console.log(key, event)
+      console.log(key, canvas, event)
       plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
     })
   }
@@ -78,6 +58,7 @@ class Draw {
     // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
     // this.layerDraw.clearContext(canvas.getContext('2d'))
     this.layerDraw.clearContext(this.layerDraw.context)
+    // this.layerDraw.\.context.clearRect(0, 0, 1000, 500)
   }
   callInit() {
     Object.keys(plugins).forEach(key => {

@@ -49,7 +49,7 @@
       </div>
     </div>
     <div class="canvas" id="canvas">
-      <!-- <canvas class="canvas-main" width="480" height="270"></canvas> -->
+      <canvas class="canvas-cover" width="1000" height="500"></canvas>
     </div>
   </div>
 </template>
@@ -250,6 +250,8 @@ export default {
   // margin: 20px;
   canvas[data-layer-id=canvas-cover] {
     z-index: 1 !important;
+    pointer-events: none;
+    background:rgba(255,255,255,0);
   }
 }
 .actions {

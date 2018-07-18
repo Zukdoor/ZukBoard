@@ -19,6 +19,7 @@ const PLUGIN_NAME = 'eraser'
 let _vm = {}
 // sync对象，根据不同id识别不同线
 const drawing = {}
+let circle = null
 export default {
   name: PLUGIN_NAME,
   init() {
@@ -41,7 +42,7 @@ export default {
     drawPath(drawing[key].d, layer, data.setting)
   },
   cover: {
-    mousemove(ev, layer) {
+    mousemove(ev, layer, fuck) {
       var x, y
       if (ev.layerX || ev.layerX === 0) { // Firefox
         x = ev.layerX
@@ -50,14 +51,17 @@ export default {
         x = ev.offsetX
         y = ev.offsetY
       }
-      console.log(x, y)
-      const box4 = new Sprite({
-        size: [400, 400],
-        pos: [100, 100],
-        bgcolor: '#000',
-        borderRadius: 200
-      })
-      layer.append(box4)
+      if (!circle) {
+        circle = new Sprite({
+          size: [20, 20],
+          pos: [x - 10, y - 10],
+          bgcolor: 'rgba(204, 204, 204, .6)',
+          borderRadius: 10
+        })
+        layer.append(circle)
+      } else {
+        circle.attr({pos: [x - 10, y - 10]})
+      }
     }
   },
   draw: {
@@ -160,7 +164,7 @@ const drawPath = (d, layer, setting) => {
   setting = setting || _vm.plugins[PLUGIN_NAME].setting
   console.log(212121, setting)
   setting.color = '#fff'
-  setting.width = '30'
+  setting.width = '20'
   paintPath(d, layer, setting)
 }
 const report = () => {
