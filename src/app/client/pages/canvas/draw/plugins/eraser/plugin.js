@@ -1,6 +1,6 @@
 import uuid from 'node-uuid'
 import * as spritejs from 'spritejs'
-import { paintPath } from './util'
+import { paintPath } from '../util'
 
 const { Sprite } = spritejs
 
@@ -19,30 +19,42 @@ const PLUGIN_NAME = 'eraser'
 let _vm = {}
 // sync对象，根据不同id识别不同线
 const drawing = {}
+
 let circle = null
+
+let circleWidth = 0
+
+let line = {
+  node: undefined
+}
 export default {
   name: PLUGIN_NAME,
   init() {
     _vm = this
   },
+  uninstall(layerDraw, layerCover) {
+    drawCircle(-100, -100, layerCover)
+  },
   data: {
 
   },
   syncBoard(data, layer) {
+    console.log('data', data, data.data)
     drawPath(data.data, layer, data.setting)
   },
   syncBoardWithPoint(data, layer) {
     const key = data.id
     if (!drawing[key]) {
       drawing[key] = {
-        d: ''
+        d: '',
+        node: undefined
       }
     }
     drawing[key].d += getPath(data, true)
-    drawPath(drawing[key].d, layer, data.setting)
+    drawPath(drawing[key].d, layer, data.setting, drawing[key])
   },
   cover: {
-    mousemove(ev, layer, fuck) {
+    mousemove(ev, layer) {
       var x, y
       if (ev.layerX || ev.layerX === 0) { // Firefox
         x = ev.layerX
@@ -51,17 +63,7 @@ export default {
         x = ev.offsetX
         y = ev.offsetY
       }
-      if (!circle) {
-        circle = new Sprite({
-          size: [20, 20],
-          pos: [x - 10, y - 10],
-          bgcolor: 'rgba(204, 204, 204, .6)',
-          borderRadius: 10
-        })
-        layer.append(circle)
-      } else {
-        circle.attr({pos: [x - 10, y - 10]})
-      }
+      drawCircle(x, y, layer)
     }
   },
   draw: {
@@ -69,14 +71,16 @@ export default {
       started = false
       if (points.length === 0) {
         points = []
-        report()
+        report(this)
         _id = ''
+        line.node = null
         return
       }
       points.forEach(p => (d += getL(p[0], p[1])))
       report(this)
       _id = ''
-      drawPath(d, layer)
+      drawPath(d, layer, null, line)
+      line.node = null
     },
     mousedown(ev, layer) {
       this.current.type = 'line'
@@ -107,7 +111,7 @@ export default {
 
       d += ' ' + getC(points)
       points = []
-      drawPath(d, layer)
+      drawPath(d, layer, null, line)
     }
   }
 
@@ -159,13 +163,36 @@ const getC = (points, isSync) => {
   })
   return 'C' + (points.map(p => `${p[0]},${p[1]}`).join(' '))
 }
+const drawCircle = (x, y, layer) => {
+  let width = _vm.plugins[PLUGIN_NAME].setting.width
+  if (!circle) {
+    circle = new Sprite({
+      size: [width * 2, width * 2],
+      pos: [x - width, y - width],
+      bgcolor: 'rgba(204, 204, 204, .6)',
+      borderRadius: width
+    })
+    layer.append(circle)
+    circleWidth = width
+  } else if (width === circleWidth) {
+    circle.attr({
+      pos: [x - width, y - width]
+    })
+  } else {
+    circle.attr({
+      pos: [x - width, y - width],
+      size: [width * 2, width * 2],
+      borderRadius: width
+    })
+  }
+}
 // const path = '';
-const drawPath = (d, layer, setting) => {
+const drawPath = (d, layer, setting, line) => {
   setting = setting || _vm.plugins[PLUGIN_NAME].setting
-  console.log(212121, setting)
-  setting.color = '#fff'
-  setting.width = '20'
-  paintPath(d, layer, setting)
+  paintPath(d, layer, {
+    color: '#fff',
+    width: setting.width * 2
+  }, line)
 }
 const report = () => {
   _vm.sync(PLUGIN_NAME, _id, d)

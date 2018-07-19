@@ -1,5 +1,5 @@
 import uuid from 'node-uuid'
-import { paintPath } from './util'
+import { paintPath } from '../util'
 
 // 是否开始画线
 let started = false
@@ -16,6 +16,10 @@ const PLUGIN_NAME = 'brush'
 let _vm = {}
 // sync对象，根据不同id识别不同线
 const drawing = {}
+
+let line = {
+  node: undefined
+}
 export default {
   name: PLUGIN_NAME,
   init() {
@@ -34,32 +38,35 @@ export default {
     const key = data.id
     if (!drawing[key]) {
       drawing[key] = {
-        d: ''
+        d: '',
+        node: undefined
       }
     }
     drawing[key].d += getPath(data, true)
-    drawPath(drawing[key].d, layer, data.setting)
+    drawPath(drawing[key].d, layer, data.setting, drawing[key])
   },
   draw: {
     mouseup(ev, layer) {
       started = false
       if (points.length === 0) {
         points = []
-        report()
+        report(this)
         _id = ''
+        line.node = null
         return
       }
       points.forEach(p => (d += getL(p[0], p[1])))
       report(this)
       _id = ''
-      drawPath(d, layer)
+      drawPath(d, layer, null, line)
+      line.node = null
     },
     mousedown(ev, layer) {
       this.current.type = 'line'
       points = []
       data = []
       d = ''
-      _id = uuid.v4()
+      _id = uuid.v4().substring(0, 8)
     },
     mousemove(ev, layer) {
       var x, y
@@ -83,7 +90,7 @@ export default {
 
       d += ' ' + getC(points)
       points = []
-      drawPath(d, layer)
+      drawPath(d, layer, null, line)
     }
   }
 
@@ -136,8 +143,8 @@ const getC = (points, isSync) => {
   return 'C' + (points.map(p => `${p[0]},${p[1]}`).join(' '))
 }
 // const path = '';
-const drawPath = (d, layer, setting) => {
-  paintPath(d, layer, setting || _vm.plugins[PLUGIN_NAME].setting)
+const drawPath = (d, layer, setting, line) => {
+  paintPath(d, layer, setting || _vm.plugins[PLUGIN_NAME].setting, line)
 }
 const report = () => {
   _vm.sync(PLUGIN_NAME, _id, d)

@@ -9,14 +9,12 @@ function register(io) {
       const board = await db.Board.findOne({
         _id: ObjectId(id)
       })
-      console.log(board)
       const index = board.canvas.findIndex(i => i.id === item.id)
       if (index > -1) {
         board.canvas[index] = item
       } else {
         board.canvas.push(item)
       }
-      console.log(board.canvas)
       await db.Board.update({
         _id: ObjectId(id)
       }, {

@@ -23,33 +23,17 @@
         
       </div>
       <div class="tools props">
-        <ul v-show="plugins.brush.active">
-          <li>
-              <label for="">颜色：</label>
-              <div class="content">
-                <input type="color" id="head" name="color"
-             v-model="plugins.brush.setting.color"/>
-              </div>
-          </li>
-          <li>
-              <label for="">尺寸：</label>
-              <div class="content">
-                <el-select v-model="plugins.brush.setting.width" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </div>
-          </li>
-          <li></li>
-        </ul>
+        <template v-for="(item, key) in plugins" >
+          <component
+           v-show="item.active"
+           :config="item.setting"
+           :is="key" 
+           :key="key">
+          </component>
+        </template>
       </div>
     </div>
-    <div class="canvas" id="canvas">
-      <canvas class="canvas-cover" width="1000" height="500"></canvas>
+    <div class="canvas-container" id="canvas" :class="drawer.current">
     </div>
   </div>
 </template>
@@ -57,7 +41,9 @@
 <script>
 import io from 'socket.io-client'
 import Draw from '../draw.js'
-import plugins from '../setting.js'
+import plugins from '../plugins/setting.js'
+import { settings } from '../plugins'
+console.log(settings)
 const socket = io('/')
 export default {
   data() {
@@ -85,25 +71,11 @@ export default {
           width: 3
         }
       },
-      drawer: {},
-      options: [{
-        value: '3',
-        label: '3'
-      }, {
-        value: '4',
-        label: '4'
-      }, {
-        value: '6',
-        label: '6'
-      }, {
-        value: '8',
-        label: '8'
-      }, {
-        value: '10',
-        label: '10'
-      }],
-      value: '2'
+      drawer: {}
     }
+  },
+  components: {
+    ...settings
   },
   created() {
     // this.beforeCloseTab()
@@ -224,7 +196,7 @@ export default {
       // if (chooseKey === 'eraser') {
       //   this.$message.info('暂未实现！')
       // }
-      this.drawer.current = chooseKey
+      this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
       })
@@ -315,7 +287,13 @@ export default {
     }
   }
 }
-.canvas{
+.canvas-container{
+  &.eraser {
+    canvas {
+      cursor: none;
+    }
+    
+  }
   canvas {
     // width: 100%;
     // min-height: 800px;

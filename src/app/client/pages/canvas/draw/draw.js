@@ -1,5 +1,5 @@
 import * as spritejs from 'spritejs'
-import plugins from './plugins'
+import { plugins } from './plugins'
 const {Scene} = spritejs
 
 class Draw {
@@ -40,7 +40,6 @@ class Draw {
       this.emitEvents('mousemove', 'draw', ev)
     }, true)
     document.body.addEventListener('mouseup', (ev) => {
-      console.log(ev)
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)
     })
@@ -50,7 +49,7 @@ class Draw {
       if (key !== this.current) {
         return
       }
-      console.log(key, canvas, event)
+      console.log(key, this.current)
       plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
     })
   }
@@ -65,6 +64,15 @@ class Draw {
       plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
   }
+  callUnInstall(key) {
+    if (key) {
+      plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
+      return
+    }
+    Object.keys(plugins).forEach(key => {
+      plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
+    })
+  }
   syncBoard(opt) {
     plugins[opt.key].syncBoard.call(this.vm, opt, this.layerDraw)
   }
@@ -76,6 +84,13 @@ class Draw {
   }
   syncBoardWithPoint(opt) {
     plugins[opt.key].syncBoardWithPoint.call(this.vm, opt, this.layerDraw)
+  }
+  setKey(key) {
+    if (key === this.current) {
+      return
+    }
+    this.callUnInstall(this.current)
+    this.current = key
   }
 }
 

@@ -11,8 +11,7 @@ export default {
     title: '橡皮',
     icon: 'ion-md-square-outline',
     setting: {
-      color: 'rgb(222, 18, 33)',
-      width: 3
+      width: 10
     }
   }
 }
