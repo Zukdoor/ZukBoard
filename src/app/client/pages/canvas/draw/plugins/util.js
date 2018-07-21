@@ -1,8 +1,8 @@
 import * as spritejs from 'spritejs'
+import EventEmitter from 'wolfy87-eventemitter'
 const {Path} = spritejs
-let count = 0
+export const eventEmitter = new EventEmitter()
 export const paintPath = (d, layer, setting, line) => {
-  console.log(line, setting)
   if (line && line.node) {
     line.node.attr({
       path: {
@@ -11,7 +11,6 @@ export const paintPath = (d, layer, setting, line) => {
     })
     return
   }
-  console.log('append', ++count)
   const p = new Path()
   p.attr({
     path: {
@@ -26,6 +25,5 @@ export const paintPath = (d, layer, setting, line) => {
   if (line) {
     line.node = p
   }
-  console.log(line)
   requestAnimationFrame(() => layer.appendChild(p))
 }

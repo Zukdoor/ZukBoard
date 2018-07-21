@@ -1,6 +1,6 @@
 import uuid from 'node-uuid'
 import * as spritejs from 'spritejs'
-import { paintPath } from '../util'
+import { paintPath, eventEmitter } from '../util'
 
 const { Sprite } = spritejs
 
@@ -27,19 +27,28 @@ let circleWidth = 0
 let line = {
   node: undefined
 }
+let point = {
+  x: -100,
+  y: -100
+}
+
 export default {
   name: PLUGIN_NAME,
-  init() {
+  init(layerDraw, layerCover) {
     _vm = this
+    eventEmitter.addListener('on-eraser-width-change', (ev) => {
+      drawCircle(point.x, point.y, layerCover)
+    })
   },
   uninstall(layerDraw, layerCover) {
+    point.x = -100
+    point.y = -100
     drawCircle(-100, -100, layerCover)
   },
   data: {
 
   },
   syncBoard(data, layer) {
-    console.log('data', data, data.data)
     drawPath(data.data, layer, data.setting)
   },
   syncBoardWithPoint(data, layer) {
@@ -55,15 +64,14 @@ export default {
   },
   cover: {
     mousemove(ev, layer) {
-      var x, y
       if (ev.layerX || ev.layerX === 0) { // Firefox
-        x = ev.layerX
-        y = ev.layerY
+        point.x = ev.layerX
+        point.y = ev.layerY
       } else if (ev.offsetX || ev.offsetX === 0) { // Opera
-        x = ev.offsetX
-        y = ev.offsetY
+        point.x = ev.offsetX
+        point.y = ev.offsetY
       }
-      drawCircle(x, y, layer)
+      drawCircle(point.x, point.y, layer)
     }
   },
   draw: {

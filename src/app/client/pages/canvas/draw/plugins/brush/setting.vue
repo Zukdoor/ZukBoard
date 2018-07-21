@@ -1,10 +1,20 @@
 <template>
     <ul>
-        <li>
+        <li @click.stop>
             <label for="">颜色：</label>
             <div class="content">
-            <input type="color" id="head" name="color"
-            v-model="config.color"/>
+              <div class="color-picker">
+                <div class="color-preview">
+                  <div class="value" @click="togglePicker(!isShowPicker)" :style="'background-color:' + config.color"></div>
+                
+                </div>
+                <transition name="fade">
+                  <div class="color-picker-main" v-show="isShowPicker">
+                    <color-picker v-model="colors" @input="updateValue"></color-picker>
+                  </div>
+                </transition>
+                
+              </div>
             </div>
         </li>
         <li>
@@ -25,11 +35,22 @@
 </template>
 
 <script>
+import { Sketch } from 'vue-color'
+
 export default {
   name: 'brush',
   props: ['config'],
+  components: {
+    'color-picker': Sketch
+  },
+  mounted() {
+    document.body.addEventListener('click', () => {
+      this.isShowPicker = false
+    })
+  },
   data() {
     return {
+      isShowPicker: false,
       options: [{
         value: '3',
         label: '3'
@@ -46,12 +67,48 @@ export default {
         value: '10',
         label: '10'
       }],
-      value: '2'
+      value: '2',
+      colors: ''
+    }
+  },
+  methods: {
+    togglePicker(flag) {
+      this.isShowPicker = flag
+    },
+    updateValue(value) {
+      this.config.color = value.hex
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+.color-picker{
+  position: relative;
+  .color-preview {
+    margin-top: 1px;
+    align-items: center;
+    &>.value {
+      width: 100px;
+      height: 20px;
+      border-radius: 5px;
+    }
 
+  }
+  .fade-enter-active {
+    transition: all .3s ease;
+  }
+  .fade-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+  
+  &>.color-picker-main{
+    position: absolute;
+    z-index: 12;
+    top: 40px;
+  }
+}
 </style>

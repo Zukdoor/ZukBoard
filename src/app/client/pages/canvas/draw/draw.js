@@ -49,7 +49,6 @@ class Draw {
       if (key !== this.current) {
         return
       }
-      console.log(key, this.current)
       plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
     })
   }

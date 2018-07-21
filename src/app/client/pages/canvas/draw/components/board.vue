@@ -43,7 +43,6 @@ import io from 'socket.io-client'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings } from '../plugins'
-console.log(settings)
 const socket = io('/')
 export default {
   data() {
@@ -227,6 +226,7 @@ export default {
   }
 }
 .actions {
+  position: relative;
   width: 100%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;

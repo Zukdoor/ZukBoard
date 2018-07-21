@@ -43,7 +43,8 @@
     "path-to-regexp": "^2.0.0",
     "read-pkg-up": "^3.0.0",
     "redis": "^2.8.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "vue-color": "^2.4.6"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.0",
@@ -106,7 +107,8 @@
     "vuex-persist": "^1.2.2",
     "webpack": "^4.1.1",
     "webpack-hot-middleware": "^2.21.2",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "wolfy87-eventemitter": "^5.2.5"
   },
   "engines": {
     "node": ">= 8.0.0",

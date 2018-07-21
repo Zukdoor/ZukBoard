@@ -1,6 +1,6 @@
 <template>
   <el-menu
-    class="el-menu-demo"
+    class="el-menu-header"
     mode="horizontal"
     @select="handleSelect"
     background-color="#fff"
@@ -61,6 +61,10 @@ export default {
 }
 </script>
 <style>
+.el-menu-header{
+  position: relative;
+  z-index: 88;
+}
 .align-right.el-submenu,
 .align-right.el-menu-item{
   float: right !important;
