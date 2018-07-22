@@ -1,8 +1,12 @@
 // const fetch = require(CURRENT_PATH + '/server/tools/request')
 /* eslint-disable */
 const CURRENT_PATH = process.cwd()
+const path = require('path')
+const fs = require('fs')
+const multiparty = require('multiparty')
 const resCode = require('../resCode')
 const db = require(CURRENT_PATH + '/db/mongo')
+
 const createResult = function (ctx, code, msg = '', data = null) {
   ctx.body = {
     code,
@@ -13,6 +17,16 @@ const createResult = function (ctx, code, msg = '', data = null) {
 }
 const { ObjectId } = require('./util')
 const MOCK_ID = '5b0fde1d685ea9001df5f832'
+
+const  parse = function (ctx) {
+  var form = new multiparty.Form();
+  return new Promise((resolve) => {
+    form.parse(ctx.req, async function (err, fields, files) {
+      resolve({ fields, files})
+      
+    });
+  })
+}
 module.exports = {
   'get#/': async ctx => {
     ctx.body = 'hello'
@@ -47,6 +61,24 @@ module.exports = {
     model = insertResult.ops[0]
     // GenerateScript()
     createResult(ctx, resCode.OK, '', model)
+  },
+  'post#image/upload': async ctx => {
+    const { fields, files } = await parse(ctx)
+    const img = files.img[0]
+    const dirpath = 'public/dist/images'
+    if (!fs.existsSync(dirpath)) {
+      fs.mkdirSync(dirpath, '0755')
+    }
+    const ext = img.originalFilename.split('.').pop()
+    const filename = `${Date.now()}.${ext}`
+    fs.readFile(img.path, function (err, data) {
+      fs.writeFile(path.resolve(dirpath, filename), data, function (err) {
+      })
+    })
+    
+    createResult(ctx, resCode.OK, '', {
+      url: path.join('/dist/images', filename)
+    })
   },
   'post#board/save': async ctx => {
     // 暂时写死画板ID

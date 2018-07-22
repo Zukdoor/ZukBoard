@@ -76,6 +76,7 @@ export default {
   },
   draw: {
     mouseup(ev, layer) {
+      console.log(99999)
       started = false
       if (points.length === 0) {
         points = []

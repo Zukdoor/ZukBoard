@@ -15,8 +15,16 @@
              :key="plugin.name" 
              @click="choose(key)"
              :class="{'selected': plugin.active}"
+             class="plugin-tools-item"
              :title="plugin.title">
             <i class="icon" :class="plugin.icon"></i>
+            <component
+            v-show="plugin.showAction"
+            :config="plugin.setting"
+            class="plugin-tools-item-action"
+            @click.stop
+            :is="key + '-action'" >
+            </component>
           </li>
           <!-- <li><i class="icon ion-md-brush"></i></li> -->
         </ul>
@@ -42,12 +50,13 @@
 import io from 'socket.io-client'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
-import { settings } from '../plugins'
+import { settings, actions } from '../plugins'
 const socket = io('/')
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
       plugins[key].active = key === 'brush'
+      plugins[key].showAction = false
     })
     return {
       board: {
@@ -74,7 +83,8 @@ export default {
     }
   },
   components: {
-    ...settings
+    ...settings,
+    ...actions
   },
   created() {
     // this.beforeCloseTab()
@@ -100,6 +110,11 @@ export default {
   mounted() {
     this.drawer = new Draw(this, '#canvas', 1000, 500)
     this.drawer.init()
+    document.body.addEventListener('click', () => {
+      Object.keys(this.plugins).forEach(key => {
+        plugins[key].showAction = false
+      })
+    })
   },
   methods: {
     createBoard() {
@@ -172,6 +187,9 @@ export default {
       }
       this.socket.emit('drawpoint', item, this.board._id)
     },
+    toggleAction(item, flag) {
+      item.showAction = flag
+    },
     refresh() {
 
     },
@@ -199,6 +217,7 @@ export default {
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
       })
+      this.toggleAction(this.plugins[chooseKey], !this.plugins[chooseKey].showAction)
     },
     beforeCloseTab() {
       window.onbeforeunload = function (e) {
@@ -224,6 +243,7 @@ export default {
     pointer-events: none;
     background:rgba(255,255,255,0);
   }
+  
 }
 .actions {
   position: relative;
@@ -248,6 +268,17 @@ export default {
         text-align: center;
         box-sizing: border-box;
         cursor: pointer;
+        position: relative;
+        .plugin-tools-item-action {
+          position: absolute;
+          top: 40px;
+          padding: 10px;
+          top: 58px;
+          background-color: #fff;
+          border-radius: 4px;
+          box-shadow: 0 0 0 1px rgba(0,0,0,.15), 0 8px 16px rgba(0,0,0,.15);
+          z-index: 12;
+        }
         &:hover {
           background-color: #eee;
         }

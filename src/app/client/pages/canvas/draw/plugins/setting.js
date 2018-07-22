@@ -13,5 +13,12 @@ export default {
     setting: {
       width: 10
     }
+  },
+  'uploadImg': {
+    title: '上传图片',
+    icon: 'ion-md-images',
+    setting: {
+      src: ''
+    }
   }
 }
