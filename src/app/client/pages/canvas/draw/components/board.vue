@@ -18,13 +18,16 @@
              class="plugin-tools-item"
              :title="plugin.title">
             <i class="icon" :class="plugin.icon"></i>
-            <component
-            v-show="plugin.showAction"
-            :config="plugin.setting"
-            class="plugin-tools-item-action"
-            @click.stop
-            :is="key + '-action'" >
-            </component>
+            <template v-if="plugin.hasAction">
+              <component
+              v-show="plugin.showAction"
+              :config="plugin"
+              class="plugin-tools-item-action"
+              @click.stop
+              :is="key + '-action'" >
+              </component>
+            </template>
+            
           </li>
           <!-- <li><i class="icon ion-md-brush"></i></li> -->
         </ul>
@@ -56,6 +59,7 @@ export default {
   data() {
     Object.keys(plugins).forEach(key => {
       plugins[key].active = key === 'brush'
+      plugins[key].hasAction = key === 'uploadImg'
       plugins[key].showAction = false
     })
     return {
@@ -95,7 +99,9 @@ export default {
         return
       }
       this.renderList.push(r)
-      // this.drawer.syncBoard(r)
+      if (r.key === 'uploadImg') {
+        this.drawer.syncBoard(r)
+      }
     })
     this.socket.on('drawpoint', (r) => {
       this.drawer.syncBoardWithPoint(r)
@@ -165,11 +171,11 @@ export default {
       if (r != null) return unescape(decodeURI(r[2]))
       return null
     },
-    sync(key, id, d) {
+    sync(key, id, data) {
       let item = {
         id,
         key,
-        data: d,
+        data,
         setting: Object.assign({}, this.plugins[key].setting),
         time: new Date().getTime()
       }
@@ -183,6 +189,15 @@ export default {
         type,
         setting: Object.assign({}, this.plugins[key].setting),
         points: point,
+        time: new Date().getTime()
+      }
+      this.socket.emit('drawpoint', item, this.board._id)
+    },
+    syncDataRealTime(key, id, data) {
+      let item = {
+        id,
+        key,
+        data: Object.assign({}, data),
         time: new Date().getTime()
       }
       this.socket.emit('drawpoint', item, this.board._id)

@@ -71,6 +71,7 @@ export default {
         }
         this.file = null
         this.src = ''
+        this.config.showAction = false
         eventEmitter.emitEvent('on-should-draw-img', [data.url])
       })
     }
