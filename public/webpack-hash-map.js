@@ -1,1 +1,1 @@
-module.exports = {"css":{"app":"dist/css/app.f48bb7502360c0bb233a.css"},"js":{"manifest":"dist/js/manifest.c8b7d4a38e1cdb15655b.js","vendor":"dist/js/vendor.806ff50636c8ce839ffe.js","app":"dist/js/app.ed853c3feef03e5b85e1.js"}}
+module.exports = {"css":{"app":"dist/css/app.0457cb258db6fbcafbdd.css"},"js":{"manifest":"dist/js/manifest.c8b7d4a38e1cdb15655b.js","vendor":"dist/js/vendor.dbe55d83115871f2af45.js","app":"dist/js/app.2b2125717aecaf82cb43.js"}}
