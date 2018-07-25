@@ -64,6 +64,7 @@ const plugin = {
       moving = false
     })
     img.on('mousedown', (evt) => {
+      console.log(1232)
       moving = true
       x0 = evt.x
       y0 = evt.y

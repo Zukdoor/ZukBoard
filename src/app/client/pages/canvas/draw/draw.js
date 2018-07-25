@@ -23,7 +23,8 @@ class Draw {
   }
   registerEvents() {
     this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
-      if (this.current === 'uploadImg') return
+      if (this.current === 'uploadImg' ||
+      this.current === 'choose') return
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)
       ev.preventDefault()
@@ -34,7 +35,8 @@ class Draw {
       this.emitEvents('mousedown', 'draw', ev)
     })
     this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
-      if (this.current === 'uploadImg') return
+      if (this.current === 'uploadImg' ||
+        this.current === 'choose') return
       ev.stopImmediatePropagation()
       ev.preventDefault()
       this.emitEvents('mousemove', 'cover', ev)
@@ -42,7 +44,8 @@ class Draw {
       this.emitEvents('mousemove', 'draw', ev)
     }, true)
     document.body.addEventListener('mouseup', (ev) => {
-      if (this.current === 'uploadImg') return
+      if (this.current === 'uploadImg' ||
+        this.current === 'choose') return
       if (!this.drawing) return
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)

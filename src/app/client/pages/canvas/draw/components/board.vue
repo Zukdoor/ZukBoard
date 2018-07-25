@@ -3,9 +3,9 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
-          <li @click="refresh"><i class="iconfont disabled">&#xe6a4;</i></li>
-          <li @click="undo"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
-          <li @click="redo"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
+          <li @click="refresh" title="清空画板"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe6a4;</i></li>
+          <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
+          <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
         </ul>
         
       </div>
@@ -22,6 +22,7 @@
               <component
               v-show="plugin.showAction"
               :config="plugin"
+              @change-current="choose"
               class="plugin-tools-item-action"
               @click.stop
               :is="key + '-action'" >
@@ -210,7 +211,17 @@ export default {
       item.showAction = flag
     },
     refresh() {
-
+      this.$confirm('点击确定，画板将会永久清空', '确认清空画板？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.drawer.clear()
+        this.$message({
+          type: 'info',
+          message: '画布已被清空!'
+        })
+      })
     },
     redo() {
       if (this.redoList.length === 0) return
@@ -229,9 +240,6 @@ export default {
       // this.redoList.push(item)
     },
     choose(chooseKey) {
-      // if (chooseKey === 'eraser') {
-      //   this.$message.info('暂未实现！')
-      // }
       this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
@@ -345,6 +353,12 @@ export default {
   &.eraser {
     canvas {
       cursor: none;
+    }
+    
+  }
+  &.choose {
+    canvas {
+      cursor: initial;
     }
     
   }
