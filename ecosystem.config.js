@@ -9,7 +9,7 @@ module.exports = {
     {
       name: projectName,
       script: './app.js',
-      watch: true,
+      watch: false,
       max_memory_restart: '1024M',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       error_file: `/data/logs/node/${projectName}/err.log`,
