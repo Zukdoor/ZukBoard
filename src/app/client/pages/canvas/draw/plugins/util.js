@@ -2,7 +2,7 @@ import * as spritejs from 'spritejs'
 import EventEmitter from 'wolfy87-eventemitter'
 const {Path} = spritejs
 export const eventEmitter = new EventEmitter()
-export const paintPath = (d, layer, setting, line) => {
+export const paintPath = (d, layer, setting, line, vm) => {
   console.log('drawing', line)
   if (line && line.node) {
     line.node.attr({
@@ -17,6 +17,7 @@ export const paintPath = (d, layer, setting, line) => {
     path: {
       d: d
     },
+    zIndex: vm.zindex++,
     lineCap: 'round',
     lineJoin: 'round',
     strokeColor: setting.color,

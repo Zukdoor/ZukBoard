@@ -3,9 +3,9 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
-          <li @click="refresh"><i class="icon disabled ion-md-refresh"></i></li>
-          <li @click="undo"><i class="icon ion-md-undo" :class="{'disabled': renderList.length === 0}"></i></li>
-          <li @click="redo"><i class="icon ion-md-redo" :class="{'disabled': redoList.length === 0}"></i></li>
+          <li @click="refresh"><i class="iconfont disabled">&#xe6a4;</i></li>
+          <li @click="undo"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
+          <li @click="redo"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
         </ul>
         
       </div>
@@ -17,7 +17,7 @@
              :class="{'selected': plugin.active}"
              class="plugin-tools-item"
              :title="plugin.title">
-            <i class="icon" :class="plugin.icon"></i>
+            <i class="iconfont" v-html="plugin.icon"></i>
             <template v-if="plugin.hasAction">
               <component
               v-show="plugin.showAction"
@@ -68,6 +68,7 @@ export default {
         name: '',
         roomId: ''
       },
+      zindex: 0,
       renderList: [],
       redoList: [],
       canRedo: true,
@@ -114,8 +115,11 @@ export default {
     this.createBoard()
   },
   mounted() {
-    this.drawer = new Draw(this, '#canvas', 1000, 500)
-    this.drawer.init()
+    this.$nextTick(() => {
+      this.drawer = new Draw(this, '#canvas', 1000, 500)
+      this.drawer.init()
+      window.drawer = this.drawer
+    })
     document.body.addEventListener('click', () => {
       Object.keys(this.plugins).forEach(key => {
         plugins[key].showAction = false
@@ -161,10 +165,10 @@ export default {
     },
     initBoard() {
       this.$nextTick(() => {
-        this.drawer.clear()
         this.renderList.forEach((item) => this.drawer.syncBoard(item))
       })
     },
+
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
       let r = location.search.substr(1).match(reg)
@@ -279,7 +283,9 @@ export default {
         list-style-type: none;
         padding: 15px;
         height: 54px;
-
+        .iconfont {
+          font-size: 18px;
+        }
         text-align: center;
         box-sizing: border-box;
         cursor: pointer;
@@ -334,6 +340,8 @@ export default {
   }
 }
 .canvas-container{
+  // width: 100%;
+  // height: 500px;
   &.eraser {
     canvas {
       cursor: none;

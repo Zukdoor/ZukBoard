@@ -201,7 +201,7 @@ const drawPath = (d, layer, setting, line) => {
   paintPath(d, layer, {
     color: '#fff',
     width: setting.width * 2
-  }, line)
+  }, line, _vm)
 }
 const report = () => {
   _vm.sync(PLUGIN_NAME, _id, d)

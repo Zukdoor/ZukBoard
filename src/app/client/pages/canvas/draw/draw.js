@@ -13,10 +13,10 @@ class Draw {
   }
   init() {
     this.layerCover = this._scene.layer('canvas-cover', {
-      renderMode: 'repaintAll'
+      // renderMode: 'repaintAll'
     })
     this.layerDraw = this._scene.layer('canvas-draw', {
-      renderMode: 'repaintAll'
+      // renderMode: 'repaintAll'
     })
     this.registerEvents()
     this.callInit()
@@ -60,6 +60,18 @@ class Draw {
     // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
     // this.layerDraw.clearContext(canvas.getContext('2d'))
     this.layerDraw.clearContext(this.layerDraw.context)
+    const layerDraw = this.layerDraw
+    function remove() {
+      if (layerDraw.children.length === 0) return
+      layerDraw.children.forEach(item => {
+        item.remove()
+      })
+      remove()
+    }
+    remove()
+    this.vm.renderList = []
+    this.vm.zindex = 0
+    // plugins[opt.key].clear && plugins[opt.key].clear.call(this.vm)
     // this.layerDraw.\.context.clearRect(0, 0, 1000, 500)
   }
   callInit() {

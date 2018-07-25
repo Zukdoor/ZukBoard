@@ -144,7 +144,7 @@ const getC = (points, isSync) => {
 }
 // const path = '';
 const drawPath = (d, layer, setting, line) => {
-  paintPath(d, layer, setting || _vm.plugins[PLUGIN_NAME].setting, line)
+  paintPath(d, layer, setting || _vm.plugins[PLUGIN_NAME].setting, line, _vm)
 }
 const report = () => {
   _vm.sync(PLUGIN_NAME, _id, d)

@@ -1,7 +1,13 @@
 export default {
+  'choose': {
+    title: '选择',
+    icon: '&#xe67b;',
+    setting: {
+    }
+  },
   'brush': {
     title: '画笔',
-    icon: 'ion-md-brush',
+    icon: '&#xe617;',
     setting: {
       color: '#de1221',
       width: 3
@@ -9,14 +15,14 @@ export default {
   },
   'eraser': {
     title: '橡皮',
-    icon: 'ion-md-square-outline',
+    icon: '&#xe618;',
     setting: {
       width: 10
     }
   },
   'uploadImg': {
     title: '上传图片',
-    icon: 'ion-md-images',
+    icon: '&#xe651;',
     setting: {
       src: ''
     }

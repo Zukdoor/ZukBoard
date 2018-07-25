@@ -13,13 +13,13 @@ const plugin = {
   name: PLUGIN_NAME,
   init(layerDraw, layerCover) {
     _vm = this
-    eventEmitter.addListener('on-should-draw-img', (path) => {
-      plugin.initImg('', path, layerDraw)
+    eventEmitter.addListener('on-should-draw-img', (ev) => {
+      plugin.initImg('', ev, layerDraw)
     })
   },
   uninstall(layerDraw, layerCover) {
   },
-  data: {
+  clear() {
 
   },
   syncBoard(data, layer) {
@@ -47,7 +47,11 @@ const plugin = {
   initImg(id, path, layer, opt, isSync) {
     const imgId = id || uuid.v4()
     const img = new Sprite(path)
+    let x0
+    let y0
+    let startPos
     img.attr({
+      zIndex: _vm.zindex++,
       anchor: 0.5,
       pos: [500, 250]
     })
@@ -61,15 +65,22 @@ const plugin = {
     })
     img.on('mousedown', (evt) => {
       moving = true
+      x0 = evt.x
+      y0 = evt.y
+      startPos = img.attr('pos')
     })
-    layer.on('mousemove', (evt) => {
+    img.on('mousemove', (evt) => {
       if (!moving) return
+      const dx = evt.x - x0
+      const dy = evt.y - y0
       img.attr({
-        pos: [evt.layerX, evt.layerY]
+        // anchor: [evt.layerX, evt.layerY],
+        pos: [startPos[0] + dx, startPos[1] + dy]
       })
       reportRealTime(imgId, {
-        pos: [evt.layerX, evt.layerY]
+        pos: [startPos[0] + dx, startPos[1] + dy]
       })
+      evt.stopDispatch()
     })
     document.addEventListener('mouseup', () => {
       moving = false
