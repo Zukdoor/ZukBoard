@@ -6,6 +6,7 @@ const fs = require('fs')
 const multiparty = require('multiparty')
 const resCode = require('../resCode')
 const db = require(CURRENT_PATH + '/db/mongo')
+const env = process.env.NODE_ENV || "development"
 
 const createResult = function (ctx, code, msg = '', data = null) {
   ctx.body = {
@@ -65,7 +66,10 @@ module.exports = {
   'post#image/upload': async ctx => {
     const { fields, files } = await parse(ctx)
     const img = files.img[0]
-    const dirpath = 'public/dist/images'
+    let dirpath = 'public/dist/images'
+    if (env !== 'development') {
+      dirpath = '/data/images'
+    }
     if (!fs.existsSync(dirpath)) {
       fs.mkdirSync(dirpath, '0755')
     }
@@ -77,7 +81,7 @@ module.exports = {
     })
     
     createResult(ctx, resCode.OK, '', {
-      url: path.join('/dist/images', filename)
+      url: path.join(env === 'development' ? '/dist/images' : '/images', filename)
     })
   },
   'post#board/save': async ctx => {
