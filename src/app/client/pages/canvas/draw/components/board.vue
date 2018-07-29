@@ -45,8 +45,13 @@
         </template>
       </div>
     </div>
-    <div class="canvas-container" id="canvas" :class="drawer.current">
+    <div class="canvas-container" id="canvas"  ref="canvas" :class="drawer.current">
     </div>
+    <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
+        <li @click="undo" title="撤销" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe822;</i>撤销</li>
+        <li @click="redo" title="重做" :class="{'disabled': redoList.length === 0}"><i class="iconfont">&#xe7cf;</i>重做</li>
+        <li @click="refresh" title="清空画板" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe6a4;</i>清空画板</li>
+    </ul>
   </div>
 </template>
 
@@ -68,6 +73,11 @@ export default {
         _id: '',
         name: '',
         roomId: ''
+      },
+      contextMenu: {
+        show: false,
+        x: 0,
+        y: 0
       },
       zindex: 0,
       renderList: [],
@@ -108,6 +118,13 @@ export default {
     this.socket.on('drawpoint', (r) => {
       this.drawer.syncBoardWithPoint(r)
     })
+    this.socket.on('clear', (r) => {
+      this.drawer.clear()
+      this.$message({
+        type: 'info',
+        message: '画布已被清空!'
+      })
+    })
     let id = this.getQueryString('id')
     if (id) {
       this.getBoard(id)
@@ -122,10 +139,20 @@ export default {
       window.drawer = this.drawer
     })
     document.body.addEventListener('click', () => {
+      this.contextMenu.show = false
       Object.keys(this.plugins).forEach(key => {
         plugins[key].showAction = false
       })
     })
+    document.oncontextmenu = (ev) => {
+      this.contextMenu.x = this.mouseX(ev)
+      this.contextMenu.y = this.mouseY(ev)
+      this.contextMenu.show = true
+      return false // 屏蔽右键菜单
+    }
+    this.$refs.canvas.oncontextmenu = () => {
+      return false
+    }
   },
   methods: {
     createBoard() {
@@ -176,7 +203,7 @@ export default {
       if (r != null) return unescape(decodeURI(r[2]))
       return null
     },
-    sync(key, id, data) {
+    sync(key, id, data, needPush) {
       let item = {
         id,
         key,
@@ -184,7 +211,10 @@ export default {
         setting: Object.assign({}, this.plugins[key].setting),
         time: new Date().getTime()
       }
-      // this.renderList.push(item)
+      if (needPush) {
+        this.renderList.push(item)
+      }
+
       this.socket.emit('drawline', item, this.board._id)
     },
     syncPoint(key, id, type, point) {
@@ -217,6 +247,9 @@ export default {
         type: 'warning'
       }).then(() => {
         this.drawer.clear()
+        this.renderList = []
+        this.redoList = []
+        this.socket.emit('clear', this.board._id)
         this.$message({
           type: 'info',
           message: '画布已被清空!'
@@ -225,16 +258,17 @@ export default {
     },
     redo() {
       if (this.redoList.length === 0) return
-      this.$message.info('暂未实现！')
-      // this.redoList.pop()
-      // this.initBoard()
-      // this.renderList.push(this.redoList.pop())
+      this.renderList.push(this.redoList.pop())
+      this.drawer.clear()
+      this.initBoard()
     },
     undo() {
       if (this.renderList.length === 0) return
-      this.$message.info('暂未实现！')
-      // this.renderList.pop()
-      // this.initBoard()
+      // this.$message.info('暂未实现！')
+      const item = this.renderList.pop()
+      this.drawer.clear()
+      this.initBoard()
+      this.redoList.push(item)
       // console.log(9999, item)
       // this.drawer.undo(item)
       // this.redoList.push(item)
@@ -257,6 +291,29 @@ export default {
 
         return message
       }
+    },
+    mouseX(evt) {
+      if (evt.pageX) {
+        return evt.pageX
+      } else if (evt.clientX) {
+        return evt.clientX + (document.documentElement.scrollLeft
+          ? document.documentElement.scrollLeft
+          : document.body.scrollLeft)
+      } else {
+        return null
+      }
+    },
+
+    mouseY(evt) {
+      if (evt.pageY) {
+        return evt.pageY
+      } else if (evt.clientY) {
+        return evt.clientY + (document.documentElement.scrollTop
+          ? document.documentElement.scrollTop
+          : document.body.scrollTop)
+      } else {
+        return null
+      }
     }
   }
 }
@@ -264,11 +321,38 @@ export default {
 
 <style lang='scss'>
 .board {
+  // position: relative;
   // margin: 20px;
   canvas[data-layer-id=canvas-cover] {
     z-index: 1 !important;
     pointer-events: none;
     background:rgba(255,255,255,0);
+  }
+  ul.content-menu{
+    width: 200px;
+    background-color: #fff;
+    position: absolute;
+    padding: 0;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.15);
+    // padding: 5px;
+    li {
+      i {
+        margin-right: 10px;
+      }
+      padding: 15px;
+      width: 100%;
+      display: block;
+      list-style-type: none;
+      box-sizing: border-box;
+      border-bottom: 1px solid #eee;
+      &.disabled{
+        color: #ccc;
+      }
+    }
+    li:hover {
+      background-color: rgba(1,1,1,.1);
+    }
   }
   
 }

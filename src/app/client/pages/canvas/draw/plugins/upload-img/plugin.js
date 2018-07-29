@@ -1,6 +1,6 @@
 import uuid from 'node-uuid'
 import * as spritejs from 'spritejs'
-import { eventEmitter } from '../util'
+import { eventEmitter, changeCursor } from '../util'
 
 const { Sprite } = spritejs
 
@@ -16,15 +16,20 @@ const plugin = {
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       plugin.initImg('', ev, layerDraw)
     })
+    plugin.layerCover = layerCover
   },
   uninstall(layerDraw, layerCover) {
   },
   clear() {
-
+    render = {}
   },
   syncBoard(data, layer) {
-    console.log(data)
-    plugin.initImg(data.id, data.data.path, layer, null, true)
+    if (!render[data.id]) {
+      plugin.initImg(data.id, data.data.path, layer, null, true)
+      return
+    }
+    let img = render[data.id]
+    img.attr(data.data)
   },
   syncBoardWithPoint(data, layer) {
     console.log(data)
@@ -62,9 +67,12 @@ const plugin = {
     let moving = false
     img.on('mouseup', (evt) => {
       moving = false
+      changeCursor(layer, 'default')
+      report(imgId, {
+        pos: img.attr('pos')
+      }, true)
     })
     img.on('mousedown', (evt) => {
-      console.log(1232)
       moving = true
       x0 = evt.x
       y0 = evt.y
@@ -81,6 +89,7 @@ const plugin = {
       reportRealTime(imgId, {
         pos: [startPos[0] + dx, startPos[1] + dy]
       })
+      changeCursor(layer, 'move')
       evt.stopDispatch()
     })
     document.addEventListener('mouseup', () => {
@@ -92,15 +101,15 @@ const plugin = {
         path,
         pos: [500, 205],
         size: []
-      })
+      }, true)
     }
   }
 
 }
 export default plugin
-const report = (id, info) => {
+const report = (id, info, needPush) => {
   console.log(id, info, 999)
-  _vm.sync(PLUGIN_NAME, id, info)
+  _vm.sync(PLUGIN_NAME, id, info, needPush)
 }
 const reportRealTime = (id, info) => {
   if (!id) return
