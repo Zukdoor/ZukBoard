@@ -2,6 +2,7 @@ const CURRENT_PATH = process.cwd()
 const env = process.env.NODE_ENV || 'development'
 const Koa = require('koa')
 const app = new Koa()
+const cors = require('@koa/cors')
 const server = require('http').createServer(app.callback())
 const io = require('socket.io')(server, {
   transports: [ 'websocket', 'polling' ]
@@ -42,6 +43,7 @@ nunjucks.configure(CURRENT_PATH + '/server/views', {
     variableEnd: '##'
   }
 })
+app.use(cors())
 // add globle attribute to ctx.state
 app.use(async (ctx, next) => {
   ctx.state.ENV = env

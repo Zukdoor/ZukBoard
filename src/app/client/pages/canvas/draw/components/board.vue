@@ -205,6 +205,7 @@ export default {
         data: Object.assign({}, data),
         time: new Date().getTime()
       }
+      console.log(213)
       this.socket.emit('drawpoint', item, this.board._id)
     },
     toggleAction(item, flag) {

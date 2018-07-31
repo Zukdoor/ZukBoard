@@ -1,6 +1,6 @@
 import uuid from 'node-uuid'
 import * as spritejs from 'spritejs'
-import { eventEmitter } from '../util'
+import { eventEmitter, changeCursor } from '../util'
 
 const { Sprite } = spritejs
 
@@ -16,6 +16,7 @@ const plugin = {
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       plugin.initImg('', ev, layerDraw)
     })
+    plugin.layerDraw = layerDraw
   },
   uninstall(layerDraw, layerCover) {
   },
@@ -64,7 +65,6 @@ const plugin = {
       moving = false
     })
     img.on('mousedown', (evt) => {
-      console.log(1232)
       moving = true
       x0 = evt.x
       y0 = evt.y
@@ -72,6 +72,7 @@ const plugin = {
     })
     img.on('mousemove', (evt) => {
       if (!moving) return
+      changeCursor(plugin.layerDraw, 'move')
       const dx = evt.x - x0
       const dy = evt.y - y0
       img.attr({
@@ -85,6 +86,7 @@ const plugin = {
     })
     document.addEventListener('mouseup', () => {
       moving = false
+      changeCursor(plugin.layerDraw, 'default')
     })
     layer.append(img)
     if (!isSync) {
@@ -99,7 +101,6 @@ const plugin = {
 }
 export default plugin
 const report = (id, info) => {
-  console.log(id, info, 999)
   _vm.sync(PLUGIN_NAME, id, info)
 }
 const reportRealTime = (id, info) => {
