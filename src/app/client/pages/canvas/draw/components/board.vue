@@ -57,6 +57,7 @@
 
 <script>
 import io from 'socket.io-client'
+import uuid from 'node-uuid'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
@@ -70,7 +71,7 @@ export default {
     })
     return {
       board: {
-        _id: '',
+        _id: uuid.v4(),
         name: '',
         roomId: ''
       },
@@ -80,6 +81,7 @@ export default {
         y: 0
       },
       zindex: 0,
+      uid: '', // temp uid
       renderList: [],
       redoList: [],
       canRedo: true,
@@ -106,7 +108,7 @@ export default {
     // this.beforeCloseTab()
     this.socket.on('drawline', (r) => {
       const index = this.renderList.findIndex(item => item.id === r.id)
-      if (index > -1) {
+      if (index > -1 && r.key !== 'uploadImg') {
         this.renderList[index] = r
         return
       }
@@ -205,6 +207,7 @@ export default {
     },
     sync(key, id, data, needPush) {
       let item = {
+        uid: this.uid,
         id,
         key,
         data,
@@ -214,7 +217,6 @@ export default {
       if (needPush) {
         this.renderList.push(item)
       }
-
       this.socket.emit('drawline', item, this.board._id)
     },
     syncPoint(key, id, type, point) {
