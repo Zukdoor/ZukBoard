@@ -71,7 +71,7 @@ const plugin = {
     img.attr({
       zIndex: _vm.zindex++,
       // anchor: 0.5,
-      pos: [500, 250],
+      pos: [600, 600],
       border: {
         style: 'dashed',
         width: 0,
@@ -98,6 +98,7 @@ const plugin = {
       })
     })
     img.on('mousedown', (evt) => {
+      if (!checkIsCurrent()) return
       const res = checkResize(img, evt)
       if (res.isResize) {
         resizing = true
@@ -105,7 +106,6 @@ const plugin = {
           type: res.type,
           width: res.width,
           height: res.height,
-          vertices: img.vertices,
           x: evt.layerX,
           y: evt.layerY,
           pos: img.attr('pos')
@@ -119,6 +119,7 @@ const plugin = {
       startPos = img.attr('pos')
     })
     img.on('click', (evt) => {
+      if (!checkIsCurrent()) return
       keepChoose = !keepChoose
       clearBorder()
       if (!keepChoose) {
@@ -139,6 +140,7 @@ const plugin = {
     })
     img.on('mouseenter', (evt) => {
       // clearBorder()
+      if (!checkIsCurrent()) return
       img.attr({
         border: {
           style: 'dashed',
@@ -160,10 +162,11 @@ const plugin = {
       evt.stopDispatch()
     })
     img.on('mousemove', (evt) => {
-      if (resizing) {
-        handleResize(img, evt, startSize)
-        evt.stopDispatch()
-      }
+      if (!checkIsCurrent()) return
+      // if (resizing) {
+      //   handleResize(img, evt, startSize)
+      //   evt.stopDispatch()
+      // }
       checkResize(img, evt)
       if (!moving) return
       const dx = evt.x - x0
@@ -181,8 +184,9 @@ const plugin = {
     document.addEventListener('mouseup', () => {
       moving = false
       resizing = false
+      changeCursor(plugin.layerDraw, 'default')
     })
-    document.addEventListener('mousemove', (evt) => {
+    plugin.layerDraw.on('mousemove', (evt) => {
       if (resizing) {
         handleResize(img, evt, startSize)
       }
@@ -280,6 +284,7 @@ const handleResize = (img, evt, startSize) => {
   let yOffest = evt.layerY - startSize.y
   let x = startSize.pos[0]
   let y = startSize.pos[1]
+  console.log(xOffest, yOffest)
   switch (startSize.type) {
     case RESIZE_TYPE.TOP:
       height -= yOffest
@@ -295,6 +300,26 @@ const handleResize = (img, evt, startSize) => {
     case RESIZE_TYPE.RIGHT:
       width += xOffest
       break
+    case RESIZE_TYPE.LEFT_TOP:
+      height -= yOffest
+      width -= xOffest
+      x += xOffest
+      y += yOffest
+      break
+    case RESIZE_TYPE.RIGHT_TOP:
+      height -= yOffest
+      width += xOffest
+      y += yOffest
+      break
+    case RESIZE_TYPE.LEFT_BOTTOM:
+      height += yOffest
+      width -= xOffest
+      x += xOffest
+      break
+    case RESIZE_TYPE.RIGHT_BOTTOM:
+      height += yOffest
+      width += xOffest
+      break
   }
   img.attr({
     pos: [x, y],
@@ -307,4 +332,7 @@ const report = (id, info, needPush) => {
 const reportRealTime = (id, info) => {
   if (!id) return
   _vm.syncDataRealTime(PLUGIN_NAME, id, info)
+}
+const checkIsCurrent = () => {
+  return _vm.drawer.current === 'uploadImg' || _vm.drawer.current === 'choose'
 }

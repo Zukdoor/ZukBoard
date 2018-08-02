@@ -81,6 +81,8 @@ export default {
         y: 0
       },
       zindex: 0,
+      wPercent: 1,
+      hPercent: 1,
       uid: '', // temp uid
       renderList: [],
       redoList: [],
@@ -140,6 +142,10 @@ export default {
       this.drawer.init()
       window.drawer = this.drawer
     })
+    this.initPercent()
+    window.onresize = () => {
+      this.initPercent()
+    }
     document.body.addEventListener('click', () => {
       this.contextMenu.show = false
       Object.keys(this.plugins).forEach(key => {
@@ -198,7 +204,12 @@ export default {
         this.renderList.forEach((item) => this.drawer.syncBoard(item))
       })
     },
-
+    initPercent() {
+      const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      this.wPercent = width / 1200
+      this.hPercent = height / 1200
+    },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
       let r = location.search.substr(1).match(reg)
@@ -325,6 +336,7 @@ export default {
 .board {
   // position: relative;
   // margin: 20px;
+  height: 100%;
   canvas[data-layer-id=canvas-cover] {
     z-index: 1 !important;
     pointer-events: none;
@@ -434,11 +446,11 @@ export default {
   }
 }
 .canvas-container{
-  // width: 100%;
-  // height: 500px;
+  width: 100%;
+  height: 100%;
   &.eraser {
     canvas {
-      cursor: none;
+      cursor: none !important;
     }
     
   }

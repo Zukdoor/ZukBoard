@@ -4,7 +4,7 @@ const {Scene} = spritejs
 
 class Draw {
   constructor(vm, selector, width, height) {
-    this._scene = new Scene(selector, width, height)
+    this._scene = new Scene(selector, {viewport: ['auto', 'auto'], resolution: [1200, 1200]})
     this.layerCover = null
     this.layerDraw = null
     this.drawing = false
@@ -22,23 +22,22 @@ class Draw {
     this.callInit()
   }
   registerEvents() {
-    this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
+    this.layerDraw.on('mouseup', (ev) => {
       if (this.current === 'uploadImg' ||
       this.current === 'choose') return
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)
-      ev.preventDefault()
-      ev.stopPropagation()
+      ev.stopDispatch()
     })
-    this.layerDraw.canvas.addEventListener('mousedown', (ev) => {
+    this.layerDraw.on('mousedown', (ev) => {
       this.drawing = true
       this.emitEvents('mousedown', 'draw', ev)
     })
-    this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
+    this.layerDraw.on('mousemove', (ev) => {
       if (this.current === 'uploadImg' ||
         this.current === 'choose') return
-      ev.stopImmediatePropagation()
-      ev.preventDefault()
+      // ev.stopImmediatePropagation()
+      // ev.preventDefault()
       this.emitEvents('mousemove', 'cover', ev)
       if (!this.drawing) return
       this.emitEvents('mousemove', 'draw', ev)
@@ -48,7 +47,7 @@ class Draw {
         this.current === 'choose') return
       if (!this.drawing) return
       this.drawing = false
-      this.emitEvents('mouseup', 'draw', ev)
+      // this.emitEvents('mouseup', 'draw', ev)
     })
   }
   emitEvents(event, canvas, ev) {
