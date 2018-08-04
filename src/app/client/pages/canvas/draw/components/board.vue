@@ -108,15 +108,24 @@ export default {
   },
   created() {
     // this.beforeCloseTab()
-    this.socket.on('drawline', (r) => {
-      const index = this.renderList.findIndex(item => item.id === r.id)
-      if (index > -1 && r.key !== 'uploadImg') {
-        this.renderList[index] = r
+    this.socket.on('sync', (type, item) => {
+      console.log(111, type)
+      if (type === 'undo') {
+        this.undo(item.opId)
         return
       }
-      this.renderList.push(r)
-      if (r.key === 'uploadImg') {
-        this.drawer.syncBoard(r)
+      if (type === 'redo') {
+        this.redo(item.opId)
+        return
+      }
+      const index = this.renderList.findIndex(e => e.id === item.id)
+      if (index > -1 && item.key !== 'uploadImg') {
+        this.renderList[index] = item
+        return
+      }
+      this.renderList.push(item)
+      if (item.key === 'uploadImg') {
+        this.drawer.syncBoard(item)
       }
     })
     this.socket.on('drawpoint', (r) => {
@@ -194,15 +203,16 @@ export default {
           this.$message.error(msg)
         }
         this.renderList = Object.assign([], data.canvas)
+        this.$nextTick(() => {
+          this.initBoard()
+        })
         this.initBoard()
         delete data.canvas
         this.board = data
       })
     },
     initBoard() {
-      this.$nextTick(() => {
-        this.renderList.forEach((item) => this.drawer.syncBoard(item))
-      })
+      this.renderList.forEach((item) => this.drawer.syncBoard(item))
     },
     initPercent() {
       const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
@@ -222,13 +232,15 @@ export default {
         id,
         key,
         data,
+        opId: this.genKey(),
         setting: Object.assign({}, this.plugins[key].setting),
         time: new Date().getTime()
       }
       if (needPush) {
         this.renderList.push(item)
       }
-      this.socket.emit('drawline', item, this.board._id)
+
+      this.socket.emit('sync', 'draw', item, this.board._id)
     },
     syncPoint(key, id, type, point) {
       let item = {
@@ -269,19 +281,40 @@ export default {
         })
       })
     },
-    redo() {
+    redo(opid) {
       if (this.redoList.length === 0) return
-      this.renderList.push(this.redoList.pop())
-      this.drawer.clear()
-      this.initBoard()
+      if (typeof opid !== 'string') opid = undefined
+      console.log('redo', opid)
+      let index = -1
+      if (opid) {
+        index = this.redoList.findIndex(e => e.opId === opid)
+      }
+      const item = opid ? this.redoList.splice(index, 1)[0] : this.redoList.pop()
+      if (!item) return
+      this.renderList.push(item)
+      this.$nextTick(() => {
+        this.drawer.clear()
+        this.initBoard()
+      })
+
+      !opid && this.socket.emit('sync', 'redo', item, this.board._id)
     },
-    undo() {
+    undo(opid) {
+      if (typeof opid !== 'string') opid = undefined
+      console.log('redo', opid)
       if (this.renderList.length === 0) return
-      // this.$message.info('暂未实现！')
-      const item = this.renderList.pop()
-      this.drawer.clear()
-      this.initBoard()
+      let index = -1
+      if (opid) {
+        index = this.renderList.findIndex(e => e.opId === opid)
+      }
+      const item = opid ? this.renderList.splice(index, 1)[0] : this.renderList.pop()
+      if (!item) return
       this.redoList.push(item)
+      this.$nextTick(() => {
+        this.drawer.clear()
+        this.initBoard()
+      })
+      !opid && this.socket.emit('sync', 'undo', item, this.board._id)
       // console.log(9999, item)
       // this.drawer.undo(item)
       // this.redoList.push(item)
@@ -316,7 +349,9 @@ export default {
         return null
       }
     },
-
+    genKey() {
+      return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10)
+    },
     mouseY(evt) {
       if (evt.pageY) {
         return evt.pageY

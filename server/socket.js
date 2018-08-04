@@ -3,9 +3,31 @@ const db = require(CURRENT_PATH + '/db/mongo')
 const { ObjectId } = require(CURRENT_PATH + '/src/api/server/util')
 function register(io) {
   io.on('connection', async (socket) => {
-    socket.on('drawline', async (item, id) => {
+    socket.on('sync', async (type, item, id) => {
       if (!item.data) return
-      socket.broadcast.emit('drawline', item)
+      if (type === 'undo') {
+        await db.Board.update({
+          _id: ObjectId(id)
+        }, {
+          $pull: {
+            canvas: {opId: item.opId}
+          }
+        })
+        socket.broadcast.emit('sync', type, item)
+        return
+      }
+      if (type === 'redo') {
+        await db.Board.update({
+          _id: ObjectId(id)
+        }, {
+          $push: {
+            canvas: item
+          }
+        })
+        socket.broadcast.emit('sync', type, item)
+        return
+      }
+      socket.broadcast.emit('sync', type, item)
       const board = await db.Board.findOne({
         _id: ObjectId(id)
       })

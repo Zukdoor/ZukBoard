@@ -4,7 +4,11 @@ const {Scene} = spritejs
 
 class Draw {
   constructor(vm, selector, width, height) {
-    this._scene = new Scene(selector, {viewport: ['auto', 'auto'], resolution: [1200, 1200]})
+    this._scene = new Scene(selector, {
+      viewport: ['auto', 'auto'],
+      stickMode: 'height',
+      // stickExtend: true,
+      resolution: [1600, 1200]})
     this.layerCover = null
     this.layerDraw = null
     this.drawing = false
@@ -16,7 +20,7 @@ class Draw {
       // renderMode: 'repaintAll'
     })
     this.layerDraw = this._scene.layer('canvas-draw', {
-      // renderMode: 'repaintAll'
+      renderMode: 'repaintAll'
     })
     this.registerEvents()
     this.callInit()
@@ -62,15 +66,16 @@ class Draw {
     // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
     // this.layerDraw.clearContext(canvas.getContext('2d'))
     this.layerDraw.clearContext(this.layerDraw.context)
-    const layerDraw = this.layerDraw
-    function remove() {
-      if (layerDraw.children.length === 0) return
-      layerDraw.children.forEach(item => {
-        item.remove()
-      })
-      remove()
-    }
-    remove()
+    // const layerDraw = this.layerDraw
+    // function remove() {
+    //   if (layerDraw.children.length === 0) return
+    //   layerDraw.children.forEach(item => {
+    //     item.remove()
+    //   })
+    //   remove()
+    // }
+    // remove()
+    this.layerDraw.clear()
     Object.keys(plugins).forEach(key => {
       plugins[key].clear && plugins[key].clear.call(this.vm, this.layerDraw, this.layerCover)
     })
