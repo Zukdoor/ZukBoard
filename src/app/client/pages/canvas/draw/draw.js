@@ -7,7 +7,7 @@ class Draw {
     this._scene = new Scene(selector, {
       viewport: ['auto', 'auto'],
       stickMode: 'height',
-      // stickExtend: true,
+      stickExtend: true,
       resolution: [1600, 1200]})
     this.layerCover = null
     this.layerDraw = null
