@@ -72,6 +72,7 @@
     "eslint-plugin-vuefix": "^0.2.1",
     "eventsource-polyfill": "^0.9.6",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "fabric": "^2.3.4",
     "file-loader": "^1.1.11",
     "friendly-errors-webpack-plugin": "^1.1.3",
     "html-webpack-plugin": "^2.26.0",

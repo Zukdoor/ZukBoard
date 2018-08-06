@@ -46,6 +46,7 @@
       </div>
     </div>
     <div class="canvas-container" id="canvas"  ref="canvas" :class="drawer.current">
+      <canvas id="layer-draw"></canvas>
     </div>
     <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
         <li @click="undo" title="撤销" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe822;</i>撤销</li>
@@ -151,10 +152,6 @@ export default {
       this.drawer.init()
       window.drawer = this.drawer
     })
-    this.initPercent()
-    window.onresize = () => {
-      this.initPercent()
-    }
     document.body.addEventListener('click', () => {
       this.contextMenu.show = false
       Object.keys(this.plugins).forEach(key => {
@@ -372,11 +369,7 @@ export default {
   // position: relative;
   // margin: 20px;
   height: 100%;
-  canvas[data-layer-id=canvas-cover] {
-    z-index: 1 !important;
-    pointer-events: none;
-    background:rgba(255,255,255,0);
-  }
+
   ul.content-menu{
     width: 200px;
     background-color: #fff;
@@ -481,7 +474,6 @@ export default {
   }
 }
 .canvas-container{
-  width: 100%;
   height: 100%;
   &.eraser {
     canvas {
@@ -496,9 +488,14 @@ export default {
     
   }
   canvas {
+     width: 500px;
+    height: 600px;
     // width: 100%;
     // min-height: 800px;
     cursor: crosshair;
+    // background-color: #fff;
+  }
+  canvas#layer-draw {
     background-color: #fff;
   }
 }
