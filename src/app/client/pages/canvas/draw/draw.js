@@ -1,5 +1,6 @@
 import {fabric} from 'fabric'
 import { plugins } from './plugins'
+import { genKey } from './plugins/util'
 
 class Draw {
   constructor(vm, selector, width, height) {
@@ -7,6 +8,26 @@ class Draw {
     this.layerDraw = new fabric.Canvas('layer-draw', { width: 900, height: 600 })
     this.layerDraw.isDrawingMode = true
     console.log(this.layerDraw)
+    this.layerDraw.on('path:created', function (e) {
+      if (e.path.id === undefined) {
+        e.path.set('id', genKey())
+      }
+      console.log(e.path.toJSON(['id']))
+    })
+    let isDown = false
+    this.layerDraw.on('mouse:up', function (e) {
+      isDown = false
+    })
+    this.layerDraw.on('mouse:move', function (e) {
+      if (!isDown) return
+      console.log(e)
+    })
+    this.layerDraw.on('mouse:down', function (e) {
+      isDown = true
+    })
+    this.layerDraw.on('object:modified', function (e) {
+      console.log(e.target.toJSON(['id']))
+    })
   }
   init() {
     // this.layerCover = this._scene.layer('canvas-cover', {

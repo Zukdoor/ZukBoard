@@ -211,12 +211,6 @@ export default {
     initBoard() {
       this.renderList.forEach((item) => this.drawer.syncBoard(item))
     },
-    initPercent() {
-      const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      this.wPercent = width / 1200
-      this.hPercent = height / 1200
-    },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
       let r = location.search.substr(1).match(reg)
