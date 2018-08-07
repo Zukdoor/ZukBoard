@@ -1,7 +1,7 @@
 // import uuid from 'node-uuid'
 // import * as spritejs from 'spritejs'
-import { eventEmitter } from '../util'
-import {fabric} from 'fabric'
+// import { eventEmitter } from '../util'
+// import {fabric} from 'fabric'
 
 // const { Sprite } = spritejs
 
@@ -24,14 +24,14 @@ const plugin = {
   init(layerDraw, layerCover) {
     _vm = this
     console.log(_vm)
-    eventEmitter.addListener('on-should-draw-img', (ev) => {
-      fabric.Image.fromURL(ev, function (myImg) {
-        // i create an extra var for to change some image properties
-        var img1 = myImg.set({left: 0, top: 0})
-        plugin.layer.add(img1)
-      })
-      // plugin.initImg('', ev, layerDraw)
-    })
+    // eventEmitter.addListener('on-should-draw-img', (ev) => {
+    //   fabric.Image.fromURL(ev, function (myImg) {
+    //     // i create an extra var for to change some image properties
+    //     var img1 = myImg.set({left: 0, top: 0})
+    //     plugin.layer.add(img1)
+    //   })
+    //   // plugin.initImg('', ev, layerDraw)
+    // })
     plugin.layerCover = layerCover
     plugin.layer = layerDraw
   },

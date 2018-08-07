@@ -1,119 +1,97 @@
 import {fabric} from 'fabric'
 import { plugins } from './plugins'
-import { genKey } from './plugins/util'
-
+import { genKey, eventEmitter } from './plugins/util'
+fabric.Canvas.prototype.getObjectById = function (id) {
+  var objs = this.getObjects()
+  for (var i = 0, len = objs.length; i < len; i++) {
+    if (objs[i].id === id) {
+      return objs[i]
+    }
+  }
+  return 0
+}
 class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'brush'
     this.layerDraw = new fabric.Canvas('layer-draw', { width: 900, height: 600 })
     this.layerDraw.isDrawingMode = true
-    console.log(this.layerDraw)
-    this.layerDraw.on('path:created', function (e) {
-      if (e.path.id === undefined) {
-        e.path.set('id', genKey())
-      }
-      console.log(e.path.toJSON(['id']))
-    })
-    let isDown = false
-    this.layerDraw.on('mouse:up', function (e) {
-      isDown = false
-    })
-    this.layerDraw.on('mouse:move', function (e) {
-      if (!isDown) return
-      console.log(e)
-    })
-    this.layerDraw.on('mouse:down', function (e) {
-      isDown = true
-    })
-    this.layerDraw.on('object:modified', function (e) {
-      console.log(e.target.toJSON(['id']))
-    })
+    this._vm = vm
+    window.canvas = this.layerDraw
   }
   init() {
-    // this.layerCover = this._scene.layer('canvas-cover', {
-    //   // renderMode: 'repaintAll'
-    // })
-    // this.layerDraw = this._scene.layer('canvas-draw', {
-    //   renderMode: 'repaintAll'
-    // })
-    // this.registerEvents()
-    this.callInit()
+    this.initBrush()
+    this.registerEvents()
   }
   registerEvents() {
-    // this.layerDraw.on('mouseup', (ev) => {
-    //   if (this.current === 'uploadImg' ||
-    //   this.current === 'choose') return
-    //   this.drawing = false
-    //   this.emitEvents('mouseup', 'draw', ev)
-    //   ev.stopDispatch()
-    // })
-    // this.layerDraw.on('mousedown', (ev) => {
-    //   this.drawing = true
-    //   this.emitEvents('mousedown', 'draw', ev)
-    // })
-    // this.layerDraw.on('mousemove', (ev) => {
-    //   if (this.current === 'uploadImg' ||
-    //     this.current === 'choose') return
-    //   // ev.stopImmediatePropagation()
-    //   // ev.preventDefault()
-    //   this.emitEvents('mousemove', 'cover', ev)
-    //   if (!this.drawing) return
-    //   this.emitEvents('mousemove', 'draw', ev)
-    // }, true)
-    // document.body.addEventListener('mouseup', (ev) => {
-    //   if (this.current === 'uploadImg' ||
-    //     this.current === 'choose') return
-    //   if (!this.drawing) return
-    //   this.drawing = false
-    //   // this.emitEvents('mouseup', 'draw', ev)
-    // })
-  }
-  emitEvents(event, canvas, ev) {
-    // Object.keys(plugins).forEach(key => {
-    //   if (key !== this.current) {
-    //     return
-    //   }
-    //   plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
-    // })
+    const canvas = this.layerDraw
+    canvas.on('path:created', (e) => {
+      if (e.path.id === undefined) {
+        e.path.set('id', genKey())
+        e.path.set('btype', this.current)
+      }
+      this._vm.sync(e.path.btype, e.path.id, e.path.toJSON(['id', 'btype']), true)
+    })
+    canvas.on('object:moving', (e) => {
+      if (canvas.isDrawingMode) return
+      this._vm.sync(e.target.btype, e.target.id, e.target.toJSON(['id', 'btype']), true)
+    })
+    canvas.on('object:modified', (e) => {
+      this._vm.sync(e.target.btype, e.target.id, e.target.toJSON(['id', 'btype']), true)
+    })
+    eventEmitter.addListener('on-should-draw-img', (ev) => {
+      fabric.Image.fromURL(ev, (upImg) => {
+        const img = upImg.set({left: 0, top: 0})
+        img.set('id', genKey())
+        img.set('btype', this.current)
+        canvas.add(img)
+        this._vm.sync('uploadImg', '123', img.toJSON(['id', 'btype']), true)
+      })
+    })
+    eventEmitter.addListener('on-brush-update', (width, color) => {
+      canvas.freeDrawingBrush.color = color
+      canvas.freeDrawingBrush.width = width
+    })
   }
   clear() {
-    // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
-    // this.layerDraw.clearContext(canvas.getContext('2d'))
-    // this.layerDraw.clearContext(this.layerDraw.context)
-    // const layerDraw = this.layerDraw
-    // function remove() {
-    //   if (layerDraw.children.length === 0) return
-    //   layerDraw.children.forEach(item => {
-    //     item.remove()
-    //   })
-    //   remove()
-    // }
-    // remove()
-    // this.layerDraw.clear()
-    // Object.keys(plugins).forEach(key => {
-    //   plugins[key].clear && plugins[key].clear.call(this.vm, this.layerDraw, this.layerCover)
-    // })
-    // // this.vm.renderList = []
-    // this.vm.zindex = 0
-    // plugins[opt.key].clear && plugins[opt.key].clear.call(this.vm)
-    // this.layerDraw.\.context.clearRect(0, 0, 1000, 500)
+    this.layerDraw.clear()
   }
   callInit() {
     Object.keys(plugins).forEach(key => {
       plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
   }
-  callUnInstall(key) {
-    // if (key) {
-    //   plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
-    //   return
-    // }
-    // Object.keys(plugins).forEach(key => {
-    //   plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
-    // })
-  }
   syncBoard(opt) {
-    // plugins[opt.key].syncBoard.call(this.vm, opt, this.layerDraw)
+    const canvas = this.layerDraw
+    let obj = canvas.getObjectById(opt.data.id)
+    if (obj) {
+      obj.set(opt.data)
+      canvas.renderAll()
+      canvas.calcOffset()
+      return
+    }
+    fabric.util.enlivenObjects([opt.data], (objects) => {
+      objects.forEach(function (o) {
+        canvas.add(o)
+      })
+    })
+  }
+  initBoard(list) {
+    const canvas = this.layerDraw
+    console.log(list.map(e => e.data))
+    fabric.util.enlivenObjects(list.map(e => e.data), (objects) => {
+      canvas.renderOnAddRemove = false
+      objects.forEach(o => {
+        canvas.add(o)
+      })
+      canvas.renderOnAddRemove = true
+      canvas.renderAll()
+    })
+  }
+  initBrush() {
+    const canvas = this.layerDraw
+    const setting = this._vm.plugins.brush.setting
+    canvas.freeDrawingBrush.color = setting.color
+    canvas.freeDrawingBrush.width = setting.width
   }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
@@ -137,13 +115,5 @@ class Draw {
     this.layerDraw.isDrawingMode = false
   }
 }
-
-// function resizeCanvas() {
-//   var width = (window.innerWidth > 0) ? window.innerWidth : screen.width
-//   var height = (window.innerHeight > 0) ? window.innerHeight : screen.height
-//   var canvas = document.getElementById('canvas')
-//   canvas.width = width
-//   canvas.height = height
-// }
 
 export default Draw

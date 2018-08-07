@@ -110,7 +110,7 @@ export default {
   created() {
     // this.beforeCloseTab()
     this.socket.on('sync', (type, item) => {
-      console.log(111, type)
+      console.log(111, type, item)
       if (type === 'undo') {
         this.undo(item.opId)
         return
@@ -119,15 +119,7 @@ export default {
         this.redo(item.opId)
         return
       }
-      const index = this.renderList.findIndex(e => e.id === item.id)
-      if (index > -1 && item.key !== 'uploadImg') {
-        this.renderList[index] = item
-        return
-      }
-      this.renderList.push(item)
-      if (item.key === 'uploadImg') {
-        this.drawer.syncBoard(item)
-      }
+      this.drawer.syncBoard(item)
     })
     this.socket.on('drawpoint', (r) => {
       this.drawer.syncBoardWithPoint(r)
@@ -209,7 +201,8 @@ export default {
       })
     },
     initBoard() {
-      this.renderList.forEach((item) => this.drawer.syncBoard(item))
+      this.drawer.initBoard(this.renderList)
+      // this.renderList.forEach((item) => (item))
     },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
