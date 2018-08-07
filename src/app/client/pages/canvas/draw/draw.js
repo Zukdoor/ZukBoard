@@ -4,7 +4,11 @@ const {Scene} = spritejs
 
 class Draw {
   constructor(vm, selector, width, height) {
-    this._scene = new Scene(selector, width, height)
+    this._scene = new Scene(selector, {
+      viewport: ['auto', 'auto'],
+      stickMode: 'height',
+      stickExtend: true,
+      resolution: [1600, 1200]})
     this.layerCover = null
     this.layerDraw = null
     this.drawing = false
@@ -16,29 +20,28 @@ class Draw {
       // renderMode: 'repaintAll'
     })
     this.layerDraw = this._scene.layer('canvas-draw', {
-      // renderMode: 'repaintAll'
+      renderMode: 'repaintAll'
     })
     this.registerEvents()
     this.callInit()
   }
   registerEvents() {
-    this.layerDraw.canvas.addEventListener('mouseup', (ev) => {
+    this.layerDraw.on('mouseup', (ev) => {
       if (this.current === 'uploadImg' ||
       this.current === 'choose') return
       this.drawing = false
       this.emitEvents('mouseup', 'draw', ev)
-      ev.preventDefault()
-      ev.stopPropagation()
+      ev.stopDispatch()
     })
-    this.layerDraw.canvas.addEventListener('mousedown', (ev) => {
+    this.layerDraw.on('mousedown', (ev) => {
       this.drawing = true
       this.emitEvents('mousedown', 'draw', ev)
     })
-    this.layerDraw.canvas.addEventListener('mousemove', (ev) => {
+    this.layerDraw.on('mousemove', (ev) => {
       if (this.current === 'uploadImg' ||
         this.current === 'choose') return
-      ev.stopImmediatePropagation()
-      ev.preventDefault()
+      // ev.stopImmediatePropagation()
+      // ev.preventDefault()
       this.emitEvents('mousemove', 'cover', ev)
       if (!this.drawing) return
       this.emitEvents('mousemove', 'draw', ev)
@@ -48,7 +51,7 @@ class Draw {
         this.current === 'choose') return
       if (!this.drawing) return
       this.drawing = false
-      this.emitEvents('mouseup', 'draw', ev)
+      // this.emitEvents('mouseup', 'draw', ev)
     })
   }
   emitEvents(event, canvas, ev) {
@@ -63,15 +66,16 @@ class Draw {
     // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
     // this.layerDraw.clearContext(canvas.getContext('2d'))
     this.layerDraw.clearContext(this.layerDraw.context)
-    const layerDraw = this.layerDraw
-    function remove() {
-      if (layerDraw.children.length === 0) return
-      layerDraw.children.forEach(item => {
-        item.remove()
-      })
-      remove()
-    }
-    remove()
+    // const layerDraw = this.layerDraw
+    // function remove() {
+    //   if (layerDraw.children.length === 0) return
+    //   layerDraw.children.forEach(item => {
+    //     item.remove()
+    //   })
+    //   remove()
+    // }
+    // remove()
+    this.layerDraw.clear()
     Object.keys(plugins).forEach(key => {
       plugins[key].clear && plugins[key].clear.call(this.vm, this.layerDraw, this.layerCover)
     })
