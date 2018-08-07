@@ -17,15 +17,20 @@ const plugin = {
       plugin.initImg('', ev, layerDraw)
     })
     plugin.layerDraw = layerDraw
+    plugin.layerCover = layerCover
   },
   uninstall(layerDraw, layerCover) {
   },
   clear() {
-
+    render = {}
   },
   syncBoard(data, layer) {
-    console.log(data)
-    plugin.initImg(data.id, data.data.path, layer, null, true)
+    if (!render[data.id]) {
+      plugin.initImg(data.id, data.data.path, layer, null, true)
+      return
+    }
+    let img = render[data.id]
+    img.attr(data.data)
   },
   syncBoardWithPoint(data, layer) {
     console.log(data)
@@ -63,6 +68,10 @@ const plugin = {
     let moving = false
     img.on('mouseup', (evt) => {
       moving = false
+      changeCursor(layer, 'default')
+      report(imgId, {
+        pos: img.attr('pos')
+      }, true)
     })
     img.on('mousedown', (evt) => {
       moving = true
@@ -82,6 +91,7 @@ const plugin = {
       reportRealTime(imgId, {
         pos: [startPos[0] + dx, startPos[1] + dy]
       })
+      changeCursor(layer, 'move')
       evt.stopDispatch()
     })
     document.addEventListener('mouseup', () => {
@@ -94,14 +104,15 @@ const plugin = {
         path,
         pos: [500, 205],
         size: []
-      })
+      }, true)
     }
   }
 
 }
 export default plugin
-const report = (id, info) => {
-  _vm.sync(PLUGIN_NAME, id, info)
+const report = (id, info, needPush) => {
+  console.log(id, info, 999)
+  _vm.sync(PLUGIN_NAME, id, info, needPush)
 }
 const reportRealTime = (id, info) => {
   if (!id) return

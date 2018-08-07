@@ -10,7 +10,7 @@ function register(io) {
         _id: ObjectId(id)
       })
       const index = board.canvas.findIndex(i => i.id === item.id)
-      if (index > -1) {
+      if (index > -1 && item.key !== 'uploadImg') {
         board.canvas[index] = item
       } else {
         board.canvas.push(item)
@@ -25,6 +25,16 @@ function register(io) {
     })
     socket.on('drawpoint', (item, id) => {
       socket.broadcast.emit('drawpoint', item)
+    })
+    socket.on('clear', async (id) => {
+      socket.broadcast.emit('clear', id)
+      await db.Board.update({
+        _id: ObjectId(id)
+      }, {
+        '$set': {
+          canvas: []
+        }
+      })
     })
     socket.on('disconnect', () => {
     })

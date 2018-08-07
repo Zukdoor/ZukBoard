@@ -72,7 +72,10 @@ class Draw {
       remove()
     }
     remove()
-    this.vm.renderList = []
+    Object.keys(plugins).forEach(key => {
+      plugins[key].clear && plugins[key].clear.call(this.vm, this.layerDraw, this.layerCover)
+    })
+    // this.vm.renderList = []
     this.vm.zindex = 0
     // plugins[opt.key].clear && plugins[opt.key].clear.call(this.vm)
     // this.layerDraw.\.context.clearRect(0, 0, 1000, 500)

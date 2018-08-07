@@ -204,7 +204,7 @@ const drawPath = (d, layer, setting, line) => {
   }, line, _vm)
 }
 const report = () => {
-  _vm.sync(PLUGIN_NAME, _id, d)
+  _vm.sync(PLUGIN_NAME, _id, d, true)
   data = []
 }
 const reportPoint = (type, point) => {
