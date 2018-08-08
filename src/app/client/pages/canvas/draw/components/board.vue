@@ -6,6 +6,7 @@
           <li @click="refresh" title="清空画板"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe6a4;</i></li>
           <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
           <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
+          <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
         </ul>
         
       </div>
@@ -46,26 +47,27 @@
       </div>
     </div>
     <div class="canvas-container" id="canvas"  ref="canvas" :class="drawer.current">
+      <canvas id="layer-draw"></canvas>
     </div>
     <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
         <li @click="undo" title="撤销" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe822;</i>撤销</li>
         <li @click="redo" title="重做" :class="{'disabled': redoList.length === 0}"><i class="iconfont">&#xe7cf;</i>重做</li>
         <li @click="refresh" title="清空画板" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe6a4;</i>清空画板</li>
+        <li @click="deleteSelected" title="清空画板" :class="{'disabled': !canDelete}"><i class="iconfont" >&#xe603;</i>删除</li>
     </ul>
   </div>
 </template>
 
 <script>
-import io from 'socket.io-client'
+import socket from '../plugins/socket.js'
 import uuid from 'node-uuid'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
-const socket = io('/')
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
-      plugins[key].active = key === 'brush'
+      plugins[key].active = key === 'choose'
       plugins[key].hasAction = key === 'uploadImg'
       plugins[key].showAction = false
     })
@@ -75,6 +77,7 @@ export default {
         name: '',
         roomId: ''
       },
+      canDelete: false,
       contextMenu: {
         show: false,
         x: 0,
@@ -109,7 +112,6 @@ export default {
   created() {
     // this.beforeCloseTab()
     this.socket.on('sync', (type, item) => {
-      console.log(111, type)
       if (type === 'undo') {
         this.undo(item.opId)
         return
@@ -118,15 +120,7 @@ export default {
         this.redo(item.opId)
         return
       }
-      const index = this.renderList.findIndex(e => e.id === item.id)
-      if (index > -1 && item.key !== 'uploadImg') {
-        this.renderList[index] = item
-        return
-      }
-      this.renderList.push(item)
-      if (item.key === 'uploadImg') {
-        this.drawer.syncBoard(item)
-      }
+      this.drawer.syncBoard(type, item)
     })
     this.socket.on('drawpoint', (r) => {
       this.drawer.syncBoardWithPoint(r)
@@ -151,10 +145,6 @@ export default {
       this.drawer.init()
       window.drawer = this.drawer
     })
-    this.initPercent()
-    window.onresize = () => {
-      this.initPercent()
-    }
     document.body.addEventListener('click', () => {
       this.contextMenu.show = false
       Object.keys(this.plugins).forEach(key => {
@@ -212,13 +202,8 @@ export default {
       })
     },
     initBoard() {
-      this.renderList.forEach((item) => this.drawer.syncBoard(item))
-    },
-    initPercent() {
-      const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      this.wPercent = width / 1200
-      this.hPercent = height / 1200
+      this.drawer.initBoard(this.renderList)
+      // this.renderList.forEach((item) => (item))
     },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
@@ -226,42 +211,18 @@ export default {
       if (r != null) return unescape(decodeURI(r[2]))
       return null
     },
-    sync(key, id, data, needPush) {
+    sync(key, type, data, needPush) {
       let item = {
         uid: this.uid,
-        id,
         key,
         data,
-        opId: this.genKey(),
-        setting: Object.assign({}, this.plugins[key].setting),
-        time: new Date().getTime()
-      }
-      if (needPush) {
-        this.renderList.push(item)
-      }
-
-      this.socket.emit('sync', 'draw', item, this.board._id)
-    },
-    syncPoint(key, id, type, point) {
-      let item = {
-        id,
-        key,
         type,
-        setting: Object.assign({}, this.plugins[key].setting),
-        points: point,
+        id: Array.isArray(data) ? data : data.id,
+        opId: this.genKey(),
         time: new Date().getTime()
       }
-      this.socket.emit('drawpoint', item, this.board._id)
-    },
-    syncDataRealTime(key, id, data) {
-      let item = {
-        id,
-        key,
-        data: Object.assign({}, data),
-        time: new Date().getTime()
-      }
-      console.log(213)
-      this.socket.emit('drawpoint', item, this.board._id)
+      this.renderList.push(item)
+      this.socket.emit('sync', type, item, this.board._id)
     },
     toggleAction(item, flag) {
       item.showAction = flag
@@ -320,6 +281,9 @@ export default {
       // this.drawer.undo(item)
       // this.redoList.push(item)
     },
+    deleteSelected() {
+      this.drawer.deleteSelected()
+    },
     choose(chooseKey) {
       this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
@@ -373,11 +337,7 @@ export default {
   // position: relative;
   // margin: 20px;
   height: 100%;
-  canvas[data-layer-id=canvas-cover] {
-    z-index: 1 !important;
-    pointer-events: none;
-    background:rgba(255,255,255,0);
-  }
+
   ul.content-menu{
     width: 200px;
     background-color: #fff;
@@ -482,7 +442,6 @@ export default {
   }
 }
 .canvas-container{
-  width: 100%;
   height: 100%;
   &.eraser {
     canvas {
@@ -497,9 +456,14 @@ export default {
     
   }
   canvas {
+     width: 500px;
+    height: 600px;
     // width: 100%;
     // min-height: 800px;
-    cursor: crosshair;
+    // cursor: crosshair;
+    // background-color: #fff;
+  }
+  canvas#layer-draw {
     background-color: #fff;
   }
 }

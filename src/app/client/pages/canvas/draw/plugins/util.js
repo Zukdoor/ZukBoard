@@ -32,3 +32,7 @@ export const paintPath = (d, layer, setting, line, vm) => {
 export const changeCursor = (layer, type) => {
   layer.canvas.style.cursor = type
 }
+
+export const genKey = () => {
+  return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10)
+}

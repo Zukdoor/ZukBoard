@@ -1,121 +1,181 @@
-import * as spritejs from 'spritejs'
+import {fabric} from 'fabric'
 import { plugins } from './plugins'
-const {Scene} = spritejs
-
+import { genKey, eventEmitter } from './plugins/util'
+fabric.Canvas.prototype.getObjectById = function (id) {
+  var objs = this.getObjects()
+  for (var i = 0, len = objs.length; i < len; i++) {
+    if (objs[i].id === id) {
+      return objs[i]
+    }
+  }
+  return 0
+}
+const SYNC_TYPE = {
+  INSERT: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  MOVE: 'move',
+  REDO: 'redo',
+  UNDO: 'undo'
+}
 class Draw {
   constructor(vm, selector, width, height) {
-    this._scene = new Scene(selector, {
-      viewport: ['auto', 'auto'],
-      stickMode: 'height',
-      stickExtend: true,
-      resolution: [1600, 1200]})
-    this.layerCover = null
-    this.layerDraw = null
-    this.drawing = false
-    this.current = 'brush'
-    this.vm = vm
+    this.current = 'choose'
+    this.layerDraw = new fabric.Canvas('layer-draw', { width: 900, height: 600 })
+    this._vm = vm
+    this.SYNC_TYPE = SYNC_TYPE
+    window.canvas = this.layerDraw
   }
   init() {
-    this.layerCover = this._scene.layer('canvas-cover', {
-      // renderMode: 'repaintAll'
-    })
-    this.layerDraw = this._scene.layer('canvas-draw', {
-      renderMode: 'repaintAll'
-    })
+    this.initBrush()
+    this.initSelect()
     this.registerEvents()
-    this.callInit()
   }
   registerEvents() {
-    this.layerDraw.on('mouseup', (ev) => {
-      if (this.current === 'uploadImg' ||
-      this.current === 'choose') return
-      this.drawing = false
-      this.emitEvents('mouseup', 'draw', ev)
-      ev.stopDispatch()
-    })
-    this.layerDraw.on('mousedown', (ev) => {
-      this.drawing = true
-      this.emitEvents('mousedown', 'draw', ev)
-    })
-    this.layerDraw.on('mousemove', (ev) => {
-      if (this.current === 'uploadImg' ||
-        this.current === 'choose') return
-      // ev.stopImmediatePropagation()
-      // ev.preventDefault()
-      this.emitEvents('mousemove', 'cover', ev)
-      if (!this.drawing) return
-      this.emitEvents('mousemove', 'draw', ev)
-    }, true)
-    document.body.addEventListener('mouseup', (ev) => {
-      if (this.current === 'uploadImg' ||
-        this.current === 'choose') return
-      if (!this.drawing) return
-      this.drawing = false
-      // this.emitEvents('mouseup', 'draw', ev)
-    })
-  }
-  emitEvents(event, canvas, ev) {
-    Object.keys(plugins).forEach(key => {
-      if (key !== this.current) {
-        return
+    const canvas = this.layerDraw
+    canvas.on('path:created', (e) => {
+      if (e.path.id === undefined) {
+        e.path.set('id', genKey())
+        e.path.set('btype', this.current)
       }
-      plugins[key][canvas][event] && plugins[key][canvas][event].call(this.vm, ev, canvas === 'draw' ? this.layerDraw : this.layerCover)
+      this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
+    })
+    canvas.on('object:moving', (e) => {
+      if (canvas.isDrawingMode) return
+      this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']))
+    })
+    canvas.on('object:modified', (e) => {
+      this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
+    })
+    eventEmitter.addListener('on-should-draw-img', (ev) => {
+      fabric.Image.fromURL(ev, (upImg) => {
+        const img = upImg.set({left: 0, top: 0})
+        img.set('id', genKey())
+        img.set('btype', this.current)
+        canvas.add(img)
+        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
+      })
+    })
+    eventEmitter.addListener('on-brush-update', (width, color) => {
+      canvas.freeDrawingBrush.color = color
+      canvas.freeDrawingBrush.width = +width
     })
   }
   clear() {
-    // let canvas = document.querySelector('[data-layer-id=canvas-draw]')
-    // this.layerDraw.clearContext(canvas.getContext('2d'))
-    this.layerDraw.clearContext(this.layerDraw.context)
-    // const layerDraw = this.layerDraw
-    // function remove() {
-    //   if (layerDraw.children.length === 0) return
-    //   layerDraw.children.forEach(item => {
-    //     item.remove()
-    //   })
-    //   remove()
-    // }
-    // remove()
     this.layerDraw.clear()
-    Object.keys(plugins).forEach(key => {
-      plugins[key].clear && plugins[key].clear.call(this.vm, this.layerDraw, this.layerCover)
-    })
-    // this.vm.renderList = []
-    this.vm.zindex = 0
-    // plugins[opt.key].clear && plugins[opt.key].clear.call(this.vm)
-    // this.layerDraw.\.context.clearRect(0, 0, 1000, 500)
   }
   callInit() {
     Object.keys(plugins).forEach(key => {
       plugins[key].init && plugins[key].init.call(this.vm, this.layerDraw, this.layerCover)
     })
   }
-  callUnInstall(key) {
-    if (key) {
-      plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
-      return
-    }
-    Object.keys(plugins).forEach(key => {
-      plugins[key].uninstall && plugins[key].uninstall.call(this.vm, this.layerDraw, this.layerCover)
+  syncBoard(type, opt) {
+    console.log(type, opt)
+    const data = opt.data
+    type === SYNC_TYPE.INSERT && this.handleSyncInsert(data)
+    type === SYNC_TYPE.DELETE && this.handleSyncRemove(data)
+    type === SYNC_TYPE.UPDATE && this.handleSyncUpdate(data)
+    type === SYNC_TYPE.MOVE && this.handleSyncUpdate(data)
+  }
+  handleSyncUpdate(data) {
+    let obj = this.layerDraw.getObjectById(data.id)
+    console.log(data.type, obj)
+    if (!obj) return
+    obj.set(data)
+    this.layerDraw.renderAll()
+    this.layerDraw.calcOffset()
+    obj.setCoords()
+  }
+  handleSyncRemove(data) {
+    data.forEach(id => {
+      let obj = this.layerDraw.getObjectById(id)
+      if (!obj) return
+      this.layerDraw.remove(obj)
     })
   }
-  syncBoard(opt) {
-    plugins[opt.key].syncBoard.call(this.vm, opt, this.layerDraw)
+  handleSyncInsert(data) {
+    const canvas = this.layerDraw
+    fabric.util.enlivenObjects([data], (objects) => {
+      objects.forEach(function (o) {
+        canvas.add(o)
+        o.setCoords()
+      })
+    })
+  }
+  initBoard(list) {
+    const canvas = this.layerDraw
+    let deleteIds = []
+    list.forEach(item => {
+      if (item.type !== SYNC_TYPE.DELETE) {
+        return
+      }
+      deleteIds = deleteIds.concat(item.id)
+    })
+    list.forEach(item => {
+      if (item.data.type !== 'image' || item.type !== SYNC_TYPE.INSERT) {
+        return
+      }
+      let lastItem = list.filter(i => (item.id === i.id)).pop()
+      item.data = Object.assign({}, lastItem.data)
+    })
+    list = list.filter(item => {
+      if (item.type === SYNC_TYPE.DELETE) {
+        return false
+      }
+      return deleteIds.indexOf(item.id) === -1
+    })
+    canvas.renderOnAddRemove = false
+    list.forEach(item => this.syncBoard(item.type, item))
+    canvas.renderOnAddRemove = true
+    canvas.renderAll()
+    canvas.calcOffset()
+    // list = filters.filter(item => item.type !== SYNC_TYPE.DELETE)
+    // console.log(filters)
+    // fabric.util.enlivenObjects(list.map(e => e.data), (objects, index) => {
+    //   console.log(index)
+    //   objects.forEach(o => {
+    //     canvas.add(o)
+    //   })
+    // })
+  }
+  initBrush() {
+    const canvas = this.layerDraw
+    const setting = this._vm.plugins.brush.setting
+    canvas.freeDrawingBrush.color = setting.color
+    canvas.freeDrawingBrush.width = setting.width
+  }
+  initSelect() {
+    const canvas = this.layerDraw
+    canvas.on('selection:created', (e) => {
+      this._vm.canDelete = true
+    })
+    canvas.on('selection:cleared', (e) => {
+      this._vm.canDelete = false
+    })
   }
   redo(opt) {
-    plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
+    // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
   }
   undo(opt) {
-    plugins[opt.key].undo.call(this.vm, opt, this.layerDraw)
+    // plugins[opt.key].undo.call(this.vm, opt, this.layerDraw)
   }
-  syncBoardWithPoint(opt) {
-    plugins[opt.key].syncBoardWithPoint.call(this.vm, opt, this.layerDraw)
+  deleteSelected() {
+    const canvas = this.layerDraw
+    const deleteIds = canvas.getActiveObjects().map(o => o.id)
+    canvas.getActiveObjects().forEach(o => canvas.remove(o))
+    this._vm.sync('choose', SYNC_TYPE.DELETE, deleteIds)
   }
   setKey(key) {
     if (key === this.current) {
       return
     }
-    this.callUnInstall(this.current)
+    // this.callUnInstall(this.current)
     this.current = key
+    if (key === 'brush') {
+      this.layerDraw.isDrawingMode = true
+      return
+    }
+    this.layerDraw.isDrawingMode = false
   }
 }
 

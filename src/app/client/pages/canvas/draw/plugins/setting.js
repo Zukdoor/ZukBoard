@@ -13,13 +13,6 @@ export default {
       width: 3
     }
   },
-  'eraser': {
-    title: '橡皮',
-    icon: '&#xe618;',
-    setting: {
-      width: 10
-    }
-  },
   'uploadImg': {
     title: '上传图片',
     icon: '&#xe651;',

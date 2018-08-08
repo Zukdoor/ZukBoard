@@ -20,7 +20,7 @@
         <li>
             <label for="">尺寸：</label>
             <div class="content">
-            <el-select v-model="config.width" placeholder="请选择">
+            <el-select v-model="config.width" placeholder="请选择" @change="handleSelect">
                 <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -36,7 +36,7 @@
 
 <script>
 import { Sketch } from 'vue-color'
-
+import { eventEmitter } from '../util'
 export default {
   name: 'brush',
   props: ['config'],
@@ -77,6 +77,10 @@ export default {
     },
     updateValue(value) {
       this.config.color = value.hex
+      eventEmitter.emitEvent('on-brush-update', [this.config.width, value.hex])
+    },
+    handleSelect(val) {
+      eventEmitter.emitEvent('on-brush-update', [val, this.config.color])
     }
   }
 }
