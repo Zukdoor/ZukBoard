@@ -23,6 +23,7 @@ class Draw {
     this.current = 'choose'
     this.layerDraw = new fabric.Canvas('layer-draw', { width: 900, height: 600 })
     this._vm = vm
+    this.imgCache = {}
     this.SYNC_TYPE = SYNC_TYPE
     window.canvas = this.layerDraw
   }
@@ -42,7 +43,7 @@ class Draw {
     })
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
-      this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']))
+      this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
@@ -93,12 +94,30 @@ class Draw {
       this.layerDraw.remove(obj)
     })
   }
-  handleSyncInsert(data) {
+  async handleSyncInsert(data) {
     const canvas = this.layerDraw
     fabric.util.enlivenObjects([data], (objects) => {
-      objects.forEach(function (o) {
+      let o = objects[0]
+      if (data.key !== 'image') {
         canvas.add(o)
         o.setCoords()
+        canvas.moveTo(o, parseInt(o.zindex))
+        return
+      }
+      console.log(this.imgCache[data.id])
+      if (this.imgCache[data.id]) {
+        o = this.imgCache[data.id]
+        canvas.add(o)
+        o.setCoords()
+        canvas.moveTo(o, parseInt(o.zindex))
+        return
+      }
+      fabric.Image.fromURL(data.src, (upImg) => {
+        const img = upImg.set(o)
+        this.imgCache[data.id] = img
+        canvas.add(img)
+        o.setCoords()
+        canvas.moveTo(o, parseInt(o.zindex))
       })
     })
   }

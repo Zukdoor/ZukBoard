@@ -24,7 +24,7 @@ function register(io) {
         socket.broadcast.emit('sync', type, item)
         return
       }
-      if (type === SYNC_TYPE.UNDO.REDO) {
+      if (type === SYNC_TYPE.REDO) {
         await db.Board.update({
           _id: ObjectId(id)
         }, {

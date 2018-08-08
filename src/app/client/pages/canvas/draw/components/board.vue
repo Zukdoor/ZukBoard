@@ -211,7 +211,7 @@ export default {
       if (r != null) return unescape(decodeURI(r[2]))
       return null
     },
-    sync(key, type, data, needPush) {
+    sync(key, type, data, noPush) {
       let item = {
         uid: this.uid,
         key,
@@ -221,7 +221,9 @@ export default {
         opId: this.genKey(),
         time: new Date().getTime()
       }
-      this.renderList.push(item)
+      if (!noPush) {
+        this.renderList.push(item)
+      }
       this.socket.emit('sync', type, item, this.board._id)
     },
     toggleAction(item, flag) {
@@ -252,6 +254,7 @@ export default {
         index = this.redoList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.redoList.splice(index, 1)[0] : this.redoList.pop()
+      console.log(item)
       if (!item) return
       this.renderList.push(item)
       this.$nextTick(() => {
@@ -270,6 +273,7 @@ export default {
         index = this.renderList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.renderList.splice(index, 1)[0] : this.renderList.pop()
+      console.log(item)
       if (!item) return
       this.redoList.push(item)
       this.$nextTick(() => {
