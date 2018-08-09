@@ -30,7 +30,7 @@ export const paintPath = (d, layer, setting, line, vm) => {
   requestAnimationFrame(() => layer.appendChild(p))
 }
 export const changeCursor = (layer, type) => {
-  layer.canvas.style.cursor = type
+  document.querySelector('.canvas-container').style.cursor = type
 }
 
 export const genKey = () => {

@@ -197,13 +197,16 @@ class Draw {
     canvas.on('mouse:up', (e) => {
       if (this.current !== 'pan') return
       panning = false
+      canvas.defaultCursor = '-webkit-grab'
     })
     canvas.on('mouse:out', (e) => {
       if (this.current !== 'pan') return
       panning = false
+      canvas.defaultCursor = '-webkit-grab'
     })
     canvas.on('mouse:down', (e) => {
       if (this.current !== 'pan') return
+      canvas.defaultCursor = '-webkit-grabbing'
       panning = true
     })
     canvas.on('mouse:move', (e) => {
@@ -226,19 +229,25 @@ class Draw {
     this._vm.sync('choose', SYNC_TYPE.DELETE, deleteIds)
   }
   setKey(key) {
+    const canvas = this.layerDraw
     if (key === this.current) {
       return
     }
     // this.callUnInstall(this.current)
     this.current = key
     if (key === 'brush') {
+      this.toggleSelection(true)
+      canvas.defaultCursor = 'crosshair'
       this.layerDraw.isDrawingMode = true
       return
     }
     if (key === 'pan') {
       this.toggleSelection(false)
+      canvas.defaultCursor = '-webkit-grab'
+      this.layerDraw.isDrawingMode = false
       return
     }
+    canvas.defaultCursor = 'default'
     this.toggleSelection(true)
     this.layerDraw.isDrawingMode = false
   }
