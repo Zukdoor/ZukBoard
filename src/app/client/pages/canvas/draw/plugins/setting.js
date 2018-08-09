@@ -1,4 +1,10 @@
 export default {
+  'pan': {
+    title: '拖动浏览',
+    icon: '&#xe654;',
+    setting: {
+    }
+  },
   'choose': {
     title: '选择',
     icon: '&#xe67b;',

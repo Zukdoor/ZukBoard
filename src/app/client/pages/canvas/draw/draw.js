@@ -18,18 +18,23 @@ const SYNC_TYPE = {
   REDO: 'redo',
   UNDO: 'undo'
 }
+
 class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
-    this.layerDraw = new fabric.Canvas('layer-draw', { width: 900, height: 600 })
+    const container = document.querySelector('.canvas-container')
+    this.container = container
+    this.layerDraw = new fabric.Canvas('layer-draw', { width: container.offsetWidth, height: container.offsetHeight })
     this._vm = vm
     this.imgCache = {}
     this.SYNC_TYPE = SYNC_TYPE
+    this.index = 0
     window.canvas = this.layerDraw
   }
   init() {
     this.initBrush()
     this.initSelect()
+    this.initPan()
     this.registerEvents()
   }
   registerEvents() {
@@ -61,9 +66,14 @@ class Draw {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
     })
+    window.addEventListener('resize', () => {
+      canvas.setWidth(this.container.offsetWidth)
+      canvas.setHeight(this.container.offsetHeight)
+    })
   }
   clear() {
     this.layerDraw.clear()
+    this.index = 0
   }
   callInit() {
     Object.keys(plugins).forEach(key => {
@@ -80,7 +90,6 @@ class Draw {
   }
   handleSyncUpdate(data) {
     let obj = this.layerDraw.getObjectById(data.id)
-    console.log(data.type, obj)
     if (!obj) return
     obj.set(data)
     this.layerDraw.renderAll()
@@ -94,32 +103,39 @@ class Draw {
       this.layerDraw.remove(obj)
     })
   }
-  async handleSyncInsert(data) {
+  handleSyncInsert(data) {
     const canvas = this.layerDraw
+    data.zIndex = this.index++
     fabric.util.enlivenObjects([data], (objects) => {
       let o = objects[0]
-      if (data.key !== 'image') {
-        canvas.add(o)
-        o.setCoords()
-        canvas.moveTo(o, parseInt(o.zindex))
-        return
-      }
-      console.log(this.imgCache[data.id])
-      if (this.imgCache[data.id]) {
-        o = this.imgCache[data.id]
-        canvas.add(o)
-        o.setCoords()
-        canvas.moveTo(o, parseInt(o.zindex))
-        return
-      }
-      fabric.Image.fromURL(data.src, (upImg) => {
-        const img = upImg.set(o)
-        this.imgCache[data.id] = img
-        canvas.add(img)
-        o.setCoords()
-        canvas.moveTo(o, parseInt(o.zindex))
-      })
+      canvas.add(o)
+      o.setCoords()
+      canvas.moveTo(o, o.zIndex)
     })
+  }
+  handleImageInsert(data, o) {
+    let img = this.imgCache[data.id]
+    if (img) {
+      const imgObj = new fabric.Image(img)
+      imgObj.set(o)
+      o.setCoords()
+      this.layerDraw.moveTo(o, o.zIndex)
+      // this.layerDraw.add(img)
+      return
+    }
+    img = new Image()
+    img.src = data.src
+    img.onload = () => {
+      this.imgCache[data.id] = img
+      const imgObj = new fabric.Image(img)
+      delete o.src
+      imgObj.set(o)
+      o.setCoords()
+      this.layerDraw.moveTo(o, o.zIndex)
+    }
+  }
+  sort() {
+    // const this.layerDraw.get
   }
   initBoard(list) {
     const canvas = this.layerDraw
@@ -148,14 +164,6 @@ class Draw {
     canvas.renderOnAddRemove = true
     canvas.renderAll()
     canvas.calcOffset()
-    // list = filters.filter(item => item.type !== SYNC_TYPE.DELETE)
-    // console.log(filters)
-    // fabric.util.enlivenObjects(list.map(e => e.data), (objects, index) => {
-    //   console.log(index)
-    //   objects.forEach(o => {
-    //     canvas.add(o)
-    //   })
-    // })
   }
   initBrush() {
     const canvas = this.layerDraw
@@ -170,6 +178,39 @@ class Draw {
     })
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
+    })
+  }
+  toggleSelection(flag) {
+    this.layerDraw.selection = flag
+    this.layerDraw.forEachObject(o => {
+      o.hasControls = flag
+      o.selectable = flag
+      o.evented = flag
+      o.hasBorders = flag
+      o.lockMovementX = !flag
+      o.lockMovementY = !flag
+    })
+  }
+  initPan() {
+    const canvas = this.layerDraw
+    let panning = false
+    canvas.on('mouse:up', (e) => {
+      if (this.current !== 'pan') return
+      panning = false
+    })
+    canvas.on('mouse:out', (e) => {
+      if (this.current !== 'pan') return
+      panning = false
+    })
+    canvas.on('mouse:down', (e) => {
+      if (this.current !== 'pan') return
+      panning = true
+    })
+    canvas.on('mouse:move', (e) => {
+      if (this.current !== 'pan') return
+      if (!panning) return
+      var delta = new fabric.Point(e.e.movementX, e.e.movementY)
+      canvas.relativePan(delta)
     })
   }
   redo(opt) {
@@ -194,6 +235,11 @@ class Draw {
       this.layerDraw.isDrawingMode = true
       return
     }
+    if (key === 'pan') {
+      this.toggleSelection(false)
+      return
+    }
+    this.toggleSelection(true)
     this.layerDraw.isDrawingMode = false
   }
 }
