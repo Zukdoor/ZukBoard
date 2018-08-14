@@ -24,7 +24,14 @@ class Draw {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
     this.container = container
-    this.layerDraw = new fabric.Canvas('layer-draw', { width: container.offsetWidth, height: container.offsetHeight })
+    this.layerDraw = new fabric.Canvas('layer-draw', {
+      width: container.offsetWidth,
+      height: container.offsetHeight,
+      preserveObjectStacking: true,
+      perPixelTargetFind: true,
+      targetFindTolerance: 15
+      // controlsAboveOverlay: true
+    })
     this._vm = vm
     this.imgCache = {}
     this.SYNC_TYPE = SYNC_TYPE
