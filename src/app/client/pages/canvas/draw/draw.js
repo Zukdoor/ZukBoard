@@ -18,7 +18,7 @@ const SYNC_TYPE = {
   REDO: 'redo',
   UNDO: 'undo'
 }
-
+let instance = null
 class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
@@ -36,13 +36,19 @@ class Draw {
     this.imgCache = {}
     this.SYNC_TYPE = SYNC_TYPE
     this.index = 0
+    this.textEditing = false
+    instance = this
     window.canvas = this.layerDraw
   }
   init() {
     this.initBrush()
     this.initSelect()
     this.initPan()
+    this.initText()
     this.registerEvents()
+  }
+  getInstance() {
+    return instance
   }
   registerEvents() {
     const canvas = this.layerDraw
@@ -73,6 +79,14 @@ class Draw {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
     })
+    eventEmitter.addListener('on-text-update', (size, color) => {
+      canvas.getActiveObjects().forEach(o => {
+        if (o.type !== 'i-text') return
+        o.setColor(color)
+        canvas.renderAll()
+      })
+      // canvas.freeDrawingBrush.width = +width
+    })
     window.addEventListener('resize', () => {
       canvas.setWidth(this.container.offsetWidth)
       canvas.setHeight(this.container.offsetHeight)
@@ -88,7 +102,6 @@ class Draw {
     })
   }
   syncBoard(type, opt) {
-    console.log(type, opt)
     const data = opt.data
     type === SYNC_TYPE.INSERT && this.handleSyncInsert(data)
     type === SYNC_TYPE.DELETE && this.handleSyncRemove(data)
@@ -223,6 +236,32 @@ class Draw {
       canvas.relativePan(delta)
     })
   }
+  initText() {
+    const canvas = this.layerDraw
+    let isTmpChangeState = false
+    let tmpState = ''
+    canvas.on('text:editing:entered', (e) => {
+      this.textEditing = true
+    })
+    canvas.on('text:editing:exited', (e) => {
+      this.textEditing = false
+    })
+    canvas.on('selection:created', (e) => {
+      if (this.current === 'kbText') return
+      if (e.selected && e.selected.length === 1 && e.selected[0].type === 'i-text') {
+        tmpState = this.current
+        this._vm.choose('kbText', true)
+        isTmpChangeState = true
+      }
+    })
+    canvas.on('selection:cleared', (e) => {
+      if (isTmpChangeState) {
+        this._vm.choose(tmpState, true)
+        tmpState = ''
+        isTmpChangeState = false
+      }
+    })
+  }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
   }
@@ -230,10 +269,21 @@ class Draw {
     // plugins[opt.key].undo.call(this.vm, opt, this.layerDraw)
   }
   deleteSelected() {
+    if (this.textEditing) return
     const canvas = this.layerDraw
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     canvas.getActiveObjects().forEach(o => canvas.remove(o))
     this._vm.sync('choose', SYNC_TYPE.DELETE, deleteIds)
+  }
+  addText(input) {
+    const canvas = this.layerDraw
+    const text = new fabric.IText(input)
+    text.set('id', genKey())
+    text.set('btype', this.current)
+    text.set({left: canvas.width / 3, top: canvas.height / 3})
+    text.setColor(this._vm.plugins.kbText.setting.color)
+    canvas.add(text)
+    this._vm.sync('kbText', SYNC_TYPE.INSERT, text.toJSON(['id', 'btype']))
   }
   setKey(key) {
     const canvas = this.layerDraw
@@ -258,6 +308,9 @@ class Draw {
     this.toggleSelection(true)
     this.layerDraw.isDrawingMode = false
   }
+}
+Draw.getInstance = function () {
+  return instance
 }
 
 export default Draw

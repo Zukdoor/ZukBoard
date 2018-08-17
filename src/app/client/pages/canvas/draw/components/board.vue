@@ -68,7 +68,7 @@ export default {
   data() {
     Object.keys(plugins).forEach(key => {
       plugins[key].active = key === 'choose'
-      plugins[key].hasAction = key === 'uploadImg'
+      plugins[key].hasAction = !!actions[key + 'Action']
       plugins[key].showAction = false
     })
     return {
@@ -100,6 +100,9 @@ export default {
         brush: {
           color: 'rgb(222, 18, 33)',
           width: 3
+        },
+        kbText: {
+          color: '#333'
         }
       },
       drawer: {}
@@ -160,6 +163,11 @@ export default {
     this.$refs.canvas.oncontextmenu = () => {
       return false
     }
+    document.addEventListener('keyup', (e) => {
+      if (e.keyCode === 8 || e.keyCode === 46) {
+        this.deleteSelected()
+      }
+    })
   },
   methods: {
     createBoard() {
@@ -288,12 +296,14 @@ export default {
     deleteSelected() {
       this.drawer.deleteSelected()
     },
-    choose(chooseKey) {
+    choose(chooseKey, hiddenAction) {
       this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
       })
-      this.toggleAction(this.plugins[chooseKey], !this.plugins[chooseKey].showAction)
+      if (!hiddenAction) {
+        this.toggleAction(this.plugins[chooseKey], !this.plugins[chooseKey].showAction)
+      }
     },
     beforeCloseTab() {
       window.onbeforeunload = function (e) {

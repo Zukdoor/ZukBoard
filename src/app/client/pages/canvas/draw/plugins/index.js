@@ -1,6 +1,9 @@
 import brushPlugin from './brush/plugin'
 import brushSetting from './brush/setting.vue'
 
+import kbTextSetting from './kb-text/setting.vue'
+import kbTextAction from './kb-text/action.vue'
+
 import choosePlugin from './choose/plugin'
 import chooseSetting from './choose/setting.vue'
 
@@ -21,9 +24,11 @@ export const settings = {
   brush: brushSetting,
   eraser: eraserSetting,
   choose: chooseSetting,
-  uploadImg: uploadImgSetting
+  uploadImg: uploadImgSetting,
+  kbText: kbTextSetting
 }
 
 export const actions = {
-  uploadImgAction
+  uploadImgAction,
+  kbTextAction
 }

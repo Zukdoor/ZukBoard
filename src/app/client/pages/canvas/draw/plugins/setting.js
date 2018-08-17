@@ -19,6 +19,14 @@ export default {
       width: 3
     }
   },
+  'kbText': {
+    title: '插入文字',
+    icon: '&#xe830;',
+    setting: {
+      size: 3,
+      color: '#000'
+    }
+  },
   'uploadImg': {
     title: '上传图片',
     icon: '&#xe651;',
