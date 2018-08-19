@@ -123,6 +123,9 @@ export default {
         this.redo(item.opId)
         return
       }
+      if (type !== 'move') {
+        this.renderList.push(item)
+      }
       this.drawer.syncBoard(type, item)
     })
     this.socket.on('drawpoint', (r) => {
@@ -130,6 +133,8 @@ export default {
     })
     this.socket.on('clear', (r) => {
       this.drawer.clear()
+      this.renderList = []
+      this.redoList = []
       this.$message({
         type: 'info',
         message: '画布已被清空!'
