@@ -32,6 +32,7 @@ class Draw {
       targetFindTolerance: 15
       // controlsAboveOverlay: true
     })
+    this.zoomPercent = 1
     this._vm = vm
     this.imgCache = {}
     this.SYNC_TYPE = SYNC_TYPE
@@ -45,6 +46,7 @@ class Draw {
     this.initSelect()
     this.initPan()
     this.initText()
+    this.initZoom()
     this.registerEvents()
   }
   getInstance() {
@@ -261,6 +263,29 @@ class Draw {
         isTmpChangeState = false
       }
     })
+  }
+  initZoom() {
+    const canvas = this.layerDraw
+    canvas.on('mouse:wheel', (opt) => {
+      if (this.current !== 'pan') {
+        return
+      }
+      var delta = opt.e.deltaY
+
+      // var pointer = canvas.getPointer(opt.e)
+      var zoom = canvas.getZoom()
+      zoom = zoom + delta / 200
+      this.zoomPercent = zoom
+      if (zoom > 20) zoom = 20
+      if (zoom < 0.01) zoom = 0.01
+      canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
+      opt.e.preventDefault()
+      opt.e.stopPropagation()
+    })
+  }
+  setZoom(zoom) {
+    const canvas = this.layerDraw
+    canvas.setZoom(zoom)
   }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)

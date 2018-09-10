@@ -7,10 +7,17 @@
           <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
           <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
           <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
-          <li class="tools-item zoom">
-            <i class="iconfont">&#xe85b;</i>
-            <el-input v-model="zoomPercent"></el-input>
-            <i class="iconfont">&#xe663;</i>
+          <li class="tools-item zoom no-hover">
+            <i class="iconfont" @click="() => {this.drawer.zoomPercent += 0.1 }">&#xe85b;</i>
+            <el-input 
+              @change="onZoomChange" 
+              :value="zoomPercent"
+              @keyup="changeZoom" 
+              @keyup.up.native="changeZoom(true)"
+              @keyup.down.native="changeZoom()"
+            >
+            </el-input>
+            <i class="iconfont" @click="() => {this.drawer.zoomPercent -= 0.1 }">&#xe663;</i>
           </li>
         </ul>
         
@@ -88,7 +95,6 @@ export default {
         x: 0,
         y: 0
       },
-      zoomPercent: '100',
       zindex: 0,
       wPercent: 1,
       hPercent: 1,
@@ -112,6 +118,19 @@ export default {
         }
       },
       drawer: {}
+    }
+  },
+  watch: {
+    'drawer.zoomPercent': function (val) {
+      if (!val) val = 1
+      this.drawer.setZoom(val)
+    }
+  },
+  computed: {
+    zoomPercent: {
+      get: function (val) {
+        return (this.drawer.zoomPercent * 100).toFixed(0) + '%'
+      }
     }
   },
   components: {
@@ -181,6 +200,17 @@ export default {
     })
   },
   methods: {
+    onZoomChange(value) {
+      const percent = +value.substring(0, value.length - 1)
+      this.drawer.zoomPercent = percent / 100
+    },
+    changeZoom(isUp) {
+      if (isUp) {
+        this.drawer.zoomPercent += 0.1
+        return
+      }
+      this.drawer.zoomPercent -= 0.1
+    },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {
         const { code, msg, data } = res.data
@@ -441,6 +471,9 @@ export default {
         }
         &:hover {
           background-color: #eee;
+        }
+        &.no-hover:hover{
+          background-color: #fff;
         }
         &.selected {
           background-color: #eee;
