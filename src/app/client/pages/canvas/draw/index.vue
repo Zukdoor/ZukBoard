@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <board></board>
-  </div>
+  <board></board>
 </template>
 
 <script>

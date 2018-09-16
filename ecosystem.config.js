@@ -9,10 +9,8 @@ module.exports = {
     {
       name: projectName,
       script: './app.js',
-      watch: true,
+      watch: false,
       max_memory_restart: '1024M',
-      instances: '4',
-      exec_mode: 'cluster',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       error_file: `/data/logs/node/${projectName}/err.log`,
       out_file: `/data/logs/node/${projectName}/out.log`,
@@ -37,9 +35,9 @@ module.exports = {
       user: 'root',
       host: '47.94.80.19',
       ref: 'origin/release',
-      repo: 'git@gitlab.com:qianyuchang/kugga-board.git',
+      repo: 'ssh://git@39.104.53.64:2222/kuggaboard/kugga-board-web.git',
       path: `/data/${projectName}`,
-      'post-deploy': 'git pull && npm install && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing '
+      'post-deploy': 'git pull && npm install --production && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing '
     }
   }
 }

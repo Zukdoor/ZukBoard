@@ -2,6 +2,12 @@ const CURRENT_PATH = process.cwd()
 const env = process.env.NODE_ENV || 'development'
 const Koa = require('koa')
 const app = new Koa()
+const cors = require('@koa/cors')
+const server = require('http').createServer(app.callback())
+const io = require('socket.io')(server, {
+  transports: [ 'websocket', 'polling' ]
+})
+const registerSocket = require(CURRENT_PATH + '/server/socket')
 const views = require('koa-views')
 const json = require('koa-json')
 const favicon = require('koa-favicon')
@@ -37,6 +43,7 @@ nunjucks.configure(CURRENT_PATH + '/server/views', {
     variableEnd: '##'
   }
 })
+app.use(cors())
 // add globle attribute to ctx.state
 app.use(async (ctx, next) => {
   ctx.state.ENV = env
@@ -73,6 +80,7 @@ if (env === 'development') {
 
 app.use(router)
 
-app.listen(renderConf.port, () => {
+registerSocket(io)
+server.listen(renderConf.port, () => {
   console.log(`App (${env}) is now running on port => ${renderConf.port}`)
 })
