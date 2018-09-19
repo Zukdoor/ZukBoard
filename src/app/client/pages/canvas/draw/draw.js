@@ -68,6 +68,9 @@ class Draw {
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
+    canvas.on('after:render', () => {
+      this._vm.hideLoading()
+    })
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       fabric.Image.fromURL(ev, (upImg) => {
         const img = upImg.set({left: 0, top: 0})
