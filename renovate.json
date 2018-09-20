@@ -1,5 +1,9 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":rebaseStalePrs",
+    ":automergeMinor",
+    ":label(ready)",
+    ":assignee(lucifer1004)"
   ]
 }
