@@ -39,7 +39,7 @@
     "koa-static": "4.0.3",
     "koa-views": "5.2.1",
     "moment": "2.22.2",
-    "mongoose": "5.2.15",
+    "mongoose": "5.2.16",
     "multiparty": "4.2.1",
     "nunjucks": "2.5.2",
     "path-to-regexp": "2.4.0",
