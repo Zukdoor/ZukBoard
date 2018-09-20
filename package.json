@@ -96,7 +96,7 @@
     "sass-loader": "6.0.7",
     "shelljs": "0.8.2",
     "socket.io-client": "2.1.1",
-    "spritejs": "2.15.21",
+    "spritejs": "2.16.1",
     "supertest": "3.3.0",
     "url-loader": "1.1.1",
     "vue": "2.5.17",
