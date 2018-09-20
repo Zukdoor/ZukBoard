@@ -6179,9 +6179,9 @@ relateurl@0.2.x:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
 
-reload@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/reload/-/reload-0.7.0.tgz#c478d33643fde6404161fc2418021b6b0bf13244"
+reload@0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/reload/-/reload-0.8.2.tgz#5da1cf067a7a7b3d8465688ce4b43650224cc6a6"
   dependencies:
     cli-color "~0.2.3"
     commander "~2.0.0"
