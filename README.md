@@ -1,4 +1,4 @@
-# [ZukBoard](https://zukboard.now.sh/) ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg) [![Waffle.io - Issues in progress](https://badge.waffle.io/Zukdoor/ZukBoard.png?label=in%20progress&title=In%20Progress)](http://waffle.io/Zukdoor/ZukBoard)
+# [ZukBoard](https://zukboard.now.sh/) ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
 
 ---
 
