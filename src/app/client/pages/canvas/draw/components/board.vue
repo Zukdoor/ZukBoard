@@ -58,6 +58,9 @@
         </template>
       </div>
     </div>
+    <div class="masker" v-show="isLoading">
+      <span>loading...</span>
+    </div>
     <div class="canvas-container" id="canvas"  ref="canvas" :class="drawer.current">
       <canvas id="layer-draw"></canvas>
     </div>
@@ -117,7 +120,8 @@ export default {
           color: '#333'
         }
       },
-      drawer: {}
+      drawer: {},
+      isLoading: true
     }
   },
   watch: {
@@ -382,6 +386,9 @@ export default {
       } else {
         return null
       }
+    },
+    hideLoading() {
+      this.isLoading = false
     }
   }
 }
@@ -421,6 +428,30 @@ export default {
   }
   
 }
+
+.masker {
+  position:absolute;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: .6;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  span{
+    text-align: center;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    color: #fff;
+    font-size: 24px;
+    margin-left: -50px;
+  }
+}
+
 .actions {
   position: relative;
   width: 100%;
