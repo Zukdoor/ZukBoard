@@ -6798,9 +6798,9 @@ sprite-animator@^1.11.3:
     bezier-easing "^2.0.3"
     sprite-timeline "^1.10.2"
 
-sprite-core@^2.17.24:
-  version "2.17.24"
-  resolved "https://registry.yarnpkg.com/sprite-core/-/sprite-core-2.17.24.tgz#ccc9a38328e857ddef9f74bc51e92d96847309e6"
+sprite-core@^2.18.0:
+  version "2.18.0"
+  resolved "https://registry.yarnpkg.com/sprite-core/-/sprite-core-2.18.0.tgz#df4536fef28a4e6bf0b638db3c39999eca548fb5"
   dependencies:
     babel-decorators-runtime "^0.2.0"
     babel-runtime "^6.26.0"
@@ -6822,14 +6822,14 @@ sprite-timeline@^1.10.2:
   dependencies:
     babel-runtime "^6.26.0"
 
-spritejs@2.15.21:
-  version "2.15.21"
-  resolved "https://registry.yarnpkg.com/spritejs/-/spritejs-2.15.21.tgz#a5373812559f4e54c86980c5e70fe898fc078526"
+spritejs@2.16.1:
+  version "2.16.1"
+  resolved "https://registry.yarnpkg.com/spritejs/-/spritejs-2.16.1.tgz#8b8dfb6304be96d16c81bce32c470455c2cc0124"
   dependencies:
     axios "^0.16.2"
     babel-decorators-runtime "^0.2.0"
     babel-runtime "^6.26.0"
-    sprite-core "^2.17.24"
+    sprite-core "^2.18.0"
 
 sshpk@^1.7.0:
   version "1.14.2"
