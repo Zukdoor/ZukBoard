@@ -233,10 +233,6 @@ abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
 
-abs-svg-path@~0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/abs-svg-path/-/abs-svg-path-0.1.1.tgz#df601c8e8d2ba10d4a76d625e236a9a39c2723bf"
-
 accepts@^1.3.5, accepts@~1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/accepts/-/accepts-1.3.5.tgz#eb777df6011723a3b14e8a72c0805c8e86746bd2"
@@ -544,13 +540,6 @@ axios@0.18.0:
     follow-redirects "^1.3.0"
     is-buffer "^1.1.5"
 
-axios@^0.16.2:
-  version "0.16.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.16.2.tgz#ba4f92f17167dfbab40983785454b9ac149c3c6d"
-  dependencies:
-    follow-redirects "^1.2.3"
-    is-buffer "^1.1.5"
-
 babel-code-frame@^6.22.0, babel-code-frame@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
@@ -582,14 +571,6 @@ babel-core@6.26.3, babel-core@^6.26.0:
     private "^0.1.8"
     slash "^1.0.0"
     source-map "^0.5.7"
-
-babel-decorators-runtime@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/babel-decorators-runtime/-/babel-decorators-runtime-0.2.0.tgz#bfc7ea240942b338deea00e856a47520be707d8c"
-  dependencies:
-    babel-plugin-syntax-decorators "^6.1.18"
-    babel-runtime "^6.2.0"
-    babel-template "^6.3.0"
 
 babel-eslint@9.0.0:
   version "9.0.0"
@@ -769,7 +750,7 @@ babel-plugin-syntax-class-properties@^6.8.0:
   version "6.13.0"
   resolved "http://registry.npmjs.org/babel-plugin-syntax-class-properties/-/babel-plugin-syntax-class-properties-6.13.0.tgz#d7eb23b79a317f8543962c505b827c7d6cac27de"
 
-babel-plugin-syntax-decorators@^6.1.18, babel-plugin-syntax-decorators@^6.13.0:
+babel-plugin-syntax-decorators@^6.13.0:
   version "6.13.0"
   resolved "http://registry.npmjs.org/babel-plugin-syntax-decorators/-/babel-plugin-syntax-decorators-6.13.0.tgz#312563b4dbde3cc806cee3e416cceeaddd11ac0b"
 
@@ -1086,14 +1067,14 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@6.x, babel-runtime@^6.18.0, babel-runtime@^6.2.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
+babel-runtime@6.x, babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
     core-js "^2.4.0"
     regenerator-runtime "^0.11.0"
 
-babel-template@^6.24.1, babel-template@^6.26.0, babel-template@^6.3.0:
+babel-template@^6.24.1, babel-template@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-template/-/babel-template-6.26.0.tgz#de03e2d16396b069f46dd9fff8521fb1a0e35e02"
   dependencies:
@@ -1142,7 +1123,7 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-base64-arraybuffer@0.1.5, base64-arraybuffer@^0.1.5:
+base64-arraybuffer@0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz#73926771923b5a19747ad666aa5cd4bf9c6e9ce8"
 
@@ -1177,10 +1158,6 @@ better-assert@~1.0.0:
   resolved "https://registry.yarnpkg.com/better-assert/-/better-assert-1.0.2.tgz#40866b9e1b9e0b55b481894311e68faffaebc522"
   dependencies:
     callsite "1.0.0"
-
-bezier-easing@^2.0.3:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/bezier-easing/-/bezier-easing-2.1.0.tgz#c04dfe8b926d6ecaca1813d69ff179b7c2025d86"
 
 big.js@^3.1.3:
   version "3.2.0"
@@ -1696,13 +1673,6 @@ color-string@^0.3.0:
   dependencies:
     color-name "^1.0.0"
 
-color-string@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/color-string/-/color-string-1.5.3.tgz#c9bbc5f01b58b5492f3d6857459cb6590ce204cc"
-  dependencies:
-    color-name "^1.0.0"
-    simple-swizzle "^0.2.2"
-
 color@^0.11.0:
   version "0.11.4"
   resolved "https://registry.yarnpkg.com/color/-/color-0.11.4.tgz#6d7b5c74fb65e841cd48792ad1ed5e07b904d764"
@@ -1979,12 +1949,6 @@ crypto-browserify@^3.11.0:
 css-color-names@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
-
-css-line-break@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/css-line-break/-/css-line-break-1.0.1.tgz#19f2063a33e95fb2831b86446c0b80c188af450a"
-  dependencies:
-    base64-arraybuffer "^0.1.5"
 
 css-loader@1.0.0:
   version "1.0.0"
@@ -2345,12 +2309,6 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
-
-echarts@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/echarts/-/echarts-4.1.0.tgz#d588c95f73c1a9928b9c73d5b769751c3185bcdc"
-  dependencies:
-    zrender "4.0.4"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -3067,7 +3025,7 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.1"
     readable-stream "^2.0.4"
 
-follow-redirects@^1.2.3, follow-redirects@^1.3.0:
+follow-redirects@^1.3.0:
   version "1.5.8"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.8.tgz#1dbfe13e45ad969f813e86c00e5296f525c885a1"
   dependencies:
@@ -3751,10 +3709,6 @@ is-arrayish@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/is-arrayish/-/is-arrayish-0.2.1.tgz#77c99840527aa8ecb1a8ba697b80645a7a926a9d"
 
-is-arrayish@^0.3.1:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/is-arrayish/-/is-arrayish-0.3.2.tgz#4574a2ae56f7ab206896fb431eaeed066fdf8f03"
-
 is-binary-path@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/is-binary-path/-/is-binary-path-1.0.1.tgz#75f16642b480f187a711c814161fd3a4a7655898"
@@ -3977,7 +3931,7 @@ is-windows@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-windows/-/is-windows-1.0.2.tgz#d1850eb9791ecd18e6182ce12a30f396634bb19d"
 
-isarray@0.0.1, isarray@~0.0.1:
+isarray@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-0.0.1.tgz#8a18acfca9a8f4177e09abfc6038939b05d1eedf"
 
@@ -5426,10 +5380,6 @@ parse-json@^4.0.0:
     error-ex "^1.3.1"
     json-parse-better-errors "^1.0.1"
 
-parse-svg-path@~0.1.1:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/parse-svg-path/-/parse-svg-path-0.1.2.tgz#7a7ec0d1eb06fa5325c7d3e009b859a09b5d49eb"
-
 parse5@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-1.5.1.tgz#9b7f3b0de32be78dc2401b17573ccaf0f6f59d94"
@@ -5579,14 +5529,6 @@ pkg-dir@^2.0.0:
 pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
-
-point-at-length@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/point-at-length/-/point-at-length-1.1.0.tgz#0ad72ebd0980d7f5a1ab12296c055f9eb6b30e57"
-  dependencies:
-    abs-svg-path "~0.1.1"
-    isarray "~0.0.1"
-    parse-svg-path "~0.1.1"
 
 posix-character-classes@^0.1.0:
   version "0.1.1"
@@ -5865,10 +5807,6 @@ postcss@^6.0.1, postcss@^6.0.23, postcss@^6.0.8:
     chalk "^2.4.1"
     source-map "^0.6.1"
     supports-color "^5.4.0"
-
-ppt2png@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/ppt2png/-/ppt2png-0.0.6.tgz#89597c3875009f95de185ac9c66bbdee1e6f1e20"
 
 pre-commit@1.2.2:
   version "1.2.2"
@@ -6414,10 +6352,6 @@ require_optional@^1.0.1:
     resolve-from "^2.0.0"
     semver "^5.1.0"
 
-resize-detector@^0.1.7:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/resize-detector/-/resize-detector-0.1.9.tgz#69c4222e9c0d3740c995522b4a1cf2656a6526aa"
-
 resize-observer-polyfill@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.0.tgz#660ff1d9712a2382baa2cad450a4716209f9ca69"
@@ -6712,12 +6646,6 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-simple-swizzle@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/simple-swizzle/-/simple-swizzle-0.2.2.tgz#a4da6b635ffcccca33f70d17cb92592de95e557a"
-  dependencies:
-    is-arrayish "^0.3.1"
-
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
@@ -6910,47 +6838,6 @@ split-string@^3.0.1, split-string@^3.0.2:
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
-
-sprite-animator@^1.11.3:
-  version "1.11.3"
-  resolved "https://registry.yarnpkg.com/sprite-animator/-/sprite-animator-1.11.3.tgz#1537bf23b28061226cf151fe1739fc42505c962c"
-  dependencies:
-    babel-runtime "^6.26.0"
-    bezier-easing "^2.0.3"
-    sprite-timeline "^1.10.2"
-
-sprite-core@^2.18.0:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/sprite-core/-/sprite-core-2.18.0.tgz#df4536fef28a4e6bf0b638db3c39999eca548fb5"
-  dependencies:
-    babel-decorators-runtime "^0.2.0"
-    babel-runtime "^6.26.0"
-    color-string "^1.5.3"
-    css-line-break "^1.0.1"
-    sprite-animator "^1.11.3"
-    sprite-math "^1.0.5"
-    svg-path-to-canvas "^1.9.6"
-
-sprite-math@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/sprite-math/-/sprite-math-1.0.5.tgz#03dcb8b61b0ba98c55134974487a10f4605339cd"
-  dependencies:
-    babel-runtime "^6.26.0"
-
-sprite-timeline@^1.10.2:
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/sprite-timeline/-/sprite-timeline-1.10.2.tgz#20fb012b002623fe8ef5f3f16e5a5d1364c079d0"
-  dependencies:
-    babel-runtime "^6.26.0"
-
-spritejs@2.16.1:
-  version "2.16.1"
-  resolved "https://registry.yarnpkg.com/spritejs/-/spritejs-2.16.1.tgz#8b8dfb6304be96d16c81bce32c470455c2cc0124"
-  dependencies:
-    axios "^0.16.2"
-    babel-decorators-runtime "^0.2.0"
-    babel-runtime "^6.26.0"
-    sprite-core "^2.18.0"
 
 sshpk@^1.7.0:
   version "1.14.2"
@@ -7155,14 +7042,6 @@ supports-color@^5.3.0, supports-color@^5.4.0:
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-5.5.0.tgz#e2e69a44ac8772f78a1ec0b35b689df6530efc8f"
   dependencies:
     has-flag "^3.0.0"
-
-svg-path-to-canvas@^1.9.6:
-  version "1.9.6"
-  resolved "https://registry.yarnpkg.com/svg-path-to-canvas/-/svg-path-to-canvas-1.9.6.tgz#cec83b38d3596b67c67cf65703b3fdbefdecc04a"
-  dependencies:
-    babel-runtime "^6.26.0"
-    point-at-length "^1.1.0"
-    sprite-math "^1.0.5"
 
 svgo@^0.7.0:
   version "0.7.2"
@@ -7613,14 +7492,6 @@ vue-color@2.6.0:
     material-colors "^1.0.0"
     tinycolor2 "^1.1.2"
 
-vue-echarts@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/vue-echarts/-/vue-echarts-3.1.2.tgz#cc51c4e321d7cb1b14cfd044e04d7bae86fe17cc"
-  dependencies:
-    echarts "^4.1.0"
-    lodash "^4.17.10"
-    resize-detector "^0.1.7"
-
 vue-eslint-parser@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-2.0.3.tgz#c268c96c6d94cfe3d938a5f7593959b0ca3360d1"
@@ -7690,9 +7561,9 @@ vue@2.5.17:
   version "2.5.17"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.17.tgz#0f8789ad718be68ca1872629832ed533589c6ada"
 
-vuex-persist@1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.5.3.tgz#69c1483489307c2cd2ec85ed73fdda4778a425a9"
+vuex-persist@1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.5.4.tgz#185042f03deb13c02f96d522fb652f282d60e589"
   dependencies:
     circular-json "^0.5.5"
     lodash.merge "^4.6.1"
@@ -7962,7 +7833,3 @@ yeast@0.1.2:
 ylru@^1.2.0:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ylru/-/ylru-1.2.1.tgz#f576b63341547989c1de7ba288760923b27fe84f"
-
-zrender@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/zrender/-/zrender-4.0.4.tgz#910e60d888f00c9599073f23758dd23345fe48fd"
