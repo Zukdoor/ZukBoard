@@ -92,7 +92,7 @@
     "pre-commit": "1.2.2",
     "prettier": "1.14.3",
     "prettier-eslint": "8.8.2",
-    "reload": "0.7.0",
+    "reload": "0.8.2",
     "sass-loader": "6.0.7",
     "shelljs": "0.7.8",
     "socket.io-client": "2.1.1",
