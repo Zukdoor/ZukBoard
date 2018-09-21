@@ -1,4 +1,4 @@
-import {fabric} from 'fabric'
+import { fabric } from 'fabric'
 import { plugins } from './plugins'
 import { genKey, eventEmitter } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
@@ -73,7 +73,7 @@ class Draw {
     })
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       fabric.Image.fromURL(ev, (upImg) => {
-        const img = upImg.set({left: 0, top: 0})
+        const img = upImg.set({ left: 0, top: 0 })
         img.set('id', genKey())
         img.set('btype', this.current)
         canvas.add(img)
@@ -311,7 +311,7 @@ class Draw {
     const text = new fabric.IText(input)
     text.set('id', genKey())
     text.set('btype', this.current)
-    text.set({left: canvas.width / 3, top: canvas.height / 3})
+    text.set({ left: canvas.width / 3, top: canvas.height / 3 })
     text.setColor(this._vm.plugins.kbText.setting.color)
     canvas.add(text)
     this._vm.sync('kbText', SYNC_TYPE.INSERT, text.toJSON(['id', 'btype']))

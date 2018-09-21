@@ -148,7 +148,6 @@ export default {
     ...actions
   },
   created() {
-    // this.beforeCloseTab()
     this.socket.on('sync', (type, item) => {
       if (type === 'undo') {
         this.undo(item.opId)
@@ -175,7 +174,7 @@ export default {
         message: '画布已被清空!'
       })
     })
-    let id = this.getQueryString('id')
+    let id = this.$route.params.id
     if (id) {
       this.getBoard(id)
       return
@@ -240,6 +239,7 @@ export default {
         this.initBoard()
         delete data.canvas
         this.board = data
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}`)
       })
     },
     saveBoard() {
@@ -256,9 +256,15 @@ export default {
           id: id
         }
       }).then(res => {
-        const { code, msg, data } = res.data
-        if (code !== 0) {
-          this.$message.error(msg)
+        const { code, data } = res.data
+        if (code !== 0 || !data) {
+          this.$alert('画板不存在', '提示', {
+            confirmButtonText: '创建画板',
+            showClose: false,
+            callback: action => {
+              this.createBoard()
+            }
+          })
         }
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
@@ -349,9 +355,6 @@ export default {
         this.initBoard()
       })
       !opid && this.socket.emit('sync', 'undo', item, this.board._id)
-      // console.log(9999, item)
-      // this.drawer.undo(item)
-      // this.redoList.push(item)
     },
     deleteSelected() {
       this.drawer.deleteSelected()
