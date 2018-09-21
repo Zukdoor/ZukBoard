@@ -277,10 +277,11 @@ class Draw {
 
       // var pointer = canvas.getPointer(opt.e)
       var zoom = canvas.getZoom()
-      zoom = zoom + delta / 200
+      console.log(delta, zoom)
+      zoom = zoom - delta / 200
+      if (zoom > 1.5) zoom = 1.5
+      if (zoom < 0.1) zoom = 0.1
       this.zoomPercent = zoom
-      if (zoom > 20) zoom = 20
-      if (zoom < 0.01) zoom = 0.01
       canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
       opt.e.preventDefault()
       opt.e.stopPropagation()
@@ -288,7 +289,9 @@ class Draw {
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
-    canvas.setZoom(zoom)
+    const center = canvas.getCenter()
+    const transform = { x: center.left, y: center.top }
+    canvas.zoomToPoint(transform, zoom)
   }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)

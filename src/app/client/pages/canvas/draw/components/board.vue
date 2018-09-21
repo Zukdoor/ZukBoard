@@ -8,8 +8,9 @@
           <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
           <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
           <li class="tools-item zoom no-hover">
-            <i class="iconfont" @click="() => {this.drawer.zoomPercent += 0.1 }">&#xe85b;</i>
+            <i class="iconfont" @click="changeZoom(true)">&#xe85b;</i>
             <el-input 
+              disabled="disabled"
               @change="onZoomChange" 
               :value="zoomPercent"
               @keyup="changeZoom" 
@@ -17,7 +18,7 @@
               @keyup.down.native="changeZoom()"
             >
             </el-input>
-            <i class="iconfont" @click="() => {this.drawer.zoomPercent -= 0.1 }">&#xe663;</i>
+            <i class="iconfont" @click="changeZoom()">&#xe663;</i>
           </li>
         </ul>
         
@@ -121,12 +122,17 @@ export default {
         }
       },
       drawer: {},
-      isLoading: true
+      isLoading: true,
+      maxPercent: 2,
+      minPercent: 0.1,
+      pIndex: 6,
+      steps: [10, 15, 20, 33, 50, 75, 100, 125, 150]
     }
   },
   watch: {
     'drawer.zoomPercent': function (val) {
       if (!val) val = 1
+      if (val > this.maxPercent || val < this.minPercent) return
       this.drawer.setZoom(val)
     }
   },
@@ -209,11 +215,20 @@ export default {
       this.drawer.zoomPercent = percent / 100
     },
     changeZoom(isUp) {
+      let filterArr = this.steps.filter((item) => {
+        return isUp ? this.drawer.zoomPercent * 100 < item : this.drawer.zoomPercent * 100 > item
+      })
+      if (filterArr.length === 0) return
+      this.pIndex = isUp ? this.steps.indexOf(filterArr[0]) - 1 : this.steps.indexOf(filterArr[filterArr.length - 1]) + 1
+      if ((isUp && (this.pIndex === this.steps.length - 1)) || (!isUp && (this.pIndex === 0))) return
+
       if (isUp) {
-        this.drawer.zoomPercent += 0.1
-        return
+        this.pIndex++
+      } else {
+        this.pIndex--
       }
-      this.drawer.zoomPercent -= 0.1
+
+      this.drawer.zoomPercent = this.steps[this.pIndex] / 100
     },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {
@@ -390,6 +405,7 @@ export default {
     hideLoading() {
       this.isLoading = false
     }
+
   }
 }
 </script>
@@ -472,7 +488,7 @@ export default {
           display: flex;
           align-items: center;
           input.el-input__inner {
-            width: 60px;
+            width: 70px;
             height: 30px;
             line-height: 20px;
             margin: 0 5px;
