@@ -16,7 +16,7 @@ export default new Router({
     component: loadPage('canvas/index'),
     children: [
       {
-        path: 'draw',
+        path: 'draw/:id?',
         component: loadPage('canvas/draw/index')
       }
     ]
