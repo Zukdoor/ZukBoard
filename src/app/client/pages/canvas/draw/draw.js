@@ -1,6 +1,6 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter } from './plugins/util'
+import { genKey, eventEmitter, getSystem } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -269,6 +269,7 @@ class Draw {
   }
   initZoom() {
     const canvas = this.layerDraw
+    const baseT = getSystem() === 'win' ? 1000 : 200
     canvas.on('mouse:wheel', (opt) => {
       if (this.current !== 'pan') {
         return
@@ -277,8 +278,7 @@ class Draw {
 
       // var pointer = canvas.getPointer(opt.e)
       var zoom = canvas.getZoom()
-      console.log(delta, zoom)
-      zoom = zoom - delta / 200
+      zoom = zoom - delta / baseT
       if (zoom > 1.5) zoom = 1.5
       if (zoom < 0.1) zoom = 0.1
       this.zoomPercent = zoom
