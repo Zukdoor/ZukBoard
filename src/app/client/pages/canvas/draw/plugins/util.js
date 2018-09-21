@@ -7,3 +7,8 @@ export const changeCursor = (layer, type) => {
 export const genKey = () => {
   return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10)
 }
+
+export const getSystem = () => {
+  let platform = navigator.platform
+  return platform.indexOf('Win') === 0 ? 'win' : 'mac'
+}
