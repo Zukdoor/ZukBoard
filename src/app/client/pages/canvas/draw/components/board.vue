@@ -123,8 +123,6 @@ export default {
       },
       drawer: {},
       isLoading: true,
-      maxPercent: 2,
-      minPercent: 0.1,
       pIndex: 6,
       steps: [10, 15, 20, 33, 50, 75, 100, 125, 150]
     }
@@ -132,7 +130,6 @@ export default {
   watch: {
     'drawer.zoomPercent': function (val) {
       if (!val) val = 1
-      if (val > this.maxPercent || val < this.minPercent) return
       this.drawer.setZoom(val)
     }
   },
