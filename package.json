@@ -25,7 +25,7 @@
   "dependencies": {
     "@koa/cors": "2.2.2",
     "axios": "0.18.0",
-    "debug": "3.2.5",
+    "debug": "4.0.1",
     "koa": "2.5.3",
     "koa-bodyparser": "3.2.0",
     "koa-cache-control": "2.0.0",
