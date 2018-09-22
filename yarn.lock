@@ -1415,7 +1415,7 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000884:
   version "1.0.30000885"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000885.tgz#e889e9f8e7e50e769f2a49634c932b8aee622984"
 
-canvas@1.6.x:
+canvas@^1.6.12:
   version "1.6.12"
   resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.6.12.tgz#9ab02cdb6b543ae6705f566e33f9407625da901e"
   dependencies:
@@ -2937,12 +2937,12 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
 
-fabric@2.3.6:
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.3.6.tgz#2bab3befdc22c8b9ea960437442f771b1587687d"
+fabric@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.4.0.tgz#88ebdc584f0c21a6aeb7d08067c36902f6d11aa0"
   optionalDependencies:
-    canvas "1.6.x"
-    jsdom "9.x.x"
+    canvas "^1.6.12"
+    jsdom "^9.12.0"
     xmldom "0.1.x"
 
 fast-deep-equal@^1.0.0:
@@ -4070,7 +4070,7 @@ jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
 
-jsdom@9.x.x:
+jsdom@^9.12.0:
   version "9.12.0"
   resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-9.12.0.tgz#e8c546fffcb06c00d4833ca84410fed7f8a097d4"
   dependencies:
