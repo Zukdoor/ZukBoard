@@ -1415,7 +1415,7 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000884:
   version "1.0.30000885"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000885.tgz#e889e9f8e7e50e769f2a49634c932b8aee622984"
 
-canvas@1.6.x:
+canvas@^1.6.12:
   version "1.6.12"
   resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.6.12.tgz#9ab02cdb6b543ae6705f566e33f9407625da901e"
   dependencies:
@@ -2558,9 +2558,9 @@ escodegen@^1.6.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-prettier@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-3.0.1.tgz#479214f64c1a4b344040924bfb97543db334b7b1"
+eslint-config-prettier@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-3.1.0.tgz#2c26d2cdcfa3a05f0642cd7e6e4ef3316cdabfa2"
   dependencies:
     get-stdin "^6.0.0"
 
@@ -2610,9 +2610,9 @@ eslint-plugin-es@^1.3.1:
     eslint-utils "^1.3.0"
     regexpp "^2.0.0"
 
-eslint-plugin-html@4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.5.tgz#e8ec7e16485124460f3bff312016feb0a54d9659"
+eslint-plugin-html@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-4.0.6.tgz#724bb9272efb4df007dfee8dfb269ed83577e5b4"
   dependencies:
     htmlparser2 "^3.8.2"
 
@@ -2937,12 +2937,12 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
 
-fabric@2.3.6:
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.3.6.tgz#2bab3befdc22c8b9ea960437442f771b1587687d"
+fabric@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.4.0.tgz#88ebdc584f0c21a6aeb7d08067c36902f6d11aa0"
   optionalDependencies:
-    canvas "1.6.x"
-    jsdom "9.x.x"
+    canvas "^1.6.12"
+    jsdom "^9.12.0"
     xmldom "0.1.x"
 
 fast-deep-equal@^1.0.0:
@@ -4070,7 +4070,7 @@ jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
 
-jsdom@9.x.x:
+jsdom@^9.12.0:
   version "9.12.0"
   resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-9.12.0.tgz#e8c546fffcb06c00d4833ca84410fed7f8a097d4"
   dependencies:
@@ -4864,9 +4864,9 @@ mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
 
-mongoose@5.2.16:
-  version "5.2.16"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.2.16.tgz#8b9da299816d373470efd4baf2c4e5d7732aeda4"
+mongoose@5.2.17:
+  version "5.2.17"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.2.17.tgz#8baeb60a675d00da03633d679a72457dbb5b2285"
   dependencies:
     async "2.6.1"
     bson "~1.0.5"
@@ -7706,9 +7706,9 @@ webpack-hot-middleware@2.18.2:
     querystring "^0.2.0"
     strip-ansi "^3.0.0"
 
-webpack-hot-middleware@2.24.1:
-  version "2.24.1"
-  resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.24.1.tgz#52fcc54fd4e5f962af2440ce8ed37717f1a5e81c"
+webpack-hot-middleware@2.24.2:
+  version "2.24.2"
+  resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.24.2.tgz#0d2deeb813f67693e2997b87c3a9d9be324575dd"
   dependencies:
     ansi-html "0.0.7"
     html-entities "^1.2.0"
