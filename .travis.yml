@@ -6,6 +6,8 @@ branchs:
   - master
 addons:
   ssh_known_hosts: 47.94.80.19
+install:
+  - echo "install"
 before_install:
 - openssl aes-256-cbc -K $encrypted_c379c3917065_key -iv $encrypted_c379c3917065_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
