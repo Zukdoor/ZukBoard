@@ -17,6 +17,7 @@ results
 config/local.json
 config/local-development.json
 public/dist/images
+public/dist
 
 npm-debug.log
 node_modules
