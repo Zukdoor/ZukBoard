@@ -16,6 +16,4 @@ before_install:
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa 
 after_success:
-- ssh travis@47.94.80.19 'cd ~/zookdoor/ZukBoard && git pull'
-- npm install &&  npm run build
-- ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing
+- ssh travis@47.94.80.19 'cd ~/zookdoor/ZukBoard && git pull npm install &&  npm run build && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing'
