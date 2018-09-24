@@ -4,6 +4,9 @@ node_js:
 branchs:
   only:
   - master
+cache:
+  directories:
+    - "node_modules" # This will tell Travis CI to cache the dependencies
 addons:
   ssh_known_hosts: 47.94.80.19
 install:
