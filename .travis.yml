@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- '8'
+branchs:
+  only:
+  - master
+addons:
+  ssh_known_hosts: 47.94.80.19
+# script:
+before_install:
+- openssl aes-256-cbc -K $encrypted_c379c3917065_key -iv $encrypted_c379c3917065_iv
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
+after_success:
+- ssh travis@47.94.80.19 'cd ~/zookdoor/zukboard && git pull'
+- npm install &&  npm run build
+- ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing
