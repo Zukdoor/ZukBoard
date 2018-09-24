@@ -6,7 +6,7 @@
   "scripts": {
     "test": " exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
-    "build": "npm run lint && node build/build.js",
+    "build": "node build/build.js",
     "publish": "pm2 deploy ecosystem.config.js testing",
     "lint": "eslint src/* server/* test/* build/* app.js",
     "lazycommit": "git add . && git commit -m 'lazy commit' && git push origin release && npm run publish",
