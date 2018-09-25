@@ -27,7 +27,8 @@ export default {
       isHover: false,
       src: '',
       imgTypes: ['image/jpeg', 'image/jpg', 'image/png'],
-      file: null
+      file: null,
+      maxSize: 5 * 1024 * 1000
     }
   },
   methods: {
@@ -55,6 +56,10 @@ export default {
         this.$message.info('只支持插入jpg/png的图片')
         return
       }
+      if (file.size > this.maxSize) {
+        this.$message.info('不能超过5M')
+        return
+      }
       this.src = window.URL.createObjectURL(file)
       this.file = file
     },
@@ -72,6 +77,7 @@ export default {
         this.file = null
         this.src = ''
         this.config.showAction = false
+        alert(data.url)
         eventEmitter.emitEvent('on-should-draw-img', [data.url])
         this.$emit('change-current', 'choose')
       })
