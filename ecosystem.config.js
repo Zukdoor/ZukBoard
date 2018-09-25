@@ -28,6 +28,24 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production'
       }
+    },
+    {
+      name: projectName + '-heroku',
+      script: './app.js',
+      watch: false,
+      max_memory_restart: '1024M',
+      env: {
+        NODE_ENV: 'development'
+      },
+      env_testing: {
+        NODE_ENV: 'testing'
+      },
+      env_simulation: {
+        NODE_ENV: 'simulation'
+      },
+      env_production: {
+        NODE_ENV: 'production'
+      }
     }
   ],
   deploy: {
