@@ -77,7 +77,6 @@ export default {
         this.file = null
         this.src = ''
         this.config.showAction = false
-        alert(data.url)
         eventEmitter.emitEvent('on-should-draw-img', [data.url])
         this.$emit('change-current', 'choose')
       })
