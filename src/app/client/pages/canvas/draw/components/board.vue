@@ -145,7 +145,6 @@ export default {
     ...actions
   },
   created() {
-    console.log('auto delpoy build')
     this.socket.on('sync', (type, item) => {
       if (type === 'undo') {
         this.undo(item.opId)
