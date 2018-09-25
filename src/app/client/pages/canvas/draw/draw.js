@@ -1,6 +1,6 @@
-import {fabric} from 'fabric'
+import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter } from './plugins/util'
+import { genKey, eventEmitter, getSystem } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -68,9 +68,12 @@ class Draw {
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
+    canvas.on('after:render', () => {
+      this._vm.hideLoading()
+    })
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       fabric.Image.fromURL(ev, (upImg) => {
-        const img = upImg.set({left: 0, top: 0})
+        const img = upImg.set({ left: 0, top: 0 })
         img.set('id', genKey())
         img.set('btype', this.current)
         canvas.add(img)
@@ -266,6 +269,7 @@ class Draw {
   }
   initZoom() {
     const canvas = this.layerDraw
+    const baseT = getSystem() === 'win' ? 1000 : 200
     canvas.on('mouse:wheel', (opt) => {
       if (this.current !== 'pan') {
         return
@@ -274,10 +278,10 @@ class Draw {
 
       // var pointer = canvas.getPointer(opt.e)
       var zoom = canvas.getZoom()
-      zoom = zoom + delta / 200
+      zoom = zoom - delta / baseT
+      if (zoom > 1.5) zoom = 1.5
+      if (zoom < 0.1) zoom = 0.1
       this.zoomPercent = zoom
-      if (zoom > 20) zoom = 20
-      if (zoom < 0.01) zoom = 0.01
       canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
       opt.e.preventDefault()
       opt.e.stopPropagation()
@@ -285,7 +289,9 @@ class Draw {
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
-    canvas.setZoom(zoom)
+    const center = canvas.getCenter()
+    const transform = { x: center.left, y: center.top }
+    canvas.zoomToPoint(transform, zoom)
   }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)
@@ -305,7 +311,7 @@ class Draw {
     const text = new fabric.IText(input)
     text.set('id', genKey())
     text.set('btype', this.current)
-    text.set({left: canvas.width / 3, top: canvas.height / 3})
+    text.set({ left: canvas.width / 3, top: canvas.height / 3 })
     text.setColor(this._vm.plugins.kbText.setting.color)
     canvas.add(text)
     this._vm.sync('kbText', SYNC_TYPE.INSERT, text.toJSON(['id', 'btype']))

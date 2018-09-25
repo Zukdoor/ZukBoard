@@ -8,8 +8,9 @@
           <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
           <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
           <li class="tools-item zoom no-hover">
-            <i class="iconfont" @click="() => {this.drawer.zoomPercent += 0.1 }">&#xe85b;</i>
+            <i class="iconfont" @click="changeZoom(true)">&#xe85b;</i>
             <el-input 
+              disabled="disabled"
               @change="onZoomChange" 
               :value="zoomPercent"
               @keyup="changeZoom" 
@@ -17,7 +18,7 @@
               @keyup.down.native="changeZoom()"
             >
             </el-input>
-            <i class="iconfont" @click="() => {this.drawer.zoomPercent -= 0.1 }">&#xe663;</i>
+            <i class="iconfont" @click="changeZoom()">&#xe663;</i>
           </li>
         </ul>
         
@@ -57,6 +58,9 @@
           </component>
         </template>
       </div>
+    </div>
+    <div class="masker" v-show="isLoading">
+      <span>loading...</span>
     </div>
     <div class="canvas-container" id="canvas"  ref="canvas" :class="drawer.current">
       <canvas id="layer-draw"></canvas>
@@ -117,7 +121,10 @@ export default {
           color: '#333'
         }
       },
-      drawer: {}
+      drawer: {},
+      isLoading: true,
+      pIndex: 6,
+      steps: [10, 15, 20, 33, 50, 75, 100, 125, 150]
     }
   },
   watch: {
@@ -138,7 +145,6 @@ export default {
     ...actions
   },
   created() {
-    // this.beforeCloseTab()
     this.socket.on('sync', (type, item) => {
       if (type === 'undo') {
         this.undo(item.opId)
@@ -165,7 +171,7 @@ export default {
         message: '画布已被清空!'
       })
     })
-    let id = this.getQueryString('id')
+    let id = this.$route.params.id
     if (id) {
       this.getBoard(id)
       return
@@ -205,11 +211,20 @@ export default {
       this.drawer.zoomPercent = percent / 100
     },
     changeZoom(isUp) {
+      let filterArr = this.steps.filter((item) => {
+        return isUp ? this.drawer.zoomPercent * 100 < item : this.drawer.zoomPercent * 100 > item
+      })
+      if (filterArr.length === 0) return
+      this.pIndex = isUp ? this.steps.indexOf(filterArr[0]) - 1 : this.steps.indexOf(filterArr[filterArr.length - 1]) + 1
+      if ((isUp && (this.pIndex === this.steps.length - 1)) || (!isUp && (this.pIndex === 0))) return
+
       if (isUp) {
-        this.drawer.zoomPercent += 0.1
-        return
+        this.pIndex++
+      } else {
+        this.pIndex--
       }
-      this.drawer.zoomPercent -= 0.1
+
+      this.drawer.zoomPercent = this.steps[this.pIndex] / 100
     },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {
@@ -221,6 +236,7 @@ export default {
         this.initBoard()
         delete data.canvas
         this.board = data
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}`)
       })
     },
     saveBoard() {
@@ -237,9 +253,15 @@ export default {
           id: id
         }
       }).then(res => {
-        const { code, msg, data } = res.data
-        if (code !== 0) {
-          this.$message.error(msg)
+        const { code, data } = res.data
+        if (code !== 0 || !data) {
+          this.$alert('画板不存在', '提示', {
+            confirmButtonText: '创建画板',
+            showClose: false,
+            callback: action => {
+              this.createBoard()
+            }
+          })
         }
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
@@ -330,9 +352,6 @@ export default {
         this.initBoard()
       })
       !opid && this.socket.emit('sync', 'undo', item, this.board._id)
-      // console.log(9999, item)
-      // this.drawer.undo(item)
-      // this.redoList.push(item)
     },
     deleteSelected() {
       this.drawer.deleteSelected()
@@ -382,7 +401,11 @@ export default {
       } else {
         return null
       }
+    },
+    hideLoading() {
+      this.isLoading = false
     }
+
   }
 }
 </script>
@@ -421,6 +444,30 @@ export default {
   }
   
 }
+
+.masker {
+  position:absolute;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: .6;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  span{
+    text-align: center;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    color: #fff;
+    font-size: 24px;
+    margin-left: -50px;
+  }
+}
+
 .actions {
   position: relative;
   width: 100%;
@@ -441,7 +488,7 @@ export default {
           display: flex;
           align-items: center;
           input.el-input__inner {
-            width: 60px;
+            width: 70px;
             height: 30px;
             line-height: 20px;
             margin: 0 5px;

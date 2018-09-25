@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import {eventEmitter} from '../util.js'
+import { eventEmitter } from '../util.js'
 export default {
   name: 'eraser',
   props: ['config'],
