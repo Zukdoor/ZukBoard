@@ -76,11 +76,13 @@ class Draw {
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       LoadImageAsync(ev).then((attr) => {
         let scale = 1
-        if (attr.width >= this.canvaswidth) {
+        let left = 0
+        if (attr.width >= this.canvaswidth / 2) {
           scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
         }
+        left = (this.canvaswidth - attr.width * scale) / 2
         fabric.Image.fromURL(ev, (upImg) => {
-          const img = upImg.set({ left: 0, top: 0 }).scale(scale)
+          const img = upImg.set({ left: left, top: 150 }).scale(scale)
           img.set('id', genKey())
           img.set('btype', this.current)
           canvas.add(img)
