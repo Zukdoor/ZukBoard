@@ -9,7 +9,8 @@
     "publish": "pm2 deploy ecosystem.config.js testing",
     "lint": "eslint src/* server/* test/* build/* app.js",
     "lazycommit": "git add . && git commit -m 'lazy commit' && git push origin release && npm run publish",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "start": "export NODE_ENV=production && supervisor -w server, src/**/server/*.js app.js"
   },
   "lint-staged": {
     "*.js": [
