@@ -20,6 +20,11 @@ module.exports = {
       staticBaseUrl: '/',
       apiUrl: '',
       db: 'mongodb://127.0.0.1:27017/board'
+    },
+    heroku: {
+      staticBaseUrl: '/',
+      apiUrl: '',
+      db: 'mongodb://zuk:zukdoor123@ds113703.mlab.com:13703/heroku_dn2rrbn7'
     }
   },
   webpackConfig: {
