@@ -1,6 +1,7 @@
 language: node_js
 node_js:
-- '8'
+  - '8'
+  - '10'
 branches:
   only:
   - master
@@ -9,12 +10,12 @@ cache:
   - node_modules
 addons:
   ssh_known_hosts: 47.94.80.19
-install:
-- npm install
-before_install:
-- openssl aes-256-cbc -K $encrypted_8badaf691acc_key -iv $encrypted_8badaf691acc_iv
-  -in id_rsa.enc -out ~/.ssh/id_rsa -d
-- chmod 600 ~/.ssh/id_rsa
-after_success:
-- ssh travis@47.94.80.19 'cd ~/zookdoor/ZukBoard && git pull && cnpm install &&  npm
-  run build && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing'
+script:
+  - yarn install
+  - yarn run test
+deploy:
+  # deploy master to production
+  - provider: script
+    script: openssl aes-256-cbc -K $encrypted_8badaf691acc_key -iv $encrypted_8badaf691acc_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d && chmod 600 ~/.ssh/id_rsa && ssh travis@47.94.80.19 'cd ~/zookdoor/ZukBoard && git pull && cnpm install && yarn run build && ENABLE_NODE_LOG=YES pm2 start ecosystem.config.js --env testing'
+    on:
+      branch: master
