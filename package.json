@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "description": "drawing board by canvas",
   "scripts": {
+    "test": " exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
-    "build": "npm run lint && node build/build.js",
+    "build": "node build/build.js",
     "publish": "pm2 deploy ecosystem.config.js testing",
     "lint": "eslint src/* server/* test/* build/* app.js",
     "lazycommit": "git add . && git commit -m 'lazy commit' && git push origin release && npm run publish",
@@ -87,6 +88,7 @@
     "opn": "5.4.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "ora": "3.0.0",
+    "postcss-safe-parser": "^4.0.1",
     "postcss-scss": "2.0.0",
     "pre-commit": "1.2.2",
     "prettier": "1.14.3",
