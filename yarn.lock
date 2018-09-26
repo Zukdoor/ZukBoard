@@ -3727,9 +3727,9 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ionicons@4.4.3:
-  version "4.4.3"
-  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.4.3.tgz#18f09b8277757721ceeb59b0ffb9d35e32c6fbb8"
+ionicons@4.4.4:
+  version "4.4.4"
+  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.4.4.tgz#d2b2dfe240e4c8686f59acd91c9c8c1dd13931c1"
 
 is-absolute-url@^2.0.0:
   version "2.1.0"
@@ -5853,6 +5853,12 @@ postcss-reduce-transforms@^4.0.0:
     has "^1.0.0"
     postcss "^6.0.0"
     postcss-value-parser "^3.0.0"
+
+postcss-safe-parser@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/postcss-safe-parser/-/postcss-safe-parser-4.0.1.tgz#8756d9e4c36fdce2c72b091bbc8ca176ab1fcdea"
+  dependencies:
+    postcss "^7.0.0"
 
 postcss-scss@2.0.0:
   version "2.0.0"
