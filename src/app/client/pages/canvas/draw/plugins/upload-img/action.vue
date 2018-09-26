@@ -15,6 +15,7 @@
     </div> 
     <el-button class="drag-btn" @click="drawFile">插入该图片</el-button>
     <input type="file" @change="upload" :accept="imgTypes.join(',')" name="" style="display:none" ref="fileInput" id="">
+    <div class="upload-loading" v-show="isUploading"><img src="../../../../../assets/50.gif"></div>
   </div>
 </template>
 
@@ -27,7 +28,8 @@ export default {
       isHover: false,
       src: '',
       imgTypes: ['image/jpeg', 'image/jpg', 'image/png'],
-      file: null
+      file: null,
+      isUploading: false
     }
   },
   methods: {
@@ -55,11 +57,16 @@ export default {
         this.$message.info('只支持插入jpg/png的图片')
         return
       }
+      if (file.size > this.config.setting.maxSize) {
+        this.$message.info('图片不能超过' + this.config.setting.maxSize)
+        return
+      }
       this.src = window.URL.createObjectURL(file)
       this.file = file
     },
     drawFile() {
       if (!this.file) return
+      this.isUploading = true
       // const reader = new FileReader()
       const formData = new FormData()
       // formData.append('id', '')
@@ -69,6 +76,7 @@ export default {
         if (code !== 0) {
           this.$message.error(msg)
         }
+        this.isUploading = false
         this.file = null
         this.src = ''
         this.config.showAction = false
@@ -100,6 +108,22 @@ export default {
       &>img{
         max-width: 100%;
         height: 180px;
+      }
+    }
+    .upload-loading{
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-color: black;
+      opacity: 0.6;
+      img{
+        position: absolute;
+        left: 70px;
+        top: 100px;
       }
     }
   }

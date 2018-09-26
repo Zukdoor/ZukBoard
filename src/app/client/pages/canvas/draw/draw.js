@@ -1,6 +1,6 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter, getSystem } from './plugins/util'
+import { genKey, eventEmitter, getSystem, LoadImageAsync } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -38,6 +38,8 @@ class Draw {
     this.SYNC_TYPE = SYNC_TYPE
     this.index = 0
     this.textEditing = false
+    this.canvaswidth = container.offsetWidth
+    this.canvasHeight = container.offsetHeight
     instance = this
     window.canvas = this.layerDraw
   }
@@ -72,13 +74,7 @@ class Draw {
       this._vm.hideLoading()
     })
     eventEmitter.addListener('on-should-draw-img', (ev) => {
-      fabric.Image.fromURL(ev, (upImg) => {
-        const img = upImg.set({ left: 0, top: 0 })
-        img.set('id', genKey())
-        img.set('btype', this.current)
-        canvas.add(img)
-        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
-      })
+      this.addImage(ev)
     })
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
@@ -95,6 +91,24 @@ class Draw {
     window.addEventListener('resize', () => {
       canvas.setWidth(this.container.offsetWidth)
       canvas.setHeight(this.container.offsetHeight)
+    })
+  }
+  addImage(url) {
+    const canvas = this.layerDraw
+    LoadImageAsync(url).then((attr) => {
+      let scale = 1
+      let left = 0
+      if (attr.width >= this.canvaswidth / 2) {
+        scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
+      }
+      left = (this.canvaswidth - attr.width * scale) / 2
+      fabric.Image.fromURL(url, (upImg) => {
+        const img = upImg.set({ left: left, top: 150 }).scale(scale)
+        img.set('id', genKey())
+        img.set('btype', this.current)
+        canvas.add(img)
+        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
+      })
     })
   }
   clear() {
