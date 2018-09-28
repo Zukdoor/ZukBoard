@@ -19,7 +19,7 @@ export const LoadImageAsync = (url) => {
     img.onload = function () {
       let width = this.width
       let height = this.height
-      resolve({width: width, height: height})
+      resolve({ width: width, height: height })
     }
     img.onerror = function () {
       reject()
