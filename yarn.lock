@@ -8864,10 +8864,10 @@ vue@2.5.17:
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.17.tgz#0f8789ad718be68ca1872629832ed533589c6ada"
   integrity sha512-mFbcWoDIJi0w0Za4emyLiW72Jae0yjANHbCVquMKijcavBGypqlF7zHRgMa5k4sesdv7hv2rB4JPdZfR+TPfhQ==
 
-vuex-persist@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.6.0.tgz#b43cae6bb074f0271cd858f611e4f22d75d2c51a"
-  integrity sha512-nt84xehdm7Y0oPFQjSezYa9hvmY9G5rYBR+c4NexaA/uucpQjDOyZDrHXNWUfW81qxgcH/ycsInJg0Yx2B9Twg==
+vuex-persist@1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.6.1.tgz#6dabf7bfa13cbf89dd969a05c07fb4904ba1b033"
+  integrity sha512-YcaNnB2RUh9abHo2NTFaXStbc9CQ2vsIg59jDr4OwAGI0rn+cdkcSfvSxDJMFhMLjq/qVp2NG9V7wR60PUNppg==
   dependencies:
     circular-json "^0.5.5"
     deepmerge "^2.1.1"
