@@ -267,7 +267,6 @@ export default {
         this.$nextTick(() => {
           this.initBoard()
         })
-        this.initBoard()
         delete data.canvas
         this.board = data
       })
