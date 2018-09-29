@@ -29,67 +29,19 @@ We love pull requests. Here's a quick guide:
 
 1. Make sure you have all dependencies installed
   ```bash
-  $ npm install
+  npm install
   ```
 
 1. Run the tests with:
   ```bash
-  $ npm run test
+  npm run test
   ```
 
 ### How to test against your project
-
-Wanna test your changes against your real world project? No Problem!
-
-Let's use `npm link` to symlink the fork into your project.
-
-1. switch to the root of this project
-
-1. make sure you have all dependencies installed
-  ```bash
-  $ npm install
-  ```
-
-1. run first step for npm link
-  ```bash
-  $ npm link
-  ```
-
-1. switch to your real world project
-
-1. and execute the second step for npm link
-  ```bash
-  $ npm link mocha-webpack
-  ```
-
-1. You need to configure loader resolution in your webpack config, like below
-  ```js
-  var path = require('path');
-
-  module.exports = {
-    // ..
-    // npm link mocha-webpack hack
-    resolveLoader: {
-      root: [
-       // __dirname is the root of your project, you may need to adjust the path
-       path.join(__dirname, "node_modules")
-      ]
-    };
-    // ..
-  };
-  ```
-
-1. Then you are almost ready to go. You just have to build this project initially and whenever you make code changes.
-  ```bash
-  $ npm run build
-  ```
-
-
 
 ### Syntax rules
 
 Please pay attention on the following syntax rules:
 
-* Basic coding styles are defined within the .editorconfig file.
 * ESLint automatically checks the code style after tests or manually via `npm run lint`.
 * Follow the conventions used in the source already.
