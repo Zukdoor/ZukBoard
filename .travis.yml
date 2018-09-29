@@ -11,6 +11,7 @@ addons:
   ssh_known_hosts: 47.94.80.19
 script:
   - yarn install
+  - yarn build
   - yarn run test
 deploy:
   # deploy master to production
