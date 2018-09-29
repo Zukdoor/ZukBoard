@@ -3283,10 +3283,10 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
-fabric@2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.4.0.tgz#88ebdc584f0c21a6aeb7d08067c36902f6d11aa0"
-  integrity sha512-SrsLTyzxJYSx74zucuEpqWb5ossANV5/EzYMNUeDjogspzYFfe8X5DkOpTaW56YDUMS+YboqyIpAlSoto5KrwA==
+fabric@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/fabric/-/fabric-2.4.1.tgz#70b299710383aa0da41318414048f2ffb127bc07"
+  integrity sha512-aJXDnwOaOiKYnmWBdqxq/pSfCQPNZSORIS7w4yoRTU5a1FPLhtOaoHumOsXjm+kWlKg628iJfld6usjR/M3shA==
   optionalDependencies:
     canvas "^1.6.12"
     jsdom "^9.12.0"
