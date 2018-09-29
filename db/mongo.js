@@ -8,6 +8,7 @@ const {
 } = mongoose
 
 mongoose.connect(config.db, {
+  useNewUrlParser: true
   // useMongoClient: true
 })
 mongoose.connection.on('error', function () {

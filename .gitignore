@@ -18,6 +18,8 @@ config/local.json
 config/local-development.json
 public/dist
 public/webpack-hash-map.js
+coverage
+.nyc_output
 
 npm-debug.log
 node_modules
