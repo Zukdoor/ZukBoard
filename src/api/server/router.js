@@ -52,7 +52,7 @@ module.exports = {
   'post#board/create': async ctx => {
     // 暂时写死画板ID
     const { name } = ctx.request.body
-    const insertResult = await db.Board.collection.insert([{
+    const insertResult = await db.Board.collection.insertMany([{
       name: name || '画板',
       roomId: 'test_room_id',
       canvas: []
@@ -98,7 +98,7 @@ module.exports = {
     if (!model) {
       return createResult(ctx, resCode.SEARCH_NOT_EXIST, '画版不存在')
     }
-    const saveResult = await db.Board.collection.insert({_id: id}, {$set: {
+    const saveResult = await db.Board.collection.insertOne({_id: id}, {$set: {
       canvas
     }})
     // GenerateScript()
