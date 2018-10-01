@@ -67,21 +67,28 @@ export default {
     drawFile() {
       if (!this.file) return
       this.isUploading = true
-      // const reader = new FileReader()
       const formData = new FormData()
-      // formData.append('id', '')
-      formData.append('img', this.file)
-      this.$http.post('/api/image/upload', formData).then(res => {
+      this.$http.get('/api/image/sign').then(res => {
         const { code, msg, data } = res.data
         if (code !== 0) {
           this.$message.error(msg)
         }
-        this.isUploading = false
-        this.file = null
-        this.src = ''
-        this.config.showAction = false
-        eventEmitter.emitEvent('on-should-draw-img', [data.url])
-        this.$emit('change-current', 'choose')
+        const key = data.startsWith + '/' + data.saveName
+        formData.append('OSSAccessKeyId', data.OSSAccessKeyId)
+        formData.append('policy', data.policy)
+        formData.append('signature', data.signature)
+        formData.append('success_action_status', 200)
+        formData.append('key', key)
+        formData.append('file', this.file)
+        this.$http.post(data.host, formData).then(res => {
+          const url = `${data.host}/${key}`
+          this.isUploading = false
+          this.file = null
+          this.src = ''
+          this.config.showAction = false
+          eventEmitter.emitEvent('on-should-draw-img', [url])
+          this.$emit('change-current', 'choose')
+        })
       })
     }
   }

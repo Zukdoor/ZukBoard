@@ -8,6 +8,7 @@ var uuid = require('node-uuid');
 const resCode = require('../resCode')
 const db = require(CURRENT_PATH + '/db/mongo')
 const env = process.env.NODE_ENV || "development"
+const getOSSParams = require('./oss')
 
 const createResult = function (ctx, code, msg = '', data = null) {
   ctx.body = {
@@ -59,6 +60,11 @@ module.exports = {
     model = insertResult.ops[0]
     // GenerateScript()
     createResult(ctx, resCode.OK, '', model)
+  },
+  'get#image/sign': async ctx => {
+    let dirpath = 'zukboard'
+    const filename = `${Date.now()}`
+    createResult(ctx, resCode.OK, '', getOSSParams(dirpath, filename))
   },
   'post#image/upload': async ctx => {
     const { fields, files } = await parse(ctx)
