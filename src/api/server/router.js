@@ -98,7 +98,7 @@ module.exports = {
     if (!model) {
       return createResult(ctx, resCode.SEARCH_NOT_EXIST, '画版不存在')
     }
-    const saveResult = await db.Board.collection.insertOne({_id: id}, {$set: {
+    const saveResult = await db.Board.collection.insertMany({_id: id}, {$set: {
       canvas
     }})
     // GenerateScript()
