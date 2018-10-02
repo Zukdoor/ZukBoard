@@ -9,7 +9,7 @@ module.exports = {
     {
       name: projectName,
       script: './app.js',
-      instances: '4',
+      instances: '1',
       // log_date_format: 'YYYY-MM-DD HH:mm Z',
       // error_file: `./logs/node/${projectName}/err.log`,
       // out_file: `./logs/node/${projectName}/out.log`,
