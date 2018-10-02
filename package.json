@@ -10,7 +10,7 @@
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
     "lint-staged": "lint-staged",
     "postinstall": "yarn build",
-    "start": "NODE_ENV=heroku pm2 start app.js -i 4"
+    "start": "pm2-runtime start ecosystem.config.js --env heroku"
   },
   "lint-staged": {
     "*.js": [
