@@ -50,6 +50,7 @@
     "read-pkg-up": "4.0.0",
     "redis": "2.8.0",
     "socket.io": "2.1.1",
+    "uuid": "3.1.0",
     "vue-color": "2.6.0"
   },
   "devDependencies": {
@@ -87,7 +88,6 @@
     "lint-staged": "7.3.0",
     "mini-css-extract-plugin": "0.4.3",
     "node-sass": "4.9.3",
-    "node-uuid": "1.4.8",
     "opn": "5.4.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "ora": "3.0.0",

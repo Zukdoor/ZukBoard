@@ -76,7 +76,7 @@
 
 <script>
 import socket from '../plugins/socket.js'
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
