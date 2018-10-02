@@ -3,6 +3,8 @@ const path = require('path')
 const config = require(CURRENT_PATH + '/config').webpackConfig
 const utils = require(CURRENT_PATH + '/build/utils')
 const vueLoaderConfig = require(CURRENT_PATH + '/build/vue-loader.conf')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+
 // const VueLoaderPlugin = require('vue-loader/lib/plugin')
 console.log(vueLoaderConfig)
 // const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -77,8 +79,8 @@ module.exports = {
         }
       }
     ]
-  }
-  // plugins: [
-  //   new VueLoaderPlugin()
-  // ]
+  },
+  plugins: [
+    new VueLoaderPlugin()
+  ]
 }
