@@ -9,11 +9,11 @@ module.exports = {
     {
       name: projectName,
       script: './app.js',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      error_file: `./logs/node/${projectName}/err.log`,
-      out_file: `./logs/node/${projectName}/out.log`,
-      combine_logs: true,
-      merge_logs: true,
+      // log_date_format: 'YYYY-MM-DD HH:mm Z',
+      // error_file: `./logs/node/${projectName}/err.log`,
+      // out_file: `./logs/node/${projectName}/out.log`,
+      // combine_logs: true,
+      // merge_logs: true,
       watch: false,
       max_memory_restart: '1024M',
       env: {
