@@ -1,5 +1,5 @@
 {
-  "name": "kugga-board-web",
+  "name": "zukboard",
   "port": "4089",
   "version": "0.0.1",
   "description": "drawing board by canvas",
@@ -7,12 +7,10 @@
     "test": " exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "node build/build.js",
-    "publish": "pm2 deploy ecosystem.config.js testing",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
-    "lazycommit": "git add . && git commit -m 'lazy commit' && git push origin release && npm run publish",
     "lint-staged": "lint-staged",
     "postinstall": "yarn build",
-    "start": "pm2-runtime start ecosystem.config.js --only kugga-board-web-heroku"
+    "start": "pm2-runtime start ecosystem.config.js"
   },
   "lint-staged": {
     "*.js": [
