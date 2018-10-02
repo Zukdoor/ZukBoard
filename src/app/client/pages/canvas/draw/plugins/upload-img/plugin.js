@@ -1,9 +1,5 @@
-// import uuid from 'node-uuid'
-// import * as spritejs from 'spritejs'
 
 // import {fabric} from 'fabric'
-
-// const { Sprite } = spritejs
 
 const PLUGIN_NAME = 'uploadImg'
 // vue instance

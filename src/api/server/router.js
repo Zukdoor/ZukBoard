@@ -4,7 +4,7 @@ const CURRENT_PATH = process.cwd()
 const path = require('path')
 const fs = require('fs')
 const multiparty = require('multiparty')
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 const resCode = require('../resCode')
 const db = require(CURRENT_PATH + '/db/mongo')
 const env = process.env.NODE_ENV || "development"
@@ -38,7 +38,6 @@ module.exports = {
     createResult(ctx, resCode.OK, '', list)
   },
   'get#board/get': async ctx => {
-    // 暂时写死画板ID
     try {
       let id = ctx.query.id
       let model = await db.Board.findOne({_id: ObjectId(id)})
@@ -54,7 +53,7 @@ module.exports = {
     const { name } = ctx.request.body
     const insertResult = await db.Board.collection.insertMany([{
       name: name || '画板',
-      roomId: 'test_room_id',
+      roomId: ctx.query.id,
       canvas: []
     }])
     model = insertResult.ops[0]
