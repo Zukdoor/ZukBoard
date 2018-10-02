@@ -81,6 +81,6 @@ if (env === 'development') {
 app.use(router)
 
 registerSocket(io)
-server.listen(process.env.PORT, () => {
-  console.log(`App (${env}) is now running on port => ${process.env.PORT}`)
+server.listen(process.env.PORT || 4089, () => {
+  console.log(`App (${env}) is now running on port => ${process.env.PORT || 4089}`)
 })
