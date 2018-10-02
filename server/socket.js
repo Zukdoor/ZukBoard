@@ -97,7 +97,7 @@ function register(io) {
     })
     socket.on('clear', async (id) => {
       socket.broadcast.emit('clear', id)
-      await db.Board.update({
+      await db.Board.updateOne({
         _id: ObjectId(id)
       }, {
         '$set': {
