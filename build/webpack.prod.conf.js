@@ -4,6 +4,7 @@ const CURRENT_PATH = process.cwd()
 const merge = require('webpack-merge')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
+const safeParser = require('postcss-safe-parser')
 const config = require(CURRENT_PATH + '/config').webpackConfig
 const utils = require(CURRENT_PATH + '/build/utils')
 const baseWebpackConfig = require(CURRENT_PATH + '/build/webpack.base.conf')
@@ -42,7 +43,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
     new OptimizeCSSPlugin({
       cssProcessorOptions: {
-        safe: true
+        parser: safeParser
       }
     }),
     new GetBundleHash()

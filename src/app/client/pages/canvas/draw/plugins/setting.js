@@ -31,7 +31,8 @@ export default {
     title: '上传图片',
     icon: '&#xe651;',
     setting: {
-      src: ''
+      src: '',
+      maxSize: 20 * 1024 * 1000
     }
   }
 }

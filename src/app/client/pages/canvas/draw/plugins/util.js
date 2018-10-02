@@ -12,3 +12,19 @@ export const getSystem = () => {
   let platform = navigator.platform
   return platform.indexOf('Win') === 0 ? 'win' : 'mac'
 }
+
+export const LoadImageAsync = (url) => {
+  return new Promise((resolve, reject) => {
+    let img = new Image()
+    img.onload = function () {
+      let width = this.width
+      let height = this.height
+      img.setAttribute('crossOrigin', 'anonymous')
+      resolve({ width: width, height: height })
+    }
+    img.onerror = function () {
+      reject()
+    }
+    img.src = url
+  })
+}
