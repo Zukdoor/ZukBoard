@@ -11,7 +11,7 @@
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
     "lazycommit": "git add . && git commit -m 'lazy commit' && git push origin release && npm run publish",
     "lint-staged": "lint-staged",
-    "start": "pm2-runtime start ecosystem.config.js --only kugga-board-web-heroku"
+    "start": "yarn build && pm2-runtime start ecosystem.config.js --only kugga-board-web-heroku"
   },
   "lint-staged": {
     "*.js": [
