@@ -3,6 +3,8 @@ const CURRENT_PATH = process.cwd()
 const { join } = require('path')
 const port = require('read-pkg-up').sync().pkg.port
 
+const mongoBaseUri = process.env.MONGODB_URI
+
 module.exports = {
   port: port,
   ENV_VAR: {
@@ -24,7 +26,7 @@ module.exports = {
     heroku: {
       staticBaseUrl: '/',
       apiUrl: '',
-      db: 'mongodb://zuk:zukdoor123@ds113703.mlab.com:13703/heroku_dn2rrbn7'
+      db: mongoBaseUri
     }
   },
   webpackConfig: {
