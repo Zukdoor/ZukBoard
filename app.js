@@ -81,6 +81,6 @@ if (env === 'development') {
 app.use(router)
 
 registerSocket(io)
-server.listen(process.env.NODE_ENV === 'heroku' ? process.env.PORT : renderConf.port, () => {
-  console.log(`App (${env}) is now running on port => ${process.env.NODE_ENV === 'heroku' ? process.env.PORT : renderConf.port}`)
+server.listen(process.env.PORT || renderConf.port, () => {
+  console.log(`App (${env}) is now running on port => ${process.env.PORT || renderConf.port}`)
 })
