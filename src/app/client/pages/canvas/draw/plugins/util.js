@@ -19,6 +19,7 @@ export const LoadImageAsync = (url) => {
     img.onload = function () {
       let width = this.width
       let height = this.height
+      img.setAttribute('crossOrigin', 'anonymous')
       resolve({ width: width, height: height })
     }
     img.onerror = function () {

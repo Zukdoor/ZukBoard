@@ -14,18 +14,18 @@ function register(io) {
     socket.on('sync', async (type, item, id) => {
       if (!item.data) return
       if (type === SYNC_TYPE.UNDO) {
-        await db.Board.update({
+        await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
           $pull: {
-            canvas: {opId: item.opId}
+            canvas: { opId: item.opId }
           }
         })
         socket.broadcast.emit('sync', type, item)
         return
       }
       if (type === SYNC_TYPE.REDO) {
-        await db.Board.update({
+        await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
           $push: {
@@ -36,7 +36,7 @@ function register(io) {
         return
       }
       if (type === SYNC_TYPE.UNDO.INSERT) {
-        await db.Board.update({
+        await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
           $push: {
@@ -47,7 +47,7 @@ function register(io) {
         return
       }
       // if (type === SYNC_TYPE.UNDO.DELETE) {
-      //   await db.Board.update({
+      //   await db.Board.updateOne({
       //     _id: ObjectId(id)
       //   }, {
       //     $pull: {
@@ -60,7 +60,7 @@ function register(io) {
       //   return
       // }
       if (type === SYNC_TYPE.UPDATE || type === SYNC_TYPE.DELETE) {
-        await db.Board.update({
+        await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
           $push: {
@@ -84,7 +84,7 @@ function register(io) {
       } else {
         board.canvas.push(item)
       }
-      await db.Board.update({
+      await db.Board.updateOne({
         _id: ObjectId(id)
       }, {
         '$set': {
@@ -97,7 +97,7 @@ function register(io) {
     })
     socket.on('clear', async (id) => {
       socket.broadcast.emit('clear', id)
-      await db.Board.update({
+      await db.Board.updateOne({
         _id: ObjectId(id)
       }, {
         '$set': {

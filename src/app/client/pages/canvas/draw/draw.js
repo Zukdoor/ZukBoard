@@ -109,7 +109,7 @@ class Draw {
         img.set('btype', this.current)
         canvas.add(img)
         this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
-      })
+      }, { crossOrigin: 'Anonymous' })
     })
   }
   clear() {

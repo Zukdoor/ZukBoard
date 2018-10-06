@@ -1,20 +1,19 @@
 language: node_js
 node_js:
-  - '8'
+- '10'
 branches:
   only:
   - master
 cache:
   directories:
   - node_modules
-addons:
-  ssh_known_hosts: 47.94.80.19
 script:
-  - yarn install
-  - yarn run test
+- yarn install
+- yarn run test
 deploy:
-  # deploy master to production
-  - provider: script
-    script: openssl aes-256-cbc -K $encrypted_8badaf691acc_key -iv $encrypted_8badaf691acc_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d && chmod 600 ~/.ssh/id_rsa && ssh travis@47.94.80.19 'cd ~/zookdoor/ZukBoard && git pull && cnpm install && npm run build && ENABLE_NODE_LOG=YES pm2 restart ecosystem.config.js --env testing'
-    on:
-      branch: master
+  provider: heroku
+  app: zukboard-heroku
+  api_key:
+    secure: J8xvqpednK/H1Ot8KTNedLrvh+vldC8lf6CGK455/dLECa4MrReonsFBCrzTwdt8I0bvjP2WjU1UfOHlF9WCJaOD61AmO/hF+IxjND/2Q0H66sMGVl1TLymlYqkzFLVhAIfp6FWgtgBceJIY2nJQ0Quw2oDpmkmMLI22caOf0AwZVA6dIVT1qTeaoFOf4gL1GLneUWfYZMsp1vYb6nMGkqWXCzNNt+TlHHWd+KQOOgqrj58CAEb0KIA0N9UTKvzypY87GOd78Aizj4BCIRE8OcGJiG59PVwtVwYLROz1iiqh5bTWRPem2hCC3rM5EzAv9Hi2g4oxqDUi2ujyBgqlyppl+MMSq2H/zdbwQS2HgUBLnfyGkaFu8DrGPM7iWH3dnND298aNf3z7lQH9NVaQJA6p+M7oRUJJhK0I6+wj4FBfuqj758BQ+uQxOk8UKCdsLIGYQQU6+4p3sWIL900YEqVOgqgAlee+FJWO8QGqGkPXt3pM9UeyZS6AGmSzNvu3DVGqP5lHMkg8YcjcOGMANsf7YI0mNtmt0YyYE6KdO6ghtBWi7M4YSWE/WWx6QcxmH8kUukNtishEgcnE+9d+1HUevGU7kawKqnfogC+HNE7K1iOdQVy5ww2Ew2ttBslWb3S8y170FgOoSe/2e8w51KSDrCzBjhfy3k7BORrzONU=
+  on:
+    branch: master

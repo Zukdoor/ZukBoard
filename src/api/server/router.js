@@ -4,10 +4,11 @@ const CURRENT_PATH = process.cwd()
 const path = require('path')
 const fs = require('fs')
 const multiparty = require('multiparty')
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 const resCode = require('../resCode')
 const db = require(CURRENT_PATH + '/db/mongo')
 const env = process.env.NODE_ENV || "development"
+const getOSSParams = require('./oss')
 
 const createResult = function (ctx, code, msg = '', data = null) {
   ctx.body = {
@@ -37,7 +38,6 @@ module.exports = {
     createResult(ctx, resCode.OK, '', list)
   },
   'get#board/get': async ctx => {
-    // 暂时写死画板ID
     try {
       let id = ctx.query.id
       let model = await db.Board.findOne({_id: ObjectId(id)})
@@ -51,14 +51,19 @@ module.exports = {
   'post#board/create': async ctx => {
     // 暂时写死画板ID
     const { name } = ctx.request.body
-    const insertResult = await db.Board.collection.insert([{
+    const insertResult = await db.Board.collection.insertMany([{
       name: name || '画板',
-      roomId: 'test_room_id',
+      roomId: ctx.query.id,
       canvas: []
     }])
     model = insertResult.ops[0]
     // GenerateScript()
     createResult(ctx, resCode.OK, '', model)
+  },
+  'get#image/sign': async ctx => {
+    let dirpath = 'zukboard'
+    const filename = `${Date.now()}`
+    createResult(ctx, resCode.OK, '', getOSSParams(dirpath, filename))
   },
   'post#image/upload': async ctx => {
     const { fields, files } = await parse(ctx)
@@ -92,7 +97,7 @@ module.exports = {
     if (!model) {
       return createResult(ctx, resCode.SEARCH_NOT_EXIST, '画版不存在')
     }
-    const saveResult = await db.Board.collection.insert({_id: id}, {$set: {
+    const saveResult = await db.Board.collection.insertMany({_id: id}, {$set: {
       canvas
     }})
     // GenerateScript()
