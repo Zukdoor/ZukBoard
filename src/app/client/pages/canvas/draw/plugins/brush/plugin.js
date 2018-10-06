@@ -1,4 +1,4 @@
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 import { paintPath } from '../util'
 
 // 是否开始画线

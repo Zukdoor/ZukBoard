@@ -21,8 +21,8 @@ Clone this github repository to your workspace.
 ```shell
 git clone git@github.com:Zukdoor/ZukBoard.git
 cd ZukBoard
-npm install # or yarn install
-npm run dev # or yarn run dev
+yarn install # We recommend using yarn as the package manager.
+yarn dev
 ```
 Then, visit http://localhost:4089/app/canvas/draw in your browser.
 
