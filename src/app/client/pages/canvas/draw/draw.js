@@ -1,6 +1,6 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter, getSystem, LoadImageAsync } from './plugins/util'
+import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -42,6 +42,7 @@ class Draw {
     this.canvasHeight = container.offsetHeight
     instance = this
     window.canvas = this.layerDraw
+    this.lastPosX = this.lastPosY = null
   }
   init() {
     this.initBrush()
@@ -247,12 +248,26 @@ class Draw {
       if (this.current !== 'pan') return
       canvas.defaultCursor = '-webkit-grabbing'
       panning = true
+      if (browser.versions.ios || browser.versions.android) {
+        this.lastPosX = e.e.touches[0].clientX
+        this.lastPosY = e.e.touches[0].clientY
+      }
     })
     canvas.on('mouse:move', (e) => {
       if (this.current !== 'pan') return
       if (!panning) return
-      var delta = new fabric.Point(e.e.movementX, e.e.movementY)
-      canvas.relativePan(delta)
+      if (browser.versions.ios || browser.versions.android) {
+        e = e.e
+        var vpt = canvas.viewportTransform.slice(0)
+        vpt[4] += e.targetTouches[0].clientX - this.lastPosX
+        vpt[5] += e.targetTouches[0].clientY - this.lastPosY
+        canvas.setViewportTransform(vpt)
+        this.lastPosX = e.targetTouches[0].clientX
+        this.lastPosY = e.targetTouches[0].clientY
+      } else {
+        var delta = new fabric.Point(e.e.movementX, e.e.movementY)
+        canvas.relativePan(delta)
+      }
     })
   }
   initText() {
