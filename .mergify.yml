@@ -6,4 +6,5 @@ rules:
       required_status_checks:
         contexts:
         - codebeat
-      merge_strategy: 'squash'
+    merge_strategy: 
+      method: 'squash'
