@@ -30,7 +30,7 @@ Then, visit http://localhost:4089/app/canvas/draw in your browser.
 
 ---
 
-Use http://board.yucircle.com/app/canvas/draw to get a taste of ZukBoard.
+Use http://zukboard-heroku.herokuapp.com/app/canvas/draw to get a taste of ZukBoard.
 
 ## Documentation
 
