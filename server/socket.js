@@ -11,7 +11,10 @@ const SYNC_TYPE = {
 }
 function register(io) {
   io.on('connection', async (socket) => {
-    socket.on('sync', async (type, item, id) => {
+    socket.on('joinRoom', async (id) => {
+      socket.join(id)
+    })
+    socket.on('sync', async (type, item, id, roomId) => {
       if (!item.data) return
       if (type === SYNC_TYPE.UNDO) {
         await db.Board.updateOne({
@@ -21,7 +24,7 @@ function register(io) {
             canvas: { opId: item.opId }
           }
         })
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
         return
       }
       if (type === SYNC_TYPE.REDO) {
@@ -32,7 +35,7 @@ function register(io) {
             canvas: item
           }
         })
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
         return
       }
       if (type === SYNC_TYPE.UNDO.INSERT) {
@@ -43,7 +46,7 @@ function register(io) {
             canvas: item
           }
         })
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
         return
       }
       // if (type === SYNC_TYPE.UNDO.DELETE) {
@@ -67,14 +70,14 @@ function register(io) {
             canvas: item
           }
         })
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
         return
       }
       if (type === SYNC_TYPE.MOVE) {
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
         return
       }
-      socket.broadcast.emit('sync', type, item)
+      socket.to(roomId).emit('sync', type, item)
       const board = await db.Board.findOne({
         _id: ObjectId(id)
       })
@@ -93,10 +96,10 @@ function register(io) {
       })
     })
     socket.on('drawpoint', (item, id) => {
-      socket.broadcast.emit('drawpoint', item)
+      socket.to(id).emit('drawpoint', item)
     })
     socket.on('clear', async (id) => {
-      socket.broadcast.emit('clear', id)
+      socket.to(id).emit('clear', id)
       await db.Board.updateOne({
         _id: ObjectId(id)
       }, {
