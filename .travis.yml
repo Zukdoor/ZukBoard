@@ -4,6 +4,7 @@ node_js:
 branches:
   only:
   - master
+  - develop
 cache:
   directories:
   - node_modules
@@ -15,8 +16,7 @@ deploy:
     script: sh deploy-staging.sh
     skip_cleanup: true
     on:
-      all_branches: true
-      condition: $TRAVIS_BRANCH = develop
+      branch: develop
   - provider: heroku
     app: zukboard-heroku
     api_key:
