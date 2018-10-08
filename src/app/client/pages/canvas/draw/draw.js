@@ -96,15 +96,18 @@ class Draw {
   }
   addImage(url) {
     const canvas = this.layerDraw
+    var vpt = canvas.viewportTransform.slice(0)
     LoadImageAsync(url).then((attr) => {
       let scale = 1
       let left = 0
+      let top = 150
       if (attr.width >= this.canvaswidth / 2) {
         scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
       }
-      left = (this.canvaswidth - attr.width * scale) / 2
+      left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
+      top -= vpt[5]
       fabric.Image.fromURL(url, (upImg) => {
-        const img = upImg.set({ left: left, top: 150 }).scale(scale)
+        const img = upImg.set({ left: left, top: top }).scale(scale)
         img.set('id', genKey())
         img.set('btype', this.current)
         canvas.add(img)
