@@ -2,7 +2,7 @@ const crypto = require('crypto')
 
 const id = process.env.OSS_ID
 const secret = process.env.OSS_SECRET
-const host = 'http://cdn.yucircle.com'
+const host = 'https://cdn.yucircle.com'
 
 console.log('oss: config:', id, secret)
 
