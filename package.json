@@ -4,14 +4,14 @@
   "version": "0.0.1",
   "description": "drawing board by canvas",
   "scripts": {
-    "test": " exit 0",
+    "test": "exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "node build/build.js",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
     "lint-staged": "lint-staged",
     "postinstall": "yarn build",
     "start": "pm2-runtime start ecosystem.config.js --env heroku",
-    "now-start": "pm2-runtime start ecosystem.config.js --env now"
+    "now-start": "pm2 start ecosystem.config.js --env now"
   },
   "lint-staged": {
     "*.js": [
