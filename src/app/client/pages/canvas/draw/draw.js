@@ -16,7 +16,8 @@ const SYNC_TYPE = {
   DELETE: 'delete',
   MOVE: 'move',
   REDO: 'redo',
-  UNDO: 'undo'
+  UNDO: 'undo',
+  FOLLOW: 'follow'
 }
 let instance = null
 class Draw {
@@ -49,6 +50,7 @@ class Draw {
     this.initPan()
     this.initText()
     this.initZoom()
+    this.initFollow()
     this.registerEvents()
   }
   getInstance() {
@@ -91,6 +93,7 @@ class Draw {
     window.addEventListener('resize', () => {
       canvas.setWidth(this.container.offsetWidth)
       canvas.setHeight(this.container.offsetHeight)
+      this.setZoom(this.container.offsetWidth / 1080)
     })
   }
   addImage(url) {
@@ -251,6 +254,7 @@ class Draw {
     canvas.on('mouse:move', (e) => {
       if (this.current !== 'pan') return
       if (!panning) return
+      console.log('pan', e.e.movementX, e.e.movementY)
       var delta = new fabric.Point(e.e.movementX, e.e.movementY)
       canvas.relativePan(delta)
     })
@@ -301,11 +305,21 @@ class Draw {
       opt.e.stopPropagation()
     })
   }
+  moveToPoint(x, y) {
+    var delta = new fabric.Point(x, y)
+    this.layerDraw.relativePan(delta)
+  }
   setZoom(zoom) {
     const canvas = this.layerDraw
     const center = canvas.getCenter()
     const transform = { x: center.left, y: center.top }
     canvas.zoomToPoint(transform, zoom)
+  }
+  initFollow() {
+    const canvas = this.layerDraw
+    canvas.on('mouse:move', (e) => {
+      this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: e.e.movementX, y: e.e.movementY })
+    })
   }
   redo(opt) {
     // plugins[opt.key].redo.call(this.vm, opt, this.layerDraw)

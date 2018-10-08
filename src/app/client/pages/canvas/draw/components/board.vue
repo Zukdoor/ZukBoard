@@ -102,6 +102,8 @@ export default {
       zindex: 0,
       wPercent: 1,
       hPercent: 1,
+      baseWidth: 1080,
+      baseHeight: 720,
       uid: '', // temp uid
       renderList: [],
       redoList: [],
@@ -152,6 +154,10 @@ export default {
       }
       if (type === 'redo') {
         this.redo(item.opId)
+        return
+      }
+      if (type === 'follow') {
+        this.moveTo(item.data.x, item.data.y)
         return
       }
       if (type !== 'move') {
@@ -225,6 +231,10 @@ export default {
       }
 
       this.drawer.zoomPercent = this.steps[this.pIndex] / 100
+    },
+    moveTo(x, y) {
+      console.log(x, y)
+      this.drawer.moveToPoint(x, y)
     },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {

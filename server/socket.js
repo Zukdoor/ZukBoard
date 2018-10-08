@@ -7,7 +7,8 @@ const SYNC_TYPE = {
   DELETE: 'delete',
   MOVE: 'move',
   REDO: 'redo',
-  UNDO: 'undo'
+  UNDO: 'undo',
+  FOLLOW: 'follow'
 }
 function register(io) {
   io.on('connection', async (socket) => {
@@ -35,7 +36,7 @@ function register(io) {
         socket.broadcast.emit('sync', type, item)
         return
       }
-      if (type === SYNC_TYPE.UNDO.INSERT) {
+      if (type === SYNC_TYPE.INSERT) {
         await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
@@ -43,6 +44,10 @@ function register(io) {
             canvas: item
           }
         })
+        socket.broadcast.emit('sync', type, item)
+        return
+      }
+      if (type === SYNC_TYPE.FOLLOW) {
         socket.broadcast.emit('sync', type, item)
         return
       }
