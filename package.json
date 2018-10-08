@@ -11,7 +11,7 @@
     "lint-staged": "lint-staged",
     "postinstall": "yarn build",
     "start": "pm2-runtime start ecosystem.config.js --env heroku",
-    "now-start": "pm2 start ecosystem.config.js --env now"
+    "now-start": "NODE_ENV=now node ./app.js"
   },
   "lint-staged": {
     "*.js": [
