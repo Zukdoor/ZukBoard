@@ -9120,10 +9120,10 @@ vue@2.5.17:
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.17.tgz#0f8789ad718be68ca1872629832ed533589c6ada"
   integrity sha512-mFbcWoDIJi0w0Za4emyLiW72Jae0yjANHbCVquMKijcavBGypqlF7zHRgMa5k4sesdv7hv2rB4JPdZfR+TPfhQ==
 
-vuex-persist@1.7.1:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.7.1.tgz#050b271730d0ffdb9d4a39da8f448053aa941ab8"
-  integrity sha512-UlNCvWA2Rh7H7qbMcHQ3NIGuhVcsL6ot2b1SVCmkWYRONA1g7JxSQZMVIgV7cdxsSJquf35HdBiAZGz5dl6YSA==
+vuex-persist@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/vuex-persist/-/vuex-persist-1.7.2.tgz#11426036e7886b5ad79ecc565130ee599bdefb5d"
+  integrity sha512-0FTJ7TvolkzQYaz+LtvxEHUWQMYXd7eWhdPZQq2Iq1fnROQjPiIUBINMFWqo6crIJAZHeKSHSO18rOk81zYpWg==
   dependencies:
     circular-json "^0.5.5"
     lodash.merge "^4.6.1"
