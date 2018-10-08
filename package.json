@@ -11,7 +11,8 @@
     "lint-staged": "lint-staged",
     "postinstall": "yarn build",
     "start": "pm2-runtime start ecosystem.config.js --env heroku",
-    "now-start": "pm2-runtime start ecosystem.config.js --env now"
+    "now-start": "pm2-runtime start ecosystem.config.js --env now",
+    "now-build": "echo 'Built on Travis CI'"
   },
   "lint-staged": {
     "*.js": [
