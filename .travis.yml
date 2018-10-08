@@ -16,7 +16,7 @@ deploy:
     skip_cleanup: true
     on:
       all_branches: true
-      condition: $TRAVIS_BRANCH =~ ^develop|staging|production$
+      condition: $TRAVIS_BRANCH = develop
   - provider: heroku
     app: zukboard-heroku
     api_key:
