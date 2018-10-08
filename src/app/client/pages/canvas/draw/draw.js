@@ -1,6 +1,6 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter, getSystem, LoadImageAsync } from './plugins/util'
+import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -24,6 +24,7 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
+    this.isPresenter = true
     this.container = container
     this.layerDraw = new fabric.Canvas('layer-draw', {
       width: container.offsetWidth,
@@ -43,6 +44,7 @@ class Draw {
     this.canvasHeight = container.offsetHeight
     instance = this
     window.canvas = this.layerDraw
+    this.lastPosX = this.lastPosY = null
   }
   init() {
     this.initBrush()
@@ -90,23 +92,40 @@ class Draw {
       })
       // canvas.freeDrawingBrush.width = +width
     })
-    window.addEventListener('resize', () => {
-      canvas.setWidth(this.container.offsetWidth)
-      canvas.setHeight(this.container.offsetHeight)
-      this.setZoom(this.container.offsetWidth / 1080)
+    this._vm.$nextTick(() => {
+      this.resizeCanvas()
+      // canvas.setWidth(this.container.offsetWidth)
+      // canvas.setHeight(this.container.offsetHeight)
+      // canvas.renderAll()
+      // this.setZoom(this.container.offsetWidth / 1080)
     })
+    window.addEventListener('resize', () => {
+      this.resizeCanvas()
+      // this.setZoom(this.container.offsetWidth / 1080)
+    })
+  }
+  resizeCanvas() {
+    const canvas = this.layerDraw
+    const canvasWidth = this.container.offsetWidth
+    const canvasHeight = this.container.offsetHeight // 800 / 1080 * canvasWidth
+    canvas.setWidth(canvasWidth)
+    canvas.setHeight(canvasHeight)
+    this.setZoom(canvasWidth / 1080)
   }
   addImage(url) {
     const canvas = this.layerDraw
+    var vpt = canvas.viewportTransform.slice(0)
     LoadImageAsync(url).then((attr) => {
       let scale = 1
       let left = 0
+      let top = 150
       if (attr.width >= this.canvaswidth / 2) {
         scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
       }
-      left = (this.canvaswidth - attr.width * scale) / 2
+      left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
+      top -= vpt[5]
       fabric.Image.fromURL(url, (upImg) => {
-        const img = upImg.set({ left: left, top: 150 }).scale(scale)
+        const img = upImg.set({ left: left, top: top }).scale(scale)
         img.set('id', genKey())
         img.set('btype', this.current)
         canvas.add(img)
@@ -250,13 +269,32 @@ class Draw {
       if (this.current !== 'pan') return
       canvas.defaultCursor = '-webkit-grabbing'
       panning = true
+      if (browser.versions.ios || browser.versions.android) {
+        this.lastPosX = e.e.touches[0].clientX
+        this.lastPosY = e.e.touches[0].clientY
+      }
     })
     canvas.on('mouse:move', (e) => {
       if (this.current !== 'pan') return
       if (!panning) return
-      console.log('pan', e.e.movementX, e.e.movementY)
-      var delta = new fabric.Point(e.e.movementX, e.e.movementY)
-      canvas.relativePan(delta)
+      if (browser.versions.ios || browser.versions.android) {
+        e = e.e
+        var vpt = canvas.viewportTransform.slice(0)
+        vpt[4] += e.targetTouches[0].clientX - this.lastPosX
+        vpt[5] += e.targetTouches[0].clientY - this.lastPosY
+        canvas.setViewportTransform(vpt)
+        this.lastPosX = e.targetTouches[0].clientX
+        this.lastPosY = e.targetTouches[0].clientY
+        if (this.isPresenter) {
+          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: this.lastPosX, y: this.lastPosY })
+        }
+      } else {
+        var delta = new fabric.Point(e.e.movementX, e.e.movementY)
+        canvas.relativePan(delta)
+        if (this.isPresenter) {
+          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: e.e.movementX, y: e.e.movementY })
+        }
+      }
     })
   }
   initText() {
@@ -311,14 +349,14 @@ class Draw {
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
-    const center = canvas.getCenter()
-    const transform = { x: center.left, y: center.top }
+    // const center = canvas.getCenter()
+    const transform = { x: 0, y: 0 }
     canvas.zoomToPoint(transform, zoom)
   }
   initFollow() {
     const canvas = this.layerDraw
     canvas.on('mouse:move', (e) => {
-      this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: e.e.movementX, y: e.e.movementY })
+      // this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: e.e.movementX, y: e.e.movementY })
     })
   }
   redo(opt) {

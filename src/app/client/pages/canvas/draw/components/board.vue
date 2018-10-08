@@ -147,6 +147,7 @@ export default {
     ...actions
   },
   created() {
+    let id = this.$route.params.id
     this.socket.on('sync', (type, item) => {
       if (type === 'undo') {
         this.undo(item.opId)
@@ -177,8 +178,8 @@ export default {
         message: '画布已被清空!'
       })
     })
-    let id = this.$route.params.id
     if (id) {
+      this.socket.emit('joinRoom', id)
       this.getBoard(id)
       return
     }
@@ -186,7 +187,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.drawer = new Draw(this, '#canvas', 1000, 500)
+      this.drawer = new Draw(this, '#canvas', 1080, 800)
       this.drawer.init()
       window.drawer = this.drawer
     })
@@ -246,6 +247,7 @@ export default {
         this.initBoard()
         delete data.canvas
         this.board = data
+        this.socket.emit('joinRoom', data._id)
         window.history.replaceState({}, '', `/app/canvas/draw/${data._id}`)
       })
     },
@@ -304,7 +306,7 @@ export default {
       if (!noPush) {
         this.renderList.push(item)
       }
-      this.socket.emit('sync', type, item, this.board._id)
+      this.socket.emit('sync', type, item, this.board._id, this.board._id)
     },
     toggleAction(item, flag) {
       item.showAction = flag

@@ -28,3 +28,16 @@ export const LoadImageAsync = (url) => {
     img.src = url
   })
 }
+
+export const browser = {
+  versions: (function () {
+    let u = navigator.userAgent
+    return {
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/) || u.indexOf('iPad') > -1,
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1,
+      iPhone: u.indexOf('iPhone') > -1,
+      iPad: u.indexOf('iPad') > -1
+    }
+  })()
+}
