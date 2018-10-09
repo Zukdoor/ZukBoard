@@ -9,7 +9,7 @@
     "build": "node build/build.js",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
     "lint-staged": "lint-staged",
-    "postinstall": "if [ $NODE_ENV = 'heroku' ]; then yarn build; fi",
+    "postinstall": "yarn build",
     "start": "pm2-runtime start ecosystem.config.js --env heroku"
   },
   "lint-staged": {
