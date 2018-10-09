@@ -416,6 +416,7 @@ export default {
   // position: relative;
   // margin: 20px;
   height: 100%;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 
   ul.content-menu{
     width: 200px;
