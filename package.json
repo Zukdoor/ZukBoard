@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "drawing board by canvas",
   "scripts": {
-    "test": " exit 0",
+    "test": "exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "node build/build.js",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
@@ -49,6 +49,7 @@
     "redis": "2.8.0",
     "socket.io": "2.1.1",
     "uuid": "3.3.2",
+    "vue-analytics": "5.16.0",
     "vue-color": "2.6.0"
   },
   "devDependencies": {

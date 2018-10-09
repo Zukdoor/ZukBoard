@@ -27,6 +27,11 @@ module.exports = {
       staticBaseUrl: '/',
       apiUrl: '',
       db: mongoBaseUri
+    },
+    now: {
+      staticBaseUrl: '/',
+      apiUrl: '',
+      db: mongoBaseUri
     }
   },
   webpackConfig: {
