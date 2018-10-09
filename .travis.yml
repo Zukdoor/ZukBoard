@@ -17,6 +17,11 @@ deploy:
     skip_cleanup: true
     on:
       branch: develop
+  - provider: script # Run a custom deployment script which we will define below
+    script: sh deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master
   - provider: heroku
     app: zukboard-heroku
     api_key:
