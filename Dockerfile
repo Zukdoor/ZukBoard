@@ -13,7 +13,7 @@ COPY ecosystem.config.js /app
 COPY entrypoint.sh .
 
 # Install app dependencies
-RUN yarn install
+RUN cd app && yarn install
 
 # Expose the listening port of your app
 EXPOSE 4089
