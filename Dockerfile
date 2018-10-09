@@ -5,6 +5,7 @@ RUN mkdir app
 COPY public /app/public/
 COPY db /app/db
 COPY server /app/server/
+COPY src /app/src
 COPY config.js /app
 COPY app.js /app
 COPY package.json /app
