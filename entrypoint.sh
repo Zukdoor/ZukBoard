@@ -3,4 +3,4 @@ set -e
 
 cd app
 
-exec pm2 start ecosystem.config.js --env now "$@"
+exec pm2-runtime start ecosystem.config.js --env now "$@"
