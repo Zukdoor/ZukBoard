@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "drawing board by canvas",
   "scripts": {
-    "test": " exit 0",
+    "test": "exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "node build/build.js",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
@@ -49,6 +49,7 @@
     "redis": "2.8.0",
     "socket.io": "2.1.1",
     "uuid": "3.3.2",
+    "vue-analytics": "5.16.0",
     "vue-color": "2.6.0"
   },
   "devDependencies": {
@@ -108,9 +109,9 @@
     "vue-style-loader": "4.1.2",
     "vue-template-compiler": "2.5.17",
     "vuex": "3.0.1",
-    "vuex-persist": "1.7.1",
+    "vuex-persist": "1.7.2",
     "webpack": "4.20.2",
-    "webpack-hot-middleware": "2.24.2",
+    "webpack-hot-middleware": "2.24.3",
     "webpack-merge": "4.1.4",
     "wolfy87-eventemitter": "5.2.5"
   },
