@@ -335,7 +335,10 @@ class Draw {
     if (this.textEditing) return
     const canvas = this.layerDraw
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
-    canvas.getActiveObjects().forEach(o => canvas.remove(o))
+    const activeObjects = canvas.getActiveObjects()
+    canvas.discardActiveObject()
+    if (activeObjects.length === 0) return
+    canvas.remove.apply(canvas, activeObjects)
     this._vm.sync('choose', SYNC_TYPE.DELETE, deleteIds)
   }
   addText(input) {
