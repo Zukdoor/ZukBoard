@@ -11,7 +11,7 @@
     "lint-staged": "lint-staged",
     "postinstall": "if [ $NODE_ENV = 'heroku' ]; then yarn build; fi",
     "start": "pm2-runtime start ecosystem.config.js --env heroku",
-    "now-start": "OSS_ID=$OSS_ID OSS_SECRET=$OSS_SECRET MONGODB_URI=$MONGODB_URI pm2 start ecosystem.config.js --env now",
+    "now-start": "pm2-runtime start ecosystem.config.js --env now",
     "now-build": "echo 'Built on Travis CI'"
   },
   "lint-staged": {
