@@ -3,6 +3,7 @@ FROM keymetrics/pm2:latest-alpine
 # Bundle APP files
 RUN mkdir app
 COPY public /app/public/
+COPY db /app/db
 COPY server /app/server/
 COPY config.js /app
 COPY app.js /app
