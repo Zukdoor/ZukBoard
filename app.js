@@ -1,4 +1,4 @@
-const CURRENT_PATH = process.cwd() === '/' ? '' : process.cwd()
+const CURRENT_PATH = process.cwd()
 const env = process.env.NODE_ENV || 'development'
 const Koa = require('koa')
 const app = new Koa()
