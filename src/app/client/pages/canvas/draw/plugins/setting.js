@@ -16,7 +16,7 @@ export default {
     icon: '&#xe617;',
     setting: {
       color: '#de1221',
-      width: 3
+      width: 2
     }
   },
   'kbText': {
