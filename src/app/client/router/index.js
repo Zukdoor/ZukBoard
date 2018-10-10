@@ -17,6 +17,7 @@ export default new Router({
     children: [
       {
         path: 'draw/:id?',
+        name: 'room',
         component: loadPage('canvas/draw/index')
       }
     ]
