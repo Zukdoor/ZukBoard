@@ -18,14 +18,17 @@ if (process.env.NODE_ENV !== 'development') {
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 Vue.use(VueResource)
-Vue.use(VueAnalytics, {
-  id: id,
-  autoTracking: {
-    screenview: true
-  },
-  router
-})
 
+// If GA_ID exists, then enable Google Analytics
+if (id !== undefined) {
+  Vue.use(VueAnalytics, {
+    id: id,
+    autoTracking: {
+      screenview: true
+    },
+    router
+  })
+}
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
