@@ -16,7 +16,11 @@ Vue.use(ElementUI)
 Vue.config.productionTip = false
 Vue.use(VueResource)
 Vue.use(VueAnalytics, {
-  id: 'UA-127178766-1'
+  id: process.env.GA_ID,
+  autoTracking: {
+    screenview: true
+  },
+  router
 })
 /* eslint-disable no-new */
 new Vue({
