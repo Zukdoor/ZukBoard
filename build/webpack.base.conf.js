@@ -4,6 +4,7 @@ const config = require(CURRENT_PATH + '/config').webpackConfig
 const utils = require(CURRENT_PATH + '/build/utils')
 const vueLoaderConfig = require(CURRENT_PATH + '/build/vue-loader.conf')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const webpack = require('webpack')
 
 // const VueLoaderPlugin = require('vue-loader/lib/plugin')
 console.log(vueLoaderConfig)
@@ -81,6 +82,11 @@ module.exports = {
     ]
   },
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        GA_ID: JSON.stringify(process.env.GA_ID)
+      }
+    })
   ]
 }
