@@ -8,6 +8,9 @@ import VueAnalytics from 'vue-analytics'
 import App from './App'
 import router from './router'
 import store from './store'
+
+const id = process.env.GA_ID
+
 if (process.env.NODE_ENV !== 'development') {
   // eslint-disable-next-line
   __webpack_public_path__ = window.staticBaseUrl
@@ -16,12 +19,13 @@ Vue.use(ElementUI)
 Vue.config.productionTip = false
 Vue.use(VueResource)
 Vue.use(VueAnalytics, {
-  id: process.env.GA_ID,
+  id: id,
   autoTracking: {
     screenview: true
   },
   router
 })
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
