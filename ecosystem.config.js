@@ -22,6 +22,9 @@ module.exports = {
       },
       env_heroku: {
         NODE_ENV: 'heroku'
+      },
+      env_now: {
+        NODE_ENV: 'now'
       }
     }
   ]

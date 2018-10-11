@@ -26,7 +26,7 @@ html,body {
   padding: 0;
   width: 100%;
   height: 100%;
-  background: #656c73;
+  background: #fff;
 }
 .echarts {
   height: 400px;
