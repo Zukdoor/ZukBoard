@@ -103,6 +103,12 @@ function register(io) {
     socket.on('drawpoint', (item, id) => {
       socket.to(id).emit('drawpoint', item)
     })
+    socket.on('startFollow', (item, id) => {
+      socket.to(id).emit('startFollow', item)
+    })
+    socket.on('endFollow', (item, id) => {
+      socket.to(id).emit('endFollow', item)
+    })
     socket.on('clear', async (id) => {
       socket.to(id).emit('clear', id)
       await db.Board.updateOne({

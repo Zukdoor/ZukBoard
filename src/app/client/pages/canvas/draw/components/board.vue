@@ -3,6 +3,7 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
+          <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
           <li @click="refresh" title="清空画板"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe6a4;</i></li>
           <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
           <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
@@ -169,6 +170,18 @@ export default {
     this.socket.on('drawpoint', (r) => {
       this.drawer.syncBoardWithPoint(r)
     })
+    this.socket.on('startFollow', (opt) => {
+      this.drawer.isPresenter = false
+      this.drawer.isFollowingMode = true
+      this.drawer.baseWidth = opt.width
+      this.drawer.resizeCanvas()
+    })
+    this.socket.on('endFollow', (opt) => {
+      this.drawer.isPresenter = false
+      this.drawer.isFollowingMode = false
+      this.drawer.setZoom(1)
+    })
+
     this.socket.on('clear', (r) => {
       this.drawer.clear()
       this.renderList = []
@@ -187,7 +200,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.drawer = new Draw(this, '#canvas', 1080, 800)
+      this.drawer = new Draw(this, '#canvas', 1000, 500)
       this.drawer.init()
       window.drawer = this.drawer
     })
@@ -211,11 +224,32 @@ export default {
         this.deleteSelected()
       }
     })
+    window.addEventListener('resize', () => {
+
+    })
   },
   methods: {
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
       this.drawer.zoomPercent = percent / 100
+    },
+    toggleFollowing() {
+      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
+        return
+      }
+      if (this.drawer.isFollowingMode) {
+        this.drawer.isPresenter = false
+        this.drawer.isFollowingMode = false
+        this.socket.emit('endFollow', null, this.board._id)
+        return
+      }
+      const { container } = this.drawer
+      this.drawer.isPresenter = true
+      this.drawer.isFollowingMode = true
+      this.socket.emit('startFollow', {
+        width: container.offsetWidth,
+        height: container.offsetHeight
+      }, this.board._id)
     },
     changeZoom(isUp) {
       let filterArr = this.steps.filter((item) => {
@@ -285,7 +319,6 @@ export default {
     },
     initBoard() {
       this.drawer.initBoard(this.renderList)
-      // this.renderList.forEach((item) => (item))
     },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
@@ -513,6 +546,9 @@ export default {
         height: 54px;
         .iconfont {
           font-size: 18px;
+        }
+        .following-mode{
+          color: green;
         }
         text-align: center;
         box-sizing: border-box;

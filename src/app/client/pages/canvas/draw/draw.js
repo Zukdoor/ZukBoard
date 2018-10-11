@@ -25,6 +25,7 @@ class Draw {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
     this.isPresenter = true
+    this.isFollowingMode = false
     this.container = container
     this.layerDraw = new fabric.Canvas('layer-draw', {
       width: container.offsetWidth,
@@ -42,6 +43,7 @@ class Draw {
     this.textEditing = false
     this.canvaswidth = container.offsetWidth
     this.canvasHeight = container.offsetHeight
+    this.baseWidth = this.canvaswidth
     instance = this
     window.canvas = this.layerDraw
     this.lastPosX = this.lastPosY = null
@@ -94,14 +96,9 @@ class Draw {
     })
     this._vm.$nextTick(() => {
       this.resizeCanvas()
-      // canvas.setWidth(this.container.offsetWidth)
-      // canvas.setHeight(this.container.offsetHeight)
-      // canvas.renderAll()
-      // this.setZoom(this.container.offsetWidth / 1080)
     })
     window.addEventListener('resize', () => {
       this.resizeCanvas()
-      // this.setZoom(this.container.offsetWidth / 1080)
     })
   }
   resizeCanvas() {
@@ -110,7 +107,9 @@ class Draw {
     const canvasHeight = this.container.offsetHeight // 800 / 1080 * canvasWidth
     canvas.setWidth(canvasWidth)
     canvas.setHeight(canvasHeight)
-    this.setZoom(canvasWidth / 1080)
+    if (this.isFollowingMode) {
+      this.setZoom(canvasWidth / this.baseWidth)
+    }
   }
   addImage(url) {
     const canvas = this.layerDraw
