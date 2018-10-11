@@ -36,13 +36,25 @@ Use http://zukboard-heroku.herokuapp.com/app/canvas/draw to get a taste of ZukBo
 
 ---
 
-Find the documentation on the [website](https://zukboard.now.sh/).
+Find the documentation [here](https://docs.zukdoor.cloud/).
 
 ## Contributing
 
+See [how-to-contribute](./CONTRIBUTING.md).
+
 ---
 
-To be added.
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+
+| [<img src="https://avatars3.githubusercontent.com/u/13583761?s=88&v=4" width="100px" height="100px" /><br /><sub>Zihua Wu</sub>](https://github.com/lucifer1004) | [<img src="https://avatars1.githubusercontent.com/u/6133451?s=60&v=4" width="100px;" height="100px"/><br /><sub>qianyuchang</sub>](https://github.com/qianyuchang) | [<img src="https://avatars2.githubusercontent.com/u/3862588?s=60&v=4" width="100px;" height="100px" /><br /><sub>sandyz</sub>](https://github.com/yanzhou-share)|
+| :---: | :---: | :---: |
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+---
 
 ## License
 
