@@ -115,7 +115,7 @@ export default {
       setting: {
         brush: {
           color: 'rgb(222, 18, 33)',
-          width: 3
+          width: 2
         },
         kbText: {
           color: '#333'
