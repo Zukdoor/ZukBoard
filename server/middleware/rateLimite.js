@@ -24,7 +24,7 @@ function rate(ctx, options) {
         reject(new Error('rate'))
       } else {
         console.log('count =>' + count)
-        if (parseInt(count) > 499) {
+        if (parseInt(count, 10) > 499) {
           resolve()
         } else {
           reject()
