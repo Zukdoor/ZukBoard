@@ -44,11 +44,13 @@ Find the documentation [here](https://docs.zukdoor.cloud/).
 
 ## Contributing
 
-See [how-to-contribute](./CONTRIBUTING.md).
-
 ---
 
+See [how-to-contribute](./CONTRIBUTING.md).
+
 ## Contributors
+
+---
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
@@ -57,8 +59,6 @@ See [how-to-contribute](./CONTRIBUTING.md).
 | :---: | :---: | :---: | :---: |
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
----
 
 ## License
 
