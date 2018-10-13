@@ -10,7 +10,8 @@ cache:
   directories:
   - node_modules
 script:
-  - yarn run test
+  - yarn test
+  - yarn build
 before_deploy: yarn add now --no-save # Install Now CLI on Travis
 deploy:
   - provider: script # Run a custom deployment script which we will define below
