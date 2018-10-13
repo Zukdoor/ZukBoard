@@ -4,4 +4,4 @@ NOW_DEPLOY_ID=$( now --no-clipboard --regions=all --docker --token=$NOW_TOKEN -e
 now alias $NOW_DEPLOY_ID "$NOW_CUSTOM_DOMAIN_STAGING" --token=$NOW_TOKEN
 
 # There seems to be problem with deployment removal [2018-10-11]
-# now rm $NOW_SUBDOMAIN --safe --yes --token=$NOW_TOKEN || exit 0
+now rm $NOW_SUBDOMAIN --safe --yes --token=$NOW_TOKEN || exit 0
