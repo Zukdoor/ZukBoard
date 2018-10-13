@@ -4,8 +4,7 @@
 !public
 !server
 !src
-!app.js
-!config.js
-!ecosystem.config.js
+
+!*.js
 !package.json
 !yarn.lock
