@@ -6,5 +6,6 @@
 !src
 
 !*.js
+!.babelrc
 !package.json
 !yarn.lock
