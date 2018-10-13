@@ -1,0 +1,11 @@
+*
+!build
+!db
+!public
+!server
+!src
+!app.js
+!config.js
+!ecosystem.config.js
+!package.json
+!yarn.lock

@@ -1,20 +1,51 @@
-FROM keymetrics/pm2:latest-alpine
+#
+# ---- Base Node ----
+FROM keymetrics/pm2:latest-alpine AS base
 
-# Bundle APP files
-RUN mkdir app
-COPY public /app/public
-COPY build /app/build
-COPY db /app/db
-COPY server /app/server
-COPY src /app/src
-COPY .babelrc .eslintignore .eslintrc.js .postcssrc.js config.js app.js package.json yarn.lock ecosystem.config.js /app/
-COPY entrypoint.sh .
+RUN apk add --no-cache tini
+# Tini is now available at /sbin/tini
 
-# Install app dependencies
-RUN apk update && apk add python
-RUN cd app && yarn install
+WORKDIR /root/zukboard
+
+# Set tini as entrypoint
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# copy project file
+COPY package.json .
+COPY yarn.lock .
+
+#
+# ---- Dependencies ----
+FROM base AS dependencies
+
+# install node modules
+RUN apk add --no-cache python make
+RUN yarn install --production
+
+# copy production node_modules aside
+RUN cp -R node_modules prod_node_modules
+RUN rm -rf node_modules
+
+# build
+COPY build ./build
+COPY public ./public
+COPY . .
+RUN yarn install && yarn build
+
+#
+# ---- Production ----
+FROM base AS production
+
+# copy production node_modules and built files
+COPY --from=dependencies /root/zukboard/prod_node_modules ./node_modules
+COPY --from=dependencies /root/zukboard/public ./public
+COPY db ./db
+COPY server ./server
+
+# copy app sourcess
+COPY . .
 
 # Expose the listening port of your app
 EXPOSE 4089
 
-ENTRYPOINT [ "sh", "/entrypoint.sh" ]
+CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--env", "now" ]
