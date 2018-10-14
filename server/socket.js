@@ -8,7 +8,8 @@ const SYNC_TYPE = {
   MOVE: 'move',
   REDO: 'redo',
   UNDO: 'undo',
-  FOLLOW: 'follow'
+  FOLLOW: 'follow',
+  ZOOM: 'zoom'
 }
 function register(io) {
   io.on('connection', async (socket) => {
@@ -51,7 +52,12 @@ function register(io) {
         return
       }
       if (type === SYNC_TYPE.FOLLOW) {
-        socket.broadcast.emit('sync', type, item)
+        socket.to(roomId).emit('sync', type, item)
+        return
+      }
+      console.log(type)
+      if (type === SYNC_TYPE.ZOOM) {
+        socket.to(roomId).emit('sync', type, item)
         return
       }
       // if (type === SYNC_TYPE.UNDO.DELETE) {

@@ -24,7 +24,8 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
-    this.isPresenter = true
+    this.isPresenter = false
+    this.presenterZoom = 1
     this.isFollowingMode = false
     this.container = container
     this.layerDraw = new fabric.Canvas('layer-draw', {
@@ -108,7 +109,7 @@ class Draw {
     canvas.setWidth(canvasWidth)
     canvas.setHeight(canvasHeight)
     if (this.isFollowingMode) {
-      this.setZoom(canvasWidth / this.baseWidth)
+      this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
   }
   addImage(url) {
@@ -285,7 +286,7 @@ class Draw {
         this.lastPosX = e.targetTouches[0].clientX
         this.lastPosY = e.targetTouches[0].clientY
         if (this.isPresenter) {
-          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: this.lastPosX, y: this.lastPosY })
+          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: vpt[4], y: vpt[5] })
         }
       } else {
         var delta = new fabric.Point(e.e.movementX, e.e.movementY)
@@ -343,6 +344,15 @@ class Draw {
     })
   }
   moveToPoint(x, y) {
+    if (browser.versions.ios || browser.versions.android) {
+      var vpt = this.layerDraw.viewportTransform.slice(0)
+      vpt[4] += x
+      vpt[5] += y
+      this.layerDraw.setViewportTransform(vpt)
+      // this.lastPosX = x
+      // this.lastPosY = y
+      return
+    }
     var delta = new fabric.Point(x, y)
     this.layerDraw.relativePan(delta)
   }
@@ -351,6 +361,7 @@ class Draw {
     // const center = canvas.getCenter()
     const transform = { x: 0, y: 0 }
     canvas.zoomToPoint(transform, zoom)
+    this.zoomPercent = zoom
   }
   initFollow() {
     const canvas = this.layerDraw

@@ -162,6 +162,13 @@ export default {
         this.moveTo(item.data.x, item.data.y)
         return
       }
+      if (type === 'zoom') {
+        this.drawer.presenterZoom = item.data.zoom
+        console.log(12212)
+        this.drawer.resizeCanvas()
+        // this.drawer.setZoom(item.data.zoom * 1)
+        return
+      }
       if (type !== 'move') {
         this.renderList.push(item)
       }
@@ -173,12 +180,14 @@ export default {
     this.socket.on('startFollow', (opt) => {
       this.drawer.isPresenter = false
       this.drawer.isFollowingMode = true
+      this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
       this.drawer.resizeCanvas()
     })
     this.socket.on('endFollow', (opt) => {
       this.drawer.isPresenter = false
       this.drawer.isFollowingMode = false
+      this.drawer.presenterZoom = 1
       this.drawer.setZoom(1)
     })
 
@@ -248,7 +257,8 @@ export default {
       this.drawer.isFollowingMode = true
       this.socket.emit('startFollow', {
         width: container.offsetWidth,
-        height: container.offsetHeight
+        height: container.offsetHeight,
+        zoom: this.drawer.zoomPercent
       }, this.board._id)
     },
     changeZoom(isUp) {
@@ -266,9 +276,15 @@ export default {
       }
 
       this.drawer.zoomPercent = this.steps[this.pIndex] / 100
+      if (this.drawer.isPresenter) {
+        this.socket.emit('sync', 'zoom', {
+          data: {
+            zoom: this.drawer.zoomPercent
+          }
+        }, this.board._id, this.board._id)
+      }
     },
     moveTo(x, y) {
-      console.log(x, y)
       this.drawer.moveToPoint(x, y)
     },
     createBoard() {
@@ -363,13 +379,11 @@ export default {
     redo(opid) {
       if (this.redoList.length === 0) return
       if (typeof opid !== 'string') opid = undefined
-      console.log('redo', opid)
       let index = -1
       if (opid) {
         index = this.redoList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.redoList.splice(index, 1)[0] : this.redoList.pop()
-      console.log(item)
       if (!item) return
       this.renderList.push(item)
       this.$nextTick(() => {
@@ -377,11 +391,10 @@ export default {
         this.initBoard()
       })
 
-      !opid && this.socket.emit('sync', 'redo', item, this.board._id)
+      !opid && this.socket.emit('sync', 'redo', item, this.board._id, this.board._id)
     },
     undo(opid) {
       if (typeof opid !== 'string') opid = undefined
-      console.log('redo', opid)
       if (this.renderList.length === 0) return
       let index = -1
       if (opid) {
@@ -395,7 +408,7 @@ export default {
         this.drawer.clear()
         this.initBoard()
       })
-      !opid && this.socket.emit('sync', 'undo', item, this.board._id)
+      !opid && this.socket.emit('sync', 'undo', item, this.board._id, this.board._id)
     },
     deleteSelected() {
       this.drawer.deleteSelected()
