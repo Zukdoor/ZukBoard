@@ -8,7 +8,7 @@ const SYNC_TYPE = {
   MOVE: 'move',
   REDO: 'redo',
   UNDO: 'undo',
-  FOLLOW: 'follow',
+  MOVE_BY_PRESENTER: 'move_by_presenter',
   ZOOM: 'zoom'
 }
 function register(io) {
@@ -51,28 +51,14 @@ function register(io) {
         socket.to(roomId).emit('sync', type, item)
         return
       }
-      if (type === SYNC_TYPE.FOLLOW) {
+      if (type === SYNC_TYPE.MOVE_BY_PRESENTER) {
         socket.to(roomId).emit('sync', type, item)
         return
       }
-      console.log(type)
       if (type === SYNC_TYPE.ZOOM) {
         socket.to(roomId).emit('sync', type, item)
         return
       }
-      // if (type === SYNC_TYPE.UNDO.DELETE) {
-      //   await db.Board.updateOne({
-      //     _id: ObjectId(id)
-      //   }, {
-      //     $pull: {
-      //       canvas: {id: {
-      //         $in: item.id
-      //       }}
-      //     }
-      //   })
-      //   socket.broadcast.emit('sync', type, item)
-      //   return
-      // }
       if (type === SYNC_TYPE.UPDATE || type === SYNC_TYPE.DELETE) {
         await db.Board.updateOne({
           _id: ObjectId(id)

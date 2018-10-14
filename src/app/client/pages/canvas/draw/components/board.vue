@@ -4,10 +4,21 @@
       <div class="tools">
         <ul>
           <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
-          <li @click="refresh" title="清空画板"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe6a4;</i></li>
-          <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
-          <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
-          <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
+          <li 
+            @click="() => { !notPresenter && refresh()}" 
+            title="清空画板"
+          >
+            <i class="iconfont" :class="{'disabled': renderList.length === 0 || notPresenter}">&#xe6a4;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && undo(e)}" title="撤销">
+            <i class="iconfont" :class="{'disabled': renderList.length === 0 || notPresenter}">&#xe822;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && redo(e)}" title="重做">
+            <i class="iconfont" :class="{'disabled': redoList.length === 0 || notPresenter}">&#xe7cf;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && deleteSelected(e)}" title="删除">
+            <i class="iconfont" :class="{'disabled': !canDelete || notPresenter}">&#xe603;</i>
+          </li>
           <li class="tools-item zoom no-hover">
             <i class="iconfont" @click="changeZoom(true)">&#xe85b;</i>
             <el-input 
@@ -32,7 +43,7 @@
              :class="{'selected': plugin.active}"
              class="plugin-tools-item"
              :title="plugin.title">
-            <i class="iconfont" v-html="plugin.icon"></i>
+            <i class="iconfont" :class="{'disabled': !plugin.useInFollowing && notPresenter}" v-html="plugin.icon"></i>
             <template v-if="plugin.hasAction">
               <component
               v-show="plugin.showAction"
@@ -67,11 +78,34 @@
       <canvas id="layer-draw"></canvas>
     </div>
     <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
-        <li @click="undo" title="撤销" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe822;</i>撤销</li>
-        <li @click="redo" title="重做" :class="{'disabled': redoList.length === 0}"><i class="iconfont">&#xe7cf;</i>重做</li>
-        <li @click="refresh" title="清空画板" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe6a4;</i>清空画板</li>
-        <li @click="deleteSelected" title="清空画板" :class="{'disabled': !canDelete}"><i class="iconfont" >&#xe603;</i>删除</li>
+        <li 
+          @click="(e) => { !notPresenter && undo(e)}" 
+          title="撤销" 
+          :class="{'disabled': renderList.length === 0 || notPresenter}"
+        >
+          <i class="iconfont" >&#xe822;</i>撤销
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && redo(e)}" 
+          title="重做" 
+          :class="{'disabled': redoList.length === 0 || notPresenter}"
+        >
+          <i class="iconfont">&#xe7cf;</i>重做
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && refresh(e)}" 
+          title="清空画板" 
+          :class="{'disabled': renderList.length === 0 || notPresenter}">
+            <i class="iconfont" >&#xe6a4;</i>清空画板
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}" 
+          title="清空画板" 
+          :class="{'disabled': !canDelete || notPresenter}">
+            <i class="iconfont" >&#xe603;</i>删除
+        </li>
     </ul>
+    <sync-status-notify :class="{'show': drawer.isFollowingMode}" ></sync-status-notify>
   </div>
 </template>
 
@@ -81,6 +115,7 @@ import uuid from 'uuid'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
+import SyncStatusNotify from './SyncStatusNotify'
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
@@ -141,15 +176,38 @@ export default {
       get: function (val) {
         return (this.drawer.zoomPercent * 100).toFixed(0) + '%'
       }
+    },
+    notPresenter: {
+      get: function () {
+        return this.drawer.isFollowingMode && !this.drawer.isPresenter
+      }
     }
   },
   components: {
+    SyncStatusNotify,
     ...settings,
     ...actions
   },
   created() {
     let id = this.$route.params.id
     this.socket.on('sync', (type, item) => {
+      if (type === 'move_by_presenter') {
+        this.focusPresenter(item.data)
+        this.drawer.resizeCanvas()
+        return
+      }
+      if (type === 'zoom') {
+        this.drawer.presenterZoom = item.data.zoom
+        this.drawer.resizeCanvas()
+        this.focusPresenter()
+        return
+      }
+
+      if (this.drawer.isFollowingMode) {
+        this.drawer.resizeCanvas()
+        this.focusPresenter()
+      }
+
       if (type === 'undo') {
         this.undo(item.opId)
         return
@@ -158,13 +216,9 @@ export default {
         this.redo(item.opId)
         return
       }
-      if (type === 'follow') {
-        this.moveTo(item.data.x, item.data.y)
-        return
-      }
+
       if (type === 'zoom') {
         this.drawer.presenterZoom = item.data.zoom
-        console.log(12212)
         this.drawer.resizeCanvas()
         // this.drawer.setZoom(item.data.zoom * 1)
         return
@@ -174,15 +228,14 @@ export default {
       }
       this.drawer.syncBoard(type, item)
     })
-    this.socket.on('drawpoint', (r) => {
-      this.drawer.syncBoardWithPoint(r)
-    })
     this.socket.on('startFollow', (opt) => {
       this.drawer.isPresenter = false
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
+      this.choose('pan')
       this.drawer.resizeCanvas()
+      this.focusPresenter(opt.pan)
     })
     this.socket.on('endFollow', (opt) => {
       this.drawer.isPresenter = false
@@ -258,7 +311,10 @@ export default {
       this.socket.emit('startFollow', {
         width: container.offsetWidth,
         height: container.offsetHeight,
-        zoom: this.drawer.zoomPercent
+        zoom: this.drawer.zoomPercent,
+        pan: {
+          ...this.drawer.getVpPoint()
+        }
       }, this.board._id)
     },
     changeZoom(isUp) {
@@ -284,8 +340,14 @@ export default {
         }, this.board._id, this.board._id)
       }
     },
-    moveTo(x, y) {
-      this.drawer.moveToPoint(x, y)
+    focusPresenter(point) {
+      if (!point) {
+        point = this.drawer.presenterPan
+      } else {
+        this.drawer.presenterPan = point
+      }
+
+      this.drawer.moveToPoint(point.x, point.y)
     },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {
@@ -414,6 +476,9 @@ export default {
       this.drawer.deleteSelected()
     },
     choose(chooseKey, hiddenAction) {
+      if (!this.plugins[chooseKey].useInFollowing && this.notPresenter) {
+        return
+      }
       this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey

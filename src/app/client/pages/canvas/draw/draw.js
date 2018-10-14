@@ -17,7 +17,7 @@ const SYNC_TYPE = {
   MOVE: 'move',
   REDO: 'redo',
   UNDO: 'undo',
-  FOLLOW: 'follow'
+  MOVE_BY_PRESENTER: 'move_by_presenter'
 }
 let instance = null
 class Draw {
@@ -25,6 +25,10 @@ class Draw {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
     this.isPresenter = false
+    this.presenterVp = {
+      x: 0,
+      y: 0
+    }
     this.presenterZoom = 1
     this.isFollowingMode = false
     this.container = container
@@ -106,8 +110,10 @@ class Draw {
     const canvas = this.layerDraw
     const canvasWidth = this.container.offsetWidth
     const canvasHeight = this.container.offsetHeight // 800 / 1080 * canvasWidth
-    canvas.setWidth(canvasWidth)
-    canvas.setHeight(canvasHeight)
+    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+      canvas.setWidth(canvasWidth)
+      canvas.setHeight(canvasHeight)
+    }
     if (this.isFollowingMode) {
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
@@ -274,6 +280,7 @@ class Draw {
         this.lastPosY = e.e.touches[0].clientY
       }
     })
+
     canvas.on('mouse:move', (e) => {
       if (this.current !== 'pan') return
       if (!panning) return
@@ -286,13 +293,13 @@ class Draw {
         this.lastPosX = e.targetTouches[0].clientX
         this.lastPosY = e.targetTouches[0].clientY
         if (this.isPresenter) {
-          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: vpt[4], y: vpt[5] })
+          this._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { x: vpt[4], y: vpt[5], isMobile: true })
         }
       } else {
         var delta = new fabric.Point(e.e.movementX, e.e.movementY)
         canvas.relativePan(delta)
         if (this.isPresenter) {
-          this._vm.sync('follow', SYNC_TYPE.FOLLOW, { x: e.e.movementX, y: e.e.movementY })
+          this._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { ...this.getVpPoint(), isMobile: false })
         }
       }
     })
@@ -343,18 +350,20 @@ class Draw {
       opt.e.stopPropagation()
     })
   }
-  moveToPoint(x, y) {
-    if (browser.versions.ios || browser.versions.android) {
-      var vpt = this.layerDraw.viewportTransform.slice(0)
-      vpt[4] += x
-      vpt[5] += y
-      this.layerDraw.setViewportTransform(vpt)
-      // this.lastPosX = x
-      // this.lastPosY = y
-      return
+  getVpPoint() {
+    var vpt = this.layerDraw.viewportTransform.slice(0)
+    return {
+      x: vpt[4],
+      y: vpt[5]
     }
-    var delta = new fabric.Point(x, y)
-    this.layerDraw.relativePan(delta)
+  }
+  moveToPoint(x, y, isMobile) {
+    var vpt = this.layerDraw.viewportTransform.slice(0)
+    vpt[4] = x
+    vpt[5] = y
+    this.layerDraw.setViewportTransform(vpt)
+    // var delta = new fabric.Point(x, y)
+    // this.layerDraw.relativePan(delta)
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
