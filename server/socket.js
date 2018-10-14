@@ -7,7 +7,9 @@ const SYNC_TYPE = {
   DELETE: 'delete',
   MOVE: 'move',
   REDO: 'redo',
-  UNDO: 'undo'
+  UNDO: 'undo',
+  MOVE_BY_PRESENTER: 'move_by_presenter',
+  ZOOM: 'zoom'
 }
 function register(io) {
   io.on('connection', async (socket) => {
@@ -38,7 +40,7 @@ function register(io) {
         socket.to(roomId).emit('sync', type, item)
         return
       }
-      if (type === SYNC_TYPE.UNDO.INSERT) {
+      if (type === SYNC_TYPE.INSERT) {
         await db.Board.updateOne({
           _id: ObjectId(id)
         }, {
@@ -49,19 +51,14 @@ function register(io) {
         socket.to(roomId).emit('sync', type, item)
         return
       }
-      // if (type === SYNC_TYPE.UNDO.DELETE) {
-      //   await db.Board.updateOne({
-      //     _id: ObjectId(id)
-      //   }, {
-      //     $pull: {
-      //       canvas: {id: {
-      //         $in: item.id
-      //       }}
-      //     }
-      //   })
-      //   socket.broadcast.emit('sync', type, item)
-      //   return
-      // }
+      if (type === SYNC_TYPE.MOVE_BY_PRESENTER) {
+        socket.to(roomId).emit('sync', type, item)
+        return
+      }
+      if (type === SYNC_TYPE.ZOOM) {
+        socket.to(roomId).emit('sync', type, item)
+        return
+      }
       if (type === SYNC_TYPE.UPDATE || type === SYNC_TYPE.DELETE) {
         await db.Board.updateOne({
           _id: ObjectId(id)
@@ -97,6 +94,12 @@ function register(io) {
     })
     socket.on('drawpoint', (item, id) => {
       socket.to(id).emit('drawpoint', item)
+    })
+    socket.on('startFollow', (item, id) => {
+      socket.to(id).emit('startFollow', item)
+    })
+    socket.on('endFollow', (item, id) => {
+      socket.to(id).emit('endFollow', item)
     })
     socket.on('clear', async (id) => {
       socket.to(id).emit('clear', id)
