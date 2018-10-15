@@ -167,12 +167,12 @@ class Draw {
       left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
       top -= vpt[5]
       fabric.Image.fromURL(url, (upImg) => {
-        eventEmitter.emitEvent('imageRenderAfter')
         const img = upImg.set({ left: left, top: top }).scale(scale)
         img.set('id', genKey())
         img.set('btype', this.current)
         canvas.add(img)
         this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
+        eventEmitter.emitEvent('imageRenderAfter')
       }, { crossOrigin: 'Anonymous' })
     })
   }
