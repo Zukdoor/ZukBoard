@@ -1,7 +1,8 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
 import {} from './plugins/fabricOverriding'
-import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
+import HandleImage from './plugins/upload-img/handleImage'
+import { genKey, eventEmitter, getSystem, browser } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -65,6 +66,7 @@ class Draw {
     this.initZoom()
     this.initFollow()
     this.registerEvents()
+    this.initImage()
   }
   getInstance() {
     return instance
@@ -88,9 +90,9 @@ class Draw {
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
-    eventEmitter.addListener('on-should-draw-img', (ev) => {
-      this.addImage(ev)
-    })
+    // eventEmitter.addListener('on-should-draw-img', (ev) => {
+    //   this.addImage(ev)
+    // })
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -130,6 +132,10 @@ class Draw {
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
   }
+  initImage() {
+    const image = new HandleImage(this)
+    image.log()
+  }
   changeZoom(ev) {
     const canvas = this.layerDraw
     if (this.current !== 'pan') return
@@ -146,28 +152,6 @@ class Draw {
     canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
     ev.preventDefault()
     ev.stopPropagation()
-  }
-  addImage(url) {
-    const canvas = this.layerDraw
-    var vpt = canvas.viewportTransform.slice(0)
-    LoadImageAsync(url).then((attr) => {
-      let scale = 1
-      let left = 0
-      let top = 150
-      if (attr.width >= this.canvaswidth / 2) {
-        scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
-      }
-      left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
-      top -= vpt[5]
-      fabric.Image.fromURL(url, (upImg) => {
-        const img = upImg.set({ left: left, top: top }).scale(scale)
-        img.set('id', genKey())
-        img.set('btype', this.current)
-        canvas.add(img)
-        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
-        eventEmitter.emitEvent('imageRenderAfter')
-      }, { crossOrigin: 'Anonymous' })
-    })
   }
   clear() {
     this.layerDraw.clear()
@@ -272,18 +256,7 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
-      // Specify style of control, 'rect' or 'circle'
-
       this.setCornerStyle('circle')
-      // this.setControlsVisibility({ tl: true,
-      //   tr: true,
-      //   br: true,
-      //   bl: true,
-      //   ml: false,
-      //   mt: false,
-      //   mr: false,
-      //   mb: false,
-      //   mtr: true })
     })
     canvas.on('before:selection:cleared', (e) => {
       if (!canvas.getActiveObject()) {
@@ -310,7 +283,6 @@ class Draw {
       o.lockMovementY = !flag
     })
   }
-
   setCornerStyle(style) {
     const canvas = this.layerDraw
     canvas.forEachObject(function (o) {
@@ -326,13 +298,11 @@ class Draw {
     let group = canvas.getActiveObject().toGroup()
     group.cornerStyle = 'circle'
   }
-
   setControlsVisibility(opt) {
     this.layerDraw.forEachObject(function (o) {
       o._controlsVisibility = opt
     })
   }
-
   initPan() {
     const canvas = this.layerDraw
     let panning = false
