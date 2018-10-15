@@ -273,8 +273,28 @@ class Draw {
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
       // Specify style of control, 'rect' or 'circle'
+
       this.setCornerStyle('circle')
+      // this.setControlsVisibility({ tl: true,
+      //   tr: true,
+      //   br: true,
+      //   bl: true,
+      //   ml: false,
+      //   mt: false,
+      //   mr: false,
+      //   mb: false,
+      //   mtr: true })
     })
+    canvas.on('before:selection:cleared', (e) => {
+      if (!canvas.getActiveObject()) {
+        return
+      }
+      if (canvas.getActiveObject().type !== 'group') {
+        return
+      }
+      canvas.getActiveObject().toActiveSelection()
+    })
+
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
     })
@@ -292,8 +312,24 @@ class Draw {
   }
 
   setCornerStyle(style) {
-    this.layerDraw.forEachObject(function (o) {
+    const canvas = this.layerDraw
+    canvas.forEachObject(function (o) {
       o.cornerStyle = style
+    })
+
+    if (!canvas.getActiveObject()) {
+      return
+    }
+    if (canvas.getActiveObject().type !== 'activeSelection') {
+      return
+    }
+    let group = canvas.getActiveObject().toGroup()
+    group.cornerStyle = 'circle'
+  }
+
+  setControlsVisibility(opt) {
+    this.layerDraw.forEachObject(function (o) {
+      o._controlsVisibility = opt
     })
   }
 
@@ -427,9 +463,9 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
-    // if (canvas.getActiveObject().type === 'group') {
-    //   canvas.getActiveObject().toActiveSelection()
-    // }
+    if (canvas.getActiveObject().type === 'group') {
+      canvas.getActiveObject().toActiveSelection()
+    }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
