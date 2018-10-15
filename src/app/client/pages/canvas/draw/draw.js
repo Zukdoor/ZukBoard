@@ -24,6 +24,7 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
+    this.container = container
     this.isPresenter = false
     this.presenterVp = {
       x: 0,
@@ -106,29 +107,13 @@ class Draw {
     window.addEventListener('resize', () => {
       this.resizeCanvas()
     })
-    document.addEventListener('gesturestart', (ev) => {
+    this.container.addEventListener('gesturestart', (ev) => {
       if (this.current !== 'pan') return
       this.lastPosX = ev.clientX
       this.lastPosY = ev.clientY
     }, false)
-    document.addEventListener('gesturechange', (ev) => {
-      if (this.current !== 'pan') return
-      let scale = event.scale
-      let zoom = canvas.getZoom()
-      if (scale > 1) {
-        zoom = Number(zoom) + Number((scale / 20).toFixed(1))
-      } else {
-        zoom -= ((scale / 30).toFixed(2))
-      }
-      if (zoom > 1.5) zoom = 1.5
-      if (zoom < 0.1) zoom = 0.1
-      this.zoomPercent = zoom
-      canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
-      ev.preventDefault()
-      ev.stopPropagation()
-    }, false)
-    document.addEventListener('gestureend', (ev) => {
-
+    this.container.addEventListener('gesturechange', (ev) => {
+      this.changeZoom(ev)
     }, false)
   }
   resizeCanvas() {
@@ -142,6 +127,23 @@ class Draw {
     if (this.isFollowingMode) {
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
+  }
+  changeZoom(ev) {
+    const canvas = this.layerDraw
+    if (this.current !== 'pan') return
+    let scale = event.scale
+    let zoom = canvas.getZoom()
+    if (scale > 1) {
+      zoom = Number(zoom) + Number((scale / 20).toFixed(1))
+    } else {
+      zoom -= ((scale / 30).toFixed(2))
+    }
+    if (zoom > 1.5) zoom = 1.5
+    if (zoom < 0.1) zoom = 0.1
+    this.zoomPercent = zoom
+    canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
+    ev.preventDefault()
+    ev.stopPropagation()
   }
   addImage(url) {
     const canvas = this.layerDraw
