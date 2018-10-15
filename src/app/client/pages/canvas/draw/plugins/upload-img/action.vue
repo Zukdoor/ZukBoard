@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { eventEmitter } from '../util'
+import { eventEmitter, compress } from '../util'
 export default {
   props: ['config'],
   data() {
@@ -31,6 +31,11 @@ export default {
       file: null,
       isUploading: false
     }
+  },
+  mounted() {
+    eventEmitter.addListener('imageRenderAfter', () => {
+      this.isUploading = false
+    })
   },
   methods: {
     showUploadDialog() {
@@ -65,30 +70,46 @@ export default {
       this.file = file
     },
     drawFile() {
+      var that = this
       if (!this.file) return
       this.isUploading = true
-      const formData = new FormData()
       this.$http.get('/api/image/sign').then(res => {
         const { code, msg, data } = res.data
         if (code !== 0) {
           this.$message.error(msg)
         }
         const key = data.startsWith + '/' + data.saveName
-        formData.append('OSSAccessKeyId', data.OSSAccessKeyId)
-        formData.append('policy', data.policy)
-        formData.append('signature', data.signature)
-        formData.append('success_action_status', 200)
-        formData.append('key', key)
-        formData.append('file', this.file)
-        this.$http.post(data.host, formData).then(res => {
-          const url = `${data.host}/${key}`
-          this.isUploading = false
-          this.file = null
-          this.src = ''
-          this.config.showAction = false
-          eventEmitter.emitEvent('on-should-draw-img', [url])
-          this.$emit('change-current', 'choose')
-        })
+        let quality = this.config.setting.quality
+        let maxWidth = this.config.setting.maxWidth
+        if (this.file.size > this.config.setting.maxCompress) {
+          let reader = new FileReader()
+          reader.readAsDataURL(this.file)
+          reader.onload = function () {
+            let result = this.result
+            compress(result, { quality: quality, fileName: that.file.name, maxWidth: maxWidth }, function (baseData) {
+              that.uploadImg(data, { file: baseData, key: key })
+            })
+          }
+        } else {
+          that.uploadImg(data, { file: that.file, key: key })
+        }
+      })
+    },
+    uploadImg: function (data, files) {
+      const formData = new FormData()
+      formData.append('OSSAccessKeyId', data.OSSAccessKeyId)
+      formData.append('policy', data.policy)
+      formData.append('signature', data.signature)
+      formData.append('success_action_status', 200)
+      formData.append('key', files.key)
+      formData.append('file', files.file)
+      this.$http.post(data.host, formData).then(res => {
+        const url = `${data.host}/${files.key}`
+        this.file = null
+        this.src = ''
+        this.config.showAction = false
+        eventEmitter.emitEvent('on-should-draw-img', [url])
+        this.$emit('change-current', 'choose')
       })
     }
   }

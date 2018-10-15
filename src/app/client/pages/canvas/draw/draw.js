@@ -29,7 +29,10 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      targetFindTolerance: 15
+      hasControls: false,
+      targetFindTolerance: 15,
+      // skipTargetFind: false,
+      selectionFullyContained: true
       // controlsAboveOverlay: true
     })
     this.zoomPercent = 1
@@ -71,6 +74,15 @@ class Draw {
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
+    // canvas.on('object:selected', (e) => {
+    //   e.target.setControlsVisibility({
+    //     mb: false,
+    //     ml: false,
+    //     mr: false,
+    //     mt: false,
+    //     mtr: false
+    //   })
+    // })
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
@@ -93,6 +105,30 @@ class Draw {
       canvas.setWidth(this.container.offsetWidth)
       canvas.setHeight(this.container.offsetHeight)
     })
+    document.addEventListener('gesturestart', (ev) => {
+      if (this.current !== 'pan') return
+      this.lastPosX = ev.clientX
+      this.lastPosY = ev.clientY
+    }, false)
+    document.addEventListener('gesturechange', (ev) => {
+      if (this.current !== 'pan') return
+      let scale = event.scale
+      let zoom = canvas.getZoom()
+      if (scale > 1) {
+        zoom = Number(zoom) + Number((scale / 20).toFixed(1))
+      } else {
+        zoom -= ((scale / 30).toFixed(2))
+      }
+      if (zoom > 1.5) zoom = 1.5
+      if (zoom < 0.1) zoom = 0.1
+      this.zoomPercent = zoom
+      canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
+      ev.preventDefault()
+      ev.stopPropagation()
+    }, false)
+    document.addEventListener('gestureend', (ev) => {
+
+    }, false)
   }
   addImage(url) {
     const canvas = this.layerDraw
@@ -107,6 +143,7 @@ class Draw {
       left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
       top -= vpt[5]
       fabric.Image.fromURL(url, (upImg) => {
+        eventEmitter.emitEvent('imageRenderAfter')
         const img = upImg.set({ left: left, top: top }).scale(scale)
         img.set('id', genKey())
         img.set('btype', this.current)
@@ -218,10 +255,37 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
+      // canvas.skipTargetFind = true
+      // canvas.perPixelTargetFind = false
+      // if (!canvas.getActiveObject()) {
+      //   return
+      // }
+      // if (canvas.getActiveObject().type !== 'activeSelection') {
+      //   return
+      // }
+      // let group = canvas.getActiveObject().toGroup()
+      // group.setControlsVisibility({
+      //   mb: false,
+      //   ml: false,
+      //   mr: false,
+      //   mt: false,
+      //   mtr: false
+      // })
     })
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
+      // canvas.skipTargetFind = false
+      // canvas.perPixelTargetFind = true
     })
+    // canvas.on('before:selection:cleared', () => {
+    //   if (!canvas.getActiveObject()) {
+    //     return
+    //   }
+    //   if (canvas.getActiveObject().type !== 'group') {
+    //     return
+    //   }
+    //   canvas.getActiveObject().toActiveSelection()
+    // })
   }
   toggleSelection(flag) {
     this.layerDraw.selection = flag
@@ -297,6 +361,7 @@ class Draw {
         tmpState = ''
         isTmpChangeState = false
       }
+      // canvas.perPixelTargetFind = true
     })
   }
   initZoom() {
@@ -334,6 +399,9 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
+    // if (canvas.getActiveObject().type === 'group') {
+    //   canvas.getActiveObject().toActiveSelection()
+    // }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
