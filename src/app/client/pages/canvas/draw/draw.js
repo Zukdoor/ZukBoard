@@ -1,5 +1,6 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
+import {} from './plugins/fabricOverriding'
 import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
@@ -10,6 +11,7 @@ fabric.Canvas.prototype.getObjectById = function (id) {
   }
   return 0
 }
+
 const SYNC_TYPE = {
   INSERT: 'create',
   UPDATE: 'update',
@@ -270,6 +272,8 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
+      // Specify style of control, 'rect' or 'circle'
+      this.setCornerStyle('circle')
     })
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
@@ -286,6 +290,13 @@ class Draw {
       o.lockMovementY = !flag
     })
   }
+
+  setCornerStyle(style) {
+    this.layerDraw.forEachObject(function (o) {
+      o.cornerStyle = style
+    })
+  }
+
   initPan() {
     const canvas = this.layerDraw
     let panning = false
