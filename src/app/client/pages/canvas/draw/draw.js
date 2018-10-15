@@ -37,10 +37,8 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      hasControls: false,
       targetFindTolerance: 15
       // skipTargetFind: false,
-      // selectionFullyContained: true
       // controlsAboveOverlay: true
     })
     this.zoomPercent = 1
@@ -84,15 +82,6 @@ class Draw {
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
-    // canvas.on('object:selected', (e) => {
-    //   e.target.setControlsVisibility({
-    //     mb: false,
-    //     ml: false,
-    //     mr: false,
-    //     mt: false,
-    //     mtr: false
-    //   })
-    // })
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
@@ -279,37 +268,10 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
-      // canvas.skipTargetFind = true
-      // canvas.perPixelTargetFind = false
-      // if (!canvas.getActiveObject()) {
-      //   return
-      // }
-      // if (canvas.getActiveObject().type !== 'activeSelection') {
-      //   return
-      // }
-      // let group = canvas.getActiveObject().toGroup()
-      // group.setControlsVisibility({
-      //   mb: false,
-      //   ml: false,
-      //   mr: false,
-      //   mt: false,
-      //   mtr: false
-      // })
     })
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
-      // canvas.skipTargetFind = false
-      // canvas.perPixelTargetFind = true
     })
-    // canvas.on('before:selection:cleared', () => {
-    //   if (!canvas.getActiveObject()) {
-    //     return
-    //   }
-    //   if (canvas.getActiveObject().type !== 'group') {
-    //     return
-    //   }
-    //   canvas.getActiveObject().toActiveSelection()
-    // })
   }
   toggleSelection(flag) {
     this.layerDraw.selection = flag
