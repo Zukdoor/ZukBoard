@@ -2,7 +2,7 @@
 
 ---
 
-ZukBoard is a whiteboard system.
+ZukBoard is a collaborative whiteboard system.
 
 ## Installation
 
@@ -24,25 +24,41 @@ cd ZukBoard
 yarn install # We recommend using yarn as the package manager.
 yarn dev
 ```
-Then, visit http://localhost:4089/app/canvas/draw in your browser.
+
+Then, ZukBoard should be running in your [browser](http://localhost:4089/app/canvas/draw).
 
 ## Playgrounds
 
 ---
 
-Use http://zukboard-heroku.herokuapp.com/app/canvas/draw to get a taste of ZukBoard.
+To get a taste of ZukBoard:
+
++ [Stable](http://board.zukdoor.cloud/app/canvas/draw)
++ [Latest](http://board-staging.zukdoor.cloud/app/canvas/draw)
 
 ## Documentation
 
 ---
 
-Find the documentation on the [website](https://zukboard.now.sh/).
+Find the documentation [here](https://docs.zukdoor.cloud/).
 
 ## Contributing
 
 ---
 
-To be added.
+See [how-to-contribute](./CONTRIBUTING.md).
+
+## Contributors
+
+---
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+
+| [<img src="https://avatars3.githubusercontent.com/u/13583761?s=88&v=4" width="100px" height="100px" /><br /><sub>Zihua Wu</sub>](https://github.com/lucifer1004) | [<img src="https://avatars1.githubusercontent.com/u/6133451?s=60&v=4" width="100px;" height="100px"/><br /><sub>qianyuchang</sub>](https://github.com/qianyuchang) | [<img src="https://avatars2.githubusercontent.com/u/3862588?s=60&v=4" width="100px;" height="100px" /><br /><sub>sandyz</sub>](https://github.com/yanzhou-share)| [<img src="https://avatars2.githubusercontent.com/u/6512933?s=60&v=4" width="100px;" height="100px" /><br /><sub>woooking</sub>](https://github.com/woooking)|
+| :---: | :---: | :---: | :---: |
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## License
 

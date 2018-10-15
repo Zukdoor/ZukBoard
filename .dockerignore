@@ -1,0 +1,11 @@
+*
+!build
+!db
+!public
+!server
+!src
+
+!*.js
+!.babelrc
+!package.json
+!yarn.lock

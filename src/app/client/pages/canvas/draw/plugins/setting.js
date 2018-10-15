@@ -2,6 +2,7 @@ export default {
   'pan': {
     title: '拖动浏览',
     icon: '&#xe654;',
+    useInFollowing: true,
     setting: {
     }
   },
