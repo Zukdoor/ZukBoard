@@ -3,6 +3,7 @@
   "port": "4089",
   "version": "0.0.1",
   "description": "drawing board by canvas",
+  "browserslist": "> 0.25%, not dead",
   "scripts": {
     "test": "exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
@@ -24,6 +25,7 @@
   "author": "qianyuchang@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@babel/polyfill": "7.0.0",
     "@koa/cors": "2.2.2",
     "axios": "0.18.0",
     "debug": "4.1.0",
