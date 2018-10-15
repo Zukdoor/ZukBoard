@@ -53,7 +53,7 @@ module.exports = {
     const { name } = ctx.request.body
     const insertResult = await db.Board.collection.insertMany([{
       name: name || '画板',
-      roomId: ctx.query.id,
+      roomId: uuid.v4(),
       canvas: []
     }])
     model = insertResult.ops[0]
