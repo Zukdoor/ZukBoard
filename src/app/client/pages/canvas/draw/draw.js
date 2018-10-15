@@ -38,9 +38,9 @@ class Draw {
       preserveObjectStacking: true,
       perPixelTargetFind: true,
       hasControls: false,
-      targetFindTolerance: 15,
+      targetFindTolerance: 15
       // skipTargetFind: false,
-      selectionFullyContained: true
+      // selectionFullyContained: true
       // controlsAboveOverlay: true
     })
     this.zoomPercent = 1
