@@ -67,6 +67,7 @@ class Draw {
     this.initFollow()
     this.registerEvents()
     this.initImage()
+    this.registerCanvasEvents()
   }
   getInstance() {
     return instance
@@ -463,7 +464,9 @@ class Draw {
     if (key === 'brush') {
       this.toggleSelection(true)
       canvas.defaultCursor = 'crosshair'
-      this.layerDraw.isDrawingMode = true
+      if (!window.spaceDown) {
+        this.layerDraw.isDrawingMode = true
+      }
       return
     }
     if (key === 'pan') {
@@ -475,6 +478,60 @@ class Draw {
     canvas.defaultCursor = 'default'
     this.toggleSelection(true)
     this.layerDraw.isDrawingMode = false
+  }
+  registerCanvasEvents() {
+    const canvas = this.layerDraw
+    const that = this
+    canvas.on('mouse:down:before', () => {
+      if (window.spaceDown) {
+        canvas.isDrawingMode = false
+      }
+    })
+    canvas.on('mouse:down', (e) => {
+      that.canDrag = true
+      if (browser.versions.ios || browser.versions.android) {
+        that.lastPosX = e.e.touches[0].clientX
+        that.lastPosY = e.e.touches[0].clientY
+      }
+    })
+    canvas.on('mouse:move', (e) => {
+      if (that.canDrag && window.spaceDown) {
+        that.toggleSelection(false)
+        canvas.defaultCursor = '-webkit-grab'
+        if (browser.versions.ios || browser.versions.android) {
+          e = e.e
+          let vpt = canvas.viewportTransform.slice(0)
+          vpt[4] += e.targetTouches[0].clientX - that.lastPosX
+          vpt[5] += e.targetTouches[0].clientY - that.lastPosY
+          canvas.setViewportTransform(vpt)
+          that.lastPosX = e.targetTouches[0].clientX
+          that.lastPosY = e.targetTouches[0].clientY
+          if (that.isPresenter) {
+            that._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { x: vpt[4], y: vpt[5], isMobile: true })
+          }
+        } else {
+          let delta = new fabric.Point(e.e.movementX, e.e.movementY)
+          canvas.relativePan(delta)
+          if (that.isPresenter) {
+            that._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { ...that.getVpPoint(), isMobile: false })
+          }
+        }
+      }
+    })
+    canvas.on('mouse:up', () => {
+      that.canDrag = false
+      if (that.current === 'brush') {
+        canvas.isDrawingMode = true
+        canvas.defaultCursor = 'crosshair'
+      } else if (that.current === 'pan') {
+        that.toggleSelection(false)
+      } else if (that.current === 'choose') {
+        that.toggleSelection(true)
+        canvas.defaultCursor = 'default'
+      } else {
+        that.toggleSelection(true)
+      }
+    })
   }
 }
 Draw.getInstance = function () {
