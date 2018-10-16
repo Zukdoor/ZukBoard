@@ -3810,9 +3810,9 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ionicons@4.4.4:
-  version "4.4.4"
-  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.4.4.tgz#d2b2dfe240e4c8686f59acd91c9c8c1dd13931c1"
+ionicons@4.4.6:
+  version "4.4.6"
+  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.4.6.tgz#d7eb2790c989ce4a999f6937f08883c22fe08923"
 
 is-absolute-url@^2.0.0:
   version "2.1.0"
