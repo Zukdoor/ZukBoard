@@ -1,6 +1,8 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
-import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
+import {} from './plugins/fabricOverriding'
+import HandleImage from './plugins/upload-img/handleImage'
+import { genKey, eventEmitter, getSystem, browser } from './plugins/util'
 fabric.Canvas.prototype.getObjectById = function (id) {
   var objs = this.getObjects()
   for (var i = 0, len = objs.length; i < len; i++) {
@@ -10,6 +12,7 @@ fabric.Canvas.prototype.getObjectById = function (id) {
   }
   return 0
 }
+
 const SYNC_TYPE = {
   INSERT: 'create',
   UPDATE: 'update',
@@ -24,6 +27,7 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
+    this.container = container
     this.isPresenter = false
     this.presenterVp = {
       x: 0,
@@ -38,6 +42,7 @@ class Draw {
       preserveObjectStacking: true,
       perPixelTargetFind: true,
       targetFindTolerance: 15
+      // skipTargetFind: false,
       // controlsAboveOverlay: true
     })
     this.zoomPercent = 1
@@ -61,6 +66,7 @@ class Draw {
     this.initZoom()
     this.initFollow()
     this.registerEvents()
+    this.initImage()
   }
   getInstance() {
     return instance
@@ -84,9 +90,9 @@ class Draw {
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
-    eventEmitter.addListener('on-should-draw-img', (ev) => {
-      this.addImage(ev)
-    })
+    // eventEmitter.addListener('on-should-draw-img', (ev) => {
+    //   this.addImage(ev)
+    // })
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -105,6 +111,14 @@ class Draw {
     window.addEventListener('resize', () => {
       this.resizeCanvas()
     })
+    this.container.addEventListener('gesturestart', (ev) => {
+      if (this.current !== 'pan') return
+      this.lastPosX = ev.clientX
+      this.lastPosY = ev.clientY
+    }, false)
+    this.container.addEventListener('gesturechange', (ev) => {
+      this.changeZoom(ev)
+    }, false)
   }
   resizeCanvas() {
     const canvas = this.layerDraw
@@ -118,26 +132,26 @@ class Draw {
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
   }
-  addImage(url) {
+  initImage() {
+    const image = new HandleImage(this)
+    image.log()
+  }
+  changeZoom(ev) {
     const canvas = this.layerDraw
-    var vpt = canvas.viewportTransform.slice(0)
-    LoadImageAsync(url).then((attr) => {
-      let scale = 1
-      let left = 0
-      let top = 150
-      if (attr.width >= this.canvaswidth / 2) {
-        scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
-      }
-      left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
-      top -= vpt[5]
-      fabric.Image.fromURL(url, (upImg) => {
-        const img = upImg.set({ left: left, top: top }).scale(scale)
-        img.set('id', genKey())
-        img.set('btype', this.current)
-        canvas.add(img)
-        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
-      }, { crossOrigin: 'Anonymous' })
-    })
+    if (this.current !== 'pan') return
+    let scale = event.scale
+    let zoom = canvas.getZoom()
+    if (scale > 1) {
+      zoom = Number(zoom) + Number((scale / 20).toFixed(1))
+    } else {
+      zoom -= ((scale / 30).toFixed(2))
+    }
+    if (zoom > 1.5) zoom = 1.5
+    if (zoom < 0.1) zoom = 0.1
+    this.zoomPercent = zoom
+    canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
+    ev.preventDefault()
+    ev.stopPropagation()
   }
   clear() {
     this.layerDraw.clear()
@@ -242,7 +256,18 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
+      this.setCornerStyle('circle')
     })
+    canvas.on('before:selection:cleared', (e) => {
+      if (!canvas.getActiveObject()) {
+        return
+      }
+      if (canvas.getActiveObject().type !== 'group') {
+        return
+      }
+      canvas.getActiveObject().toActiveSelection()
+    })
+
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
     })
@@ -256,6 +281,26 @@ class Draw {
       o.hasBorders = flag
       o.lockMovementX = !flag
       o.lockMovementY = !flag
+    })
+  }
+  setCornerStyle(style) {
+    const canvas = this.layerDraw
+    canvas.forEachObject(function (o) {
+      o.cornerStyle = style
+    })
+
+    if (!canvas.getActiveObject()) {
+      return
+    }
+    if (canvas.getActiveObject().type !== 'activeSelection') {
+      return
+    }
+    let group = canvas.getActiveObject().toGroup()
+    group.cornerStyle = 'circle'
+  }
+  setControlsVisibility(opt) {
+    this.layerDraw.forEachObject(function (o) {
+      o._controlsVisibility = opt
     })
   }
   initPan() {
@@ -328,6 +373,7 @@ class Draw {
         tmpState = ''
         isTmpChangeState = false
       }
+      // canvas.perPixelTargetFind = true
     })
   }
   initZoom() {
@@ -387,6 +433,9 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
+    if (canvas.getActiveObject().type === 'group') {
+      canvas.getActiveObject().toActiveSelection()
+    }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()

@@ -41,3 +41,45 @@ export const browser = {
     }
   })()
 }
+
+export const compress = (data, opt, callback) => {
+  let img = new Image()
+  img.onload = function () {
+    var w = this.width
+    var h = this.height
+    var scale = w / h
+    if (w > opt.maxWidth && scale > 1) {
+      w = opt.maxWidth
+      h = opt.maxWidth / scale
+    } else if (h > 1280 && scale < 1) {
+      h = opt.maxWidth
+      w = opt.maxWidth * scale
+    }
+    let quality = opt.quality || 0.5
+    let canvas = document.createElement('canvas')
+    let ctx = canvas.getContext('2d')
+    let anw = document.createAttribute('width')
+    anw.nodeValue = w
+    let anh = document.createAttribute('height')
+    anh.nodeValue = h
+    canvas.setAttributeNode(anw)
+    canvas.setAttributeNode(anh)
+    ctx.drawImage(this, 0, 0, w, h)
+    let base64 = canvas.toDataURL('image/jpeg', quality)
+    let file = dataURLtoFile(base64, opt.fileName)
+    callback(file)
+  }
+  img.src = data
+}
+
+var dataURLtoFile = function (data, fileName) {
+  let arr = data.split(',')
+  let mime = arr[0].match(/:(.*?);/)[1]
+  let bstr = atob(arr[1])
+  let n = bstr.length
+  let u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], fileName, { type: mime })
+}
