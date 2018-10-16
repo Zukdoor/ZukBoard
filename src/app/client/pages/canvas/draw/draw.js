@@ -88,6 +88,9 @@ class Draw {
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
+    canvas.on('object:selected', (e) => {
+
+    })
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       this.addImage(ev)
     })
@@ -285,14 +288,19 @@ class Draw {
       //   mb: false,
       //   mtr: true })
     })
+
+    canvas.on('selection:updated', (e) => {
+      this.setCornerStyle('circle')
+    })
+
     canvas.on('before:selection:cleared', (e) => {
-      if (!canvas.getActiveObject()) {
-        return
-      }
-      if (canvas.getActiveObject().type !== 'group') {
-        return
-      }
-      canvas.getActiveObject().toActiveSelection()
+      // if (!canvas.getActiveObject()) {
+      //   return
+      // }
+      // if (canvas.getActiveObject().type !== 'group') {
+      //   return
+      // }
+      // canvas.getActiveObject().()
     })
 
     canvas.on('selection:cleared', (e) => {
@@ -313,18 +321,18 @@ class Draw {
 
   setCornerStyle(style) {
     const canvas = this.layerDraw
-    canvas.forEachObject(function (o) {
-      o.cornerStyle = style
-    })
-
-    if (!canvas.getActiveObject()) {
-      return
-    }
-    if (canvas.getActiveObject().type !== 'activeSelection') {
-      return
-    }
-    let group = canvas.getActiveObject().toGroup()
-    group.cornerStyle = 'circle'
+    // canvas.forEachObject(function (o) {
+    //   o.cornerStyle = style
+    // })
+    //
+    // if (!canvas.getActiveObject()) {
+    //   return
+    // }
+    // if (canvas.getActiveObject().type !== 'activeSelection') {
+    //   return
+    // }
+    let activeObject = canvas.getActiveObject()
+    activeObject.cornerStyle = 'circle'
   }
 
   setControlsVisibility(opt) {
@@ -463,9 +471,9 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
-    if (canvas.getActiveObject().type === 'group') {
-      canvas.getActiveObject().toActiveSelection()
-    }
+    // if (canvas.getActiveObject().type === 'group') {
+    //   canvas.getActiveObject().toActiveSelection()
+    // }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
