@@ -3,10 +3,22 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
-          <li @click="refresh" title="清空画板"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe6a4;</i></li>
-          <li @click="undo" title="撤销"><i class="iconfont" :class="{'disabled': renderList.length === 0}">&#xe822;</i></li>
-          <li @click="redo" title="重做"><i class="iconfont" :class="{'disabled': redoList.length === 0}">&#xe7cf;</i></li>
-          <li @click="deleteSelected" title="删除"><i class="iconfont" :class="{'disabled': !canDelete}">&#xe603;</i></li>
+          <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
+          <li 
+            @click="() => { !notPresenter && refresh()}" 
+            title="清空画板"
+          >
+            <i class="iconfont" :class="{'disabled': renderList.length === 0 || notPresenter}">&#xe6a4;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && undo(e)}" title="撤销">
+            <i class="iconfont" :class="{'disabled': renderList.length === 0 || notPresenter}">&#xe822;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && redo(e)}" title="重做">
+            <i class="iconfont" :class="{'disabled': redoList.length === 0 || notPresenter}">&#xe7cf;</i>
+          </li>
+          <li @click="(e) => { !notPresenter && deleteSelected(e)}" title="删除">
+            <i class="iconfont" :class="{'disabled': !canDelete || notPresenter}">&#xe603;</i>
+          </li>
           <li class="tools-item zoom no-hover">
             <i class="iconfont" @click="changeZoom(true)">&#xe85b;</i>
             <el-input 
@@ -31,7 +43,7 @@
              :class="{'selected': plugin.active}"
              class="plugin-tools-item"
              :title="plugin.title">
-            <i class="iconfont" v-html="plugin.icon"></i>
+            <i class="iconfont" :class="{'disabled': !plugin.useInFollowing && notPresenter}" v-html="plugin.icon"></i>
             <template v-if="plugin.hasAction">
               <component
               v-show="plugin.showAction"
@@ -66,11 +78,34 @@
       <canvas id="layer-draw"></canvas>
     </div>
     <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
-        <li @click="undo" title="撤销" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe822;</i>撤销</li>
-        <li @click="redo" title="重做" :class="{'disabled': redoList.length === 0}"><i class="iconfont">&#xe7cf;</i>重做</li>
-        <li @click="refresh" title="清空画板" :class="{'disabled': renderList.length === 0}"><i class="iconfont" >&#xe6a4;</i>清空画板</li>
-        <li @click="deleteSelected" title="清空画板" :class="{'disabled': !canDelete}"><i class="iconfont" >&#xe603;</i>删除</li>
+        <li 
+          @click="(e) => { !notPresenter && undo(e)}" 
+          title="撤销" 
+          :class="{'disabled': renderList.length === 0 || notPresenter}"
+        >
+          <i class="iconfont" >&#xe822;</i>撤销
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && redo(e)}" 
+          title="重做" 
+          :class="{'disabled': redoList.length === 0 || notPresenter}"
+        >
+          <i class="iconfont">&#xe7cf;</i>重做
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && refresh(e)}" 
+          title="清空画板" 
+          :class="{'disabled': renderList.length === 0 || notPresenter}">
+            <i class="iconfont" >&#xe6a4;</i>清空画板
+        </li>
+        <li 
+          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}" 
+          title="清空画板" 
+          :class="{'disabled': !canDelete || notPresenter}">
+            <i class="iconfont" >&#xe603;</i>删除
+        </li>
     </ul>
+    <sync-status-notify :class="{'show': drawer.isFollowingMode}" ></sync-status-notify>
   </div>
 </template>
 
@@ -80,6 +115,7 @@ import uuid from 'uuid'
 import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
+import SyncStatusNotify from './SyncStatusNotify'
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
@@ -102,6 +138,8 @@ export default {
       zindex: 0,
       wPercent: 1,
       hPercent: 1,
+      baseWidth: 1080,
+      baseHeight: 720,
       uid: '', // temp uid
       renderList: [],
       redoList: [],
@@ -113,10 +151,6 @@ export default {
       },
       plugins,
       setting: {
-        brush: {
-          color: 'rgb(222, 18, 33)',
-          width: 2
-        },
         kbText: {
           color: '#333'
         }
@@ -138,15 +172,38 @@ export default {
       get: function (val) {
         return (this.drawer.zoomPercent * 100).toFixed(0) + '%'
       }
+    },
+    notPresenter: {
+      get: function () {
+        return this.drawer.isFollowingMode && !this.drawer.isPresenter
+      }
     }
   },
   components: {
+    SyncStatusNotify,
     ...settings,
     ...actions
   },
   created() {
     let id = this.$route.params.id
     this.socket.on('sync', (type, item) => {
+      if (type === 'move_by_presenter') {
+        this.focusPresenter(item.data)
+        this.drawer.resizeCanvas()
+        return
+      }
+      if (type === 'zoom') {
+        this.drawer.presenterZoom = item.data.zoom
+        this.drawer.resizeCanvas()
+        this.focusPresenter()
+        return
+      }
+
+      if (this.drawer.isFollowingMode) {
+        this.drawer.resizeCanvas()
+        this.focusPresenter()
+      }
+
       if (type === 'undo') {
         this.undo(item.opId)
         return
@@ -155,14 +212,33 @@ export default {
         this.redo(item.opId)
         return
       }
+
+      if (type === 'zoom') {
+        this.drawer.presenterZoom = item.data.zoom
+        this.drawer.resizeCanvas()
+        // this.drawer.setZoom(item.data.zoom * 1)
+        return
+      }
       if (type !== 'move') {
         this.renderList.push(item)
       }
       this.drawer.syncBoard(type, item)
     })
-    this.socket.on('drawpoint', (r) => {
-      this.drawer.syncBoardWithPoint(r)
+    this.socket.on('startFollow', (opt) => {
+      this.drawer.isPresenter = false
+      this.drawer.isFollowingMode = true
+      this.drawer.presenterZoom = opt.zoom
+      this.drawer.baseWidth = opt.width
+      this.drawer.resizeCanvas()
+      this.focusPresenter(opt.pan)
     })
+    this.socket.on('endFollow', (opt) => {
+      this.drawer.isPresenter = false
+      this.drawer.isFollowingMode = false
+      this.drawer.presenterZoom = 1
+      this.drawer.setZoom(1)
+    })
+
     this.socket.on('clear', (r) => {
       this.drawer.clear()
       this.renderList = []
@@ -205,11 +281,36 @@ export default {
         this.deleteSelected()
       }
     })
+    window.addEventListener('resize', () => {
+
+    })
   },
   methods: {
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
       this.drawer.zoomPercent = percent / 100
+    },
+    toggleFollowing() {
+      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
+        return
+      }
+      if (this.drawer.isFollowingMode) {
+        this.drawer.isPresenter = false
+        this.drawer.isFollowingMode = false
+        this.socket.emit('endFollow', null, this.board._id)
+        return
+      }
+      const { container } = this.drawer
+      this.drawer.isPresenter = true
+      this.drawer.isFollowingMode = true
+      this.socket.emit('startFollow', {
+        width: container.offsetWidth,
+        height: container.offsetHeight,
+        zoom: this.drawer.zoomPercent,
+        pan: {
+          ...this.drawer.getVpPoint()
+        }
+      }, this.board._id)
     },
     changeZoom(isUp) {
       let filterArr = this.steps.filter((item) => {
@@ -226,6 +327,22 @@ export default {
       }
 
       this.drawer.zoomPercent = this.steps[this.pIndex] / 100
+      if (this.drawer.isPresenter) {
+        this.socket.emit('sync', 'zoom', {
+          data: {
+            zoom: this.drawer.zoomPercent
+          }
+        }, this.board._id, this.board._id)
+      }
+    },
+    focusPresenter(point) {
+      if (!point) {
+        point = this.drawer.presenterPan
+      } else {
+        this.drawer.presenterPan = point
+      }
+
+      this.drawer.moveToPoint(point.x, point.y)
     },
     createBoard() {
       this.$http.post('/api/board/create').then(res => {
@@ -275,7 +392,6 @@ export default {
     },
     initBoard() {
       this.drawer.initBoard(this.renderList)
-      // this.renderList.forEach((item) => (item))
     },
     getQueryString(name) {
       let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
@@ -320,13 +436,11 @@ export default {
     redo(opid) {
       if (this.redoList.length === 0) return
       if (typeof opid !== 'string') opid = undefined
-      console.log('redo', opid)
       let index = -1
       if (opid) {
         index = this.redoList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.redoList.splice(index, 1)[0] : this.redoList.pop()
-      console.log(item)
       if (!item) return
       this.renderList.push(item)
       this.$nextTick(() => {
@@ -334,11 +448,10 @@ export default {
         this.initBoard()
       })
 
-      !opid && this.socket.emit('sync', 'redo', item, this.board._id)
+      !opid && this.socket.emit('sync', 'redo', item, this.board._id, this.board._id)
     },
     undo(opid) {
       if (typeof opid !== 'string') opid = undefined
-      console.log('redo', opid)
       if (this.renderList.length === 0) return
       let index = -1
       if (opid) {
@@ -352,12 +465,15 @@ export default {
         this.drawer.clear()
         this.initBoard()
       })
-      !opid && this.socket.emit('sync', 'undo', item, this.board._id)
+      !opid && this.socket.emit('sync', 'undo', item, this.board._id, this.board._id)
     },
     deleteSelected() {
       this.drawer.deleteSelected()
     },
     choose(chooseKey, hiddenAction) {
+      if (!this.plugins[chooseKey].useInFollowing && this.notPresenter) {
+        return
+      }
       this.drawer.setKey(chooseKey)
       Object.keys(this.plugins).forEach(key => {
         this.plugins[key].active = key === chooseKey
@@ -503,6 +619,9 @@ export default {
         height: 54px;
         .iconfont {
           font-size: 18px;
+        }
+        .following-mode{
+          color: green;
         }
         text-align: center;
         box-sizing: border-box;

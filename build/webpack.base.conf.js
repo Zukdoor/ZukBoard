@@ -6,9 +6,8 @@ const vueLoaderConfig = require(CURRENT_PATH + '/build/vue-loader.conf')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const webpack = require('webpack')
 
-// const VueLoaderPlugin = require('vue-loader/lib/plugin')
 console.log(vueLoaderConfig)
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }

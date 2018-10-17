@@ -1,10 +1,10 @@
+import '@babel/polyfill'
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import './assets/element-variables.scss'
 import VueResource from 'vue-resource'
 import '../client/assets/icon.css'
 import VueAnalytics from 'vue-analytics'
-
 import App from './App'
 import router from './router'
 import store from './store'
