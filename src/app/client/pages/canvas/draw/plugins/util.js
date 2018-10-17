@@ -66,20 +66,21 @@ export const compress = (data, opt, callback) => {
     canvas.setAttributeNode(anh)
     ctx.drawImage(this, 0, 0, w, h)
     let base64 = canvas.toDataURL('image/jpeg', quality)
-    let file = dataURLtoFile(base64, opt.fileName)
+    let file = dataURLtoFile(base64)
     callback(file)
   }
   img.src = data
 }
 
-var dataURLtoFile = function (data, fileName) {
-  let arr = data.split(',')
-  let mime = arr[0].match(/:(.*?);/)[1]
-  let bstr = atob(arr[1])
-  let n = bstr.length
-  let u8arr = new Uint8Array(n)
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n)
+var dataURLtoFile = function (base64Data) {
+  let byteString
+  if (base64Data.split(',')[0].indexOf('base64') >= 0) { byteString = atob(base64Data.split(',')[1]) } else { byteString = unescape(base64Data.split(',')[1]) }
+  let mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0]
+  let ia = new Uint8Array(byteString.length)
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
   }
-  return new File([u8arr], fileName, { type: mime })
+  return new Blob([ia], {
+    type: mimeString
+  })
 }
