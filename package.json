@@ -3,7 +3,7 @@
   "port": "4089",
   "version": "0.0.1",
   "description": "drawing board by canvas",
-  "browserslist": "> 0.25%, not dead",
+  "browserslist": "cover 99.5%",
   "scripts": {
     "test": "exit 0",
     "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",

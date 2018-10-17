@@ -1,6 +1,4 @@
 const CURRENT_PATH = process.cwd()
-// const path = require('path')
-// const webpack = require('webpack')
 const merge = require('webpack-merge')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
