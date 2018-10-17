@@ -112,7 +112,7 @@
     "vue-template-compiler": "2.5.17",
     "vuex": "3.0.1",
     "vuex-persist": "1.7.2",
-    "webpack": "4.20.2",
+    "webpack": "4.21.0",
     "webpack-hot-middleware": "2.24.3",
     "webpack-merge": "4.1.4",
     "wolfy87-eventemitter": "5.2.5"
