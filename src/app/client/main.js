@@ -1,4 +1,4 @@
-import '@babel/polyfill'
+// import '@babel/polyfill'
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import './assets/element-variables.scss'
