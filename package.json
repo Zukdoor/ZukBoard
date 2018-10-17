@@ -88,7 +88,7 @@
     "koa-webpack-middleware": "1.0.7",
     "lint-staged": "7.3.0",
     "mini-css-extract-plugin": "0.4.4",
-    "node-sass": "4.9.3",
+    "node-sass": "4.9.4",
     "opn": "5.4.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "ora": "3.0.0",
