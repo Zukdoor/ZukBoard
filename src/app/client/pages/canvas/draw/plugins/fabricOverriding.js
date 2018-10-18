@@ -16,18 +16,10 @@ fabric.Canvas.prototype.getObjectById = function (id) {
 
 fabric.Object.prototype._setCornerCoords = function () {
   const coords = this.oCoords
-
   const newTheta = fabric.util.degreesToRadians(45 - this.angle)
-
-  /* Math.sqrt(2 * Math.pow(this.cornerSize, 2)) / 2, */
-  /* 0.707106 stands for sqrt(2)/2 */
-
-  const cornerHypotenuse = this.cornerSize * 2
-
+  const cornerHypotenuse = this.cornerSize * 1.5
   const cosHalfOffset = cornerHypotenuse * fabric.util.cos(newTheta)
-
   const sinHalfOffset = cornerHypotenuse * fabric.util.sin(newTheta)
-
   let x, y
 
   for (let point in coords) {
@@ -53,6 +45,37 @@ fabric.Object.prototype._setCornerCoords = function () {
     }
   }
 }
+fabric.Canvas.prototype._shouldClearSelection = function (e, target) {
+  let activeObjects = this.getActiveObjects()
+
+  let activeObject = this._activeObject
+
+  return (
+    (!target && !e.shiftKey) ||
+    (target &&
+      activeObject &&
+      activeObjects.length > 1 &&
+      activeObjects.indexOf(target) === -1 &&
+      activeObject !== target &&
+      !this._isSelectionKeyPressed(e)) ||
+    (target && !target.evented) ||
+    (target &&
+      !target.selectable &&
+      activeObject &&
+      activeObject !== target)
+  )
+}
+const container = document.querySelector('body')
+fabric.util.addListener(container, 'keydown', function (e) {
+  if (e.code === 'Space') {
+    window.spaceDown = true
+  }
+})
+fabric.util.addListener(container, 'keyup', function (e) {
+  if (e.code === 'Space') {
+    window.spaceDown = false
+  }
+})
 
 fabric.util.object.extend(fabric.Object.prototype, {
   toActive: null

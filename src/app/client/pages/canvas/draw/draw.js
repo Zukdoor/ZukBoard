@@ -1,7 +1,8 @@
 import { fabric } from 'fabric'
 import { plugins } from './plugins'
 import {} from './plugins/fabricOverriding'
-import { genKey, eventEmitter, getSystem, LoadImageAsync, browser } from './plugins/util'
+import HandleImage from './plugins/upload-img/handleImage'
+import { genKey, eventEmitter, getSystem, browser } from './plugins/util'
 
 const SYNC_TYPE = {
   INSERT: 'create',
@@ -57,6 +58,8 @@ class Draw {
     this.initZoom()
     this.initFollow()
     this.registerEvents()
+    this.initImage()
+    this.registerCanvasEvents()
   }
   getInstance() {
     return instance
@@ -93,6 +96,7 @@ class Draw {
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
+
     canvas.on('object:selected', (e) => {
       // interactive
       //  canvas.interactive = true
@@ -140,6 +144,10 @@ class Draw {
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
   }
+  initImage() {
+    const image = new HandleImage(this)
+    image.log()
+  }
   changeZoom(ev) {
     const canvas = this.layerDraw
     if (this.current !== 'pan') return
@@ -156,28 +164,6 @@ class Draw {
     canvas.zoomToPoint({ x: this.lastPosX, y: this.lastPosY }, zoom)
     ev.preventDefault()
     ev.stopPropagation()
-  }
-  addImage(url) {
-    const canvas = this.layerDraw
-    var vpt = canvas.viewportTransform.slice(0)
-    LoadImageAsync(url).then((attr) => {
-      let scale = 1
-      let left = 0
-      let top = 150
-      if (attr.width >= this.canvaswidth / 2) {
-        scale = (this.canvaswidth / (2 * attr.width)).toFixed(1)
-      }
-      left = (this.canvaswidth - attr.width * scale) / 2 - vpt[4]
-      top -= vpt[5]
-      fabric.Image.fromURL(url, (upImg) => {
-        const img = upImg.set({ left: left, top: top }).scale(scale)
-        img.set('id', genKey())
-        img.set('btype', this.current)
-        canvas.add(img)
-        this._vm.sync('uploadImg', SYNC_TYPE.INSERT, img.toJSON(['id', 'btype']))
-        eventEmitter.emitEvent('imageRenderAfter')
-      }, { crossOrigin: 'Anonymous' })
-    })
   }
   clear() {
     this.layerDraw.clear()
@@ -341,7 +327,6 @@ class Draw {
       o.lockMovementY = !flag
     })
   }
-
   setCornerStyle(style) {
     const canvas = this.layerDraw
     // canvas.forEachObject(function (o) {
@@ -357,13 +342,11 @@ class Draw {
     let activeObject = canvas.getActiveObject()
     activeObject.cornerStyle = 'circle'
   }
-
   setControlsVisibility(opt) {
     this.layerDraw.forEachObject(function (o) {
       o._controlsVisibility = opt
     })
   }
-
   initPan() {
     const canvas = this.layerDraw
     let panning = false
@@ -529,7 +512,9 @@ class Draw {
     if (key === 'brush') {
       this.toggleSelection(true)
       canvas.defaultCursor = 'crosshair'
-      this.layerDraw.isDrawingMode = true
+      if (!window.spaceDown) {
+        this.layerDraw.isDrawingMode = true
+      }
       return
     }
     if (key === 'pan') {
@@ -541,6 +526,60 @@ class Draw {
     canvas.defaultCursor = 'default'
     this.toggleSelection(true)
     this.layerDraw.isDrawingMode = false
+  }
+  registerCanvasEvents() {
+    const canvas = this.layerDraw
+    const that = this
+    canvas.on('mouse:down:before', () => {
+      if (window.spaceDown) {
+        canvas.isDrawingMode = false
+      }
+    })
+    canvas.on('mouse:down', (e) => {
+      that.canDrag = true
+      if (browser.versions.ios || browser.versions.android) {
+        that.lastPosX = e.e.touches[0].clientX
+        that.lastPosY = e.e.touches[0].clientY
+      }
+    })
+    canvas.on('mouse:move', (e) => {
+      if (that.canDrag && window.spaceDown) {
+        that.toggleSelection(false)
+        canvas.defaultCursor = '-webkit-grab'
+        if (browser.versions.ios || browser.versions.android) {
+          e = e.e
+          let vpt = canvas.viewportTransform.slice(0)
+          vpt[4] += e.targetTouches[0].clientX - that.lastPosX
+          vpt[5] += e.targetTouches[0].clientY - that.lastPosY
+          canvas.setViewportTransform(vpt)
+          that.lastPosX = e.targetTouches[0].clientX
+          that.lastPosY = e.targetTouches[0].clientY
+          if (that.isPresenter) {
+            that._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { x: vpt[4], y: vpt[5], isMobile: true })
+          }
+        } else {
+          let delta = new fabric.Point(e.e.movementX, e.e.movementY)
+          canvas.relativePan(delta)
+          if (that.isPresenter) {
+            that._vm.sync('sync', SYNC_TYPE.MOVE_BY_PRESENTER, { ...that.getVpPoint(), isMobile: false })
+          }
+        }
+      }
+    })
+    canvas.on('mouse:up', () => {
+      that.canDrag = false
+      if (that.current === 'brush') {
+        canvas.isDrawingMode = true
+        canvas.defaultCursor = 'crosshair'
+      } else if (that.current === 'pan') {
+        that.toggleSelection(false)
+      } else if (that.current === 'choose') {
+        that.toggleSelection(true)
+        canvas.defaultCursor = 'default'
+      } else {
+        that.toggleSelection(true)
+      }
+    })
   }
 }
 Draw.getInstance = function () {
