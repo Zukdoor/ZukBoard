@@ -1,3 +1,5 @@
+import brushSetting from './brush/setting.vue'
+
 import kbTextSetting from './kb-text/setting.vue'
 import kbTextAction from './kb-text/action.vue'
 
@@ -13,6 +15,7 @@ export const plugins = {
   choose: choosePlugin
 }
 export const settings = {
+  brush: brushSetting,
   choose: chooseSetting,
   uploadImg: uploadImgSetting,
   kbText: kbTextSetting
