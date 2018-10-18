@@ -3,15 +3,6 @@ import { plugins } from './plugins'
 import {} from './plugins/fabricOverriding'
 import HandleImage from './plugins/upload-img/handleImage'
 import { genKey, eventEmitter, getSystem, browser } from './plugins/util'
-fabric.Canvas.prototype.getObjectById = function (id) {
-  var objs = this.getObjects()
-  for (var i = 0, len = objs.length; i < len; i++) {
-    if (objs[i].id === id) {
-      return objs[i]
-    }
-  }
-  return 0
-}
 
 const SYNC_TYPE = {
   INSERT: 'create',
@@ -41,8 +32,9 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      targetFindTolerance: 15
-      // skipTargetFind: false,
+      targetFindTolerance: 15,
+      interactive: false
+      // skipTargetFind: false
       // controlsAboveOverlay: true
     })
     this.zoomPercent = 1
@@ -82,18 +74,37 @@ class Draw {
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
     canvas.on('object:moving', (e) => {
+      console.warn('object:moving')
       if (canvas.isDrawingMode) return
+      canvas.interactive = false
+      if (e.target.type !== 'activeSelection' && e.target.type !== 'group' && !e.target.toActive) {
+        canvas.discardActiveObject(e)
+        this._vm.canDelete = false
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
+
+    canvas.on('object:moved', (e) => {
+      if (canvas.getActiveObjects().length > 0 || (e.target && e.target.toActive)) {
+        canvas.interactive = true
+      }
+    })
+
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
-    // eventEmitter.addListener('on-should-draw-img', (ev) => {
-    //   this.addImage(ev)
-    // })
+
+    canvas.on('object:selected', (e) => {
+      // interactive
+      //  canvas.interactive = true
+    })
+
+    eventEmitter.addListener('on-should-draw-img', (ev) => {
+      this.addImage(ev)
+    })
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -256,21 +267,53 @@ class Draw {
   initSelect() {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
-      this._vm.canDelete = true
-      this.setCornerStyle('circle')
+      // Specify style of control, 'rect' or 'circle'
+      if (e.selected && e.selected.length > 0) {
+        console.warn('selection:created')
+        setTimeout(() => {
+          console.warn('------', this._vm.canDelete)
+          this._vm.canDelete = true
+          canvas.interactive = true
+          canvas.drawControls(canvas.getContext())
+        }, 50)
+
+        this.setCornerStyle('circle')
+      }
+      // this.setControlsVisibility({ tl: true,
+      //   tr: true,
+      //   br: true,
+      //   bl: true,
+      //   ml: false,
+      //   mt: false,
+      //   mr: false,
+      //   mb: false,
+      //   mtr: true })
     })
+
+    canvas.on('selection:updated', (e) => {
+      // Specify style of control, 'rect' or 'circle'
+      if (e.selected && e.selected.length > 0) {
+        this.setCornerStyle('circle')
+      }
+    })
+
+    canvas.on('selection:active', (e) => {
+      e.target && (e.target.toActive = true)
+    })
+
     canvas.on('before:selection:cleared', (e) => {
-      if (!canvas.getActiveObject()) {
-        return
-      }
-      if (canvas.getActiveObject().type !== 'group') {
-        return
-      }
-      canvas.getActiveObject().toActiveSelection()
+      // if (!canvas.getActiveObject()) {
+      //   return
+      // }
+      // if (canvas.getActiveObject().type !== 'group') {
+      //   return
+      // }
+      // canvas.getActiveObject().()
     })
 
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
+      canvas.interactive = false
     })
   }
   toggleSelection(flag) {
@@ -286,18 +329,18 @@ class Draw {
   }
   setCornerStyle(style) {
     const canvas = this.layerDraw
-    canvas.forEachObject(function (o) {
-      o.cornerStyle = style
-    })
-
-    if (!canvas.getActiveObject()) {
-      return
-    }
-    if (canvas.getActiveObject().type !== 'activeSelection') {
-      return
-    }
-    let group = canvas.getActiveObject().toGroup()
-    group.cornerStyle = 'circle'
+    // canvas.forEachObject(function (o) {
+    //   o.cornerStyle = style
+    // })
+    //
+    // if (!canvas.getActiveObject()) {
+    //   return
+    // }
+    // if (canvas.getActiveObject().type !== 'activeSelection') {
+    //   return
+    // }
+    let activeObject = canvas.getActiveObject()
+    activeObject.cornerStyle = 'circle'
   }
   setControlsVisibility(opt) {
     this.layerDraw.forEachObject(function (o) {
@@ -317,6 +360,11 @@ class Draw {
       panning = false
       canvas.defaultCursor = '-webkit-grab'
     })
+
+    canvas.on('mouse:down:before', (e) => {
+
+    })
+
     canvas.on('mouse:down', (e) => {
       if (this.current !== 'pan') return
       canvas.defaultCursor = '-webkit-grabbing'
@@ -434,9 +482,9 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
-    if (canvas.getActiveObject().type === 'group') {
-      canvas.getActiveObject().toActiveSelection()
-    }
+    // if (canvas.getActiveObject().type === 'group') {
+    //   canvas.getActiveObject().toActiveSelection()
+    // }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
