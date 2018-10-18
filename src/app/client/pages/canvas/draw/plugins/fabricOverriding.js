@@ -62,3 +62,8 @@ fabric.util.addListener(container, 'keyup', function (e) {
     window.spaceDown = false
   }
 })
+fabric.Canvas.prototype.__onLongPress = function (e, self) {
+  this.fire('touch:longpress', {
+    e: e, self: self
+  })
+}

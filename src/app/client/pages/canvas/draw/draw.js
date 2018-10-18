@@ -532,6 +532,9 @@ class Draw {
         that.toggleSelection(true)
       }
     })
+    canvas.on('touch:longpress', (e) => {
+      console.log('longpress')
+    })
   }
 }
 Draw.getInstance = function () {
