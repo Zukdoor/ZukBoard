@@ -3,31 +3,31 @@
         <li @click.stop>
             <label for="">颜色：</label>
             <div class="content">
-              <div class="color-picker">
-                <div class="color-preview">
-                  <div class="value" @click="togglePicker(!isShowPicker)" :style="'background-color:' + config.color"></div>
-                
+                <div class="color-picker">
+                    <div class="color-preview">
+                        <div class="value" @click="togglePicker(!isShowPicker)" :style="'background-color:' + config.color"></div>
+
+                    </div>
+                    <transition name="fade">
+                        <div class="color-picker-main" v-show="isShowPicker">
+                            <color-picker v-model="colors" @input="updateValue"></color-picker>
+                        </div>
+                    </transition>
+
                 </div>
-                <transition name="fade">
-                  <div class="color-picker-main" v-show="isShowPicker">
-                    <color-picker v-model="colors" @input="updateValue"></color-picker>
-                  </div>
-                </transition>
-                
-              </div>
             </div>
         </li>
         <li>
             <label for="">尺寸：</label>
             <div class="content">
-            <el-select v-model="config.width" placeholder="请选择" @change="handleSelect">
-                <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-                </el-option>
-            </el-select>
+                <el-select v-model="config.width" placeholder="请选择" @change="handleSelect">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
             </div>
         </li>
         <li></li>
@@ -87,32 +87,32 @@ export default {
 </script>
 
 <style lang="scss">
-.color-picker{
-  position: relative;
-  .color-preview {
-    margin-top: 1px;
-    align-items: center;
-    &>.value {
-      width: 100px;
-      height: 20px;
-      border-radius: 5px;
-    }
+    .color-picker{
+        position: relative;
+        .color-preview {
+            margin-top: 1px;
+            align-items: center;
+            &>.value {
+                width: 100px;
+                height: 20px;
+                border-radius: 5px;
+            }
 
-  }
-  .fade-enter-active {
-    transition: all .3s ease;
-  }
-  .fade-leave-active {
-    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
-  
-  &>.color-picker-main{
-    position: absolute;
-    z-index: 12;
-    top: 40px;
-  }
-}
+        }
+        .fade-enter-active {
+            transition: all .3s ease;
+        }
+        .fade-leave-active {
+            transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+
+        &>.color-picker-main{
+            position: absolute;
+            z-index: 12;
+            top: 40px;
+        }
+    }
 </style>

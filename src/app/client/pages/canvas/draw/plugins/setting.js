@@ -33,7 +33,10 @@ export default {
     icon: '&#xe651;',
     setting: {
       src: '',
-      maxSize: 20 * 1024 * 1000
+      maxWidth: 1280,
+      maxSize: 20 * 1024 * 1000,
+      compressQuality: 0.5,
+      maxCompress: 0.5 * 1024 * 1000
     }
   }
 }

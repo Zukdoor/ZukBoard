@@ -151,10 +151,6 @@ export default {
       },
       plugins,
       setting: {
-        brush: {
-          color: 'rgb(222, 18, 33)',
-          width: 2
-        },
         kbText: {
           color: '#333'
         }
@@ -233,7 +229,6 @@ export default {
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
-      this.choose('pan')
       this.drawer.resizeCanvas()
       this.focusPresenter(opt.pan)
     })
