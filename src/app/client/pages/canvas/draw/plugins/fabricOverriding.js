@@ -1,4 +1,5 @@
 import { fabric } from 'fabric'
+import { eventEmitter } from './util'
 /**
  * Sets the coordinates of the draggable boxes in the corners of
  * the image used to scale/rotate it.
@@ -69,11 +70,13 @@ const container = document.querySelector('body')
 fabric.util.addListener(container, 'keydown', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = true
+    eventEmitter.emit('set-cursor', true)
   }
 })
 fabric.util.addListener(container, 'keyup', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = false
+    eventEmitter.emit('set-cursor', false)
   }
 })
 fabric.Canvas.prototype.__onLongPress = function (e, self) {

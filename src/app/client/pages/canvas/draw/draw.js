@@ -115,6 +115,13 @@ class Draw {
       })
       // canvas.freeDrawingBrush.width = +width
     })
+    eventEmitter.addListener('set-cursor', (flag) => {
+      if (flag) {
+        canvas.defaultCursor = '-webkit-grab'
+      } else {
+        canvas.defaultCursor = 'default'
+      }
+    })
     this._vm.$nextTick(() => {
       this.resizeCanvas()
     })
@@ -597,6 +604,9 @@ class Draw {
         // that.layerDraw.skipTargetFind = false
       }
       that.layerDraw.isDrawingMode = false
+    })
+    canvas.on('canvas:drag', () => {
+      console.log(12)
     })
   }
   clipImage() {
