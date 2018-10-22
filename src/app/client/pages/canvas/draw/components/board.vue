@@ -113,6 +113,7 @@
 import socket from '../plugins/socket.js'
 import uuid from 'uuid'
 import Draw from '../draw.js'
+import {} from '../plugins/events.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
@@ -429,13 +430,13 @@ export default {
         type: 'warning'
       }).then(() => {
         this.drawer.clear()
-        this.renderList = []
-        this.redoList = []
-        this.socket.emit('clear', this.board._id)
-        this.$message({
-          type: 'info',
-          message: '画布已被清空!'
-        })
+        // this.renderList = []
+        // this.redoList = []
+        // this.socket.emit('clear', this.board._id)
+        // this.$message({
+        //   type: 'info',
+        //   message: '画布已被清空!'
+        // })
       })
     },
     redo(opid) {

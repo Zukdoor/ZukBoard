@@ -80,84 +80,83 @@ fabric.Canvas.prototype.__onLongPress = function (e, self) {
   this.fire('touch:longpress', {
     e: e, self: self
   })
+}
+fabric.util.object.extend(fabric.Object.prototype, {
+  toActive: null
+})
 
-  fabric.util.object.extend(fabric.Object.prototype, {
-    toActive: null
+fabric.Object.prototype.onDeselect = function (opt) {
+  this.toActive = null
+}
+
+/**
+ * @private
+ */
+fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
+  if (!corner || (corner && !this.interactive)) {
+    return 'drag'
+  }
+
+  switch (corner) {
+    case 'mtr':
+      return 'rotate'
+    case 'ml':
+    case 'mr':
+      return e[this.altActionKey] ? 'skewY' : 'scaleX'
+    case 'mt':
+    case 'mb':
+      return e[this.altActionKey] ? 'skewX' : 'scaleY'
+    default:
+      return 'scale'
+  }
+}
+
+/**
+ * @private
+ * Compares the old activeObject with the current one and fires correct events
+ * @param {fabric.Object} obj old activeObject
+ */
+fabric.Canvas.prototype._fireSelectionEvents = function (oldObjects, e) {
+  var somethingChanged = false
+  var objects = this.getActiveObjects()
+
+  var added = []
+  var removed = []
+  var opt = { e: e }
+  oldObjects.forEach(function (oldObject) {
+    if (objects.indexOf(oldObject) === -1) {
+      somethingChanged = true
+      oldObject.fire('deselected', opt)
+      removed.push(oldObject)
+    }
   })
-
-  fabric.Object.prototype.onDeselect = function (opt) {
-    this.toActive = null
-  }
-
-  /**
-   * @private
-   */
-  fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
-    if (!corner || (corner && !this.interactive)) {
-      return 'drag'
+  objects.forEach(function (object) {
+    if (oldObjects.indexOf(object) === -1) {
+      somethingChanged = true
+      object.fire('selected', opt)
+      added.push(object)
     }
-
-    switch (corner) {
-      case 'mtr':
-        return 'rotate'
-      case 'ml':
-      case 'mr':
-        return e[this.altActionKey] ? 'skewY' : 'scaleX'
-      case 'mt':
-      case 'mb':
-        return e[this.altActionKey] ? 'skewX' : 'scaleY'
-      default:
-        return 'scale'
+  })
+  if (oldObjects.length > 0 && objects.length > 0) {
+    opt.selected = added
+    opt.deselected = removed
+    // added for backward compatibility
+    opt.updated = added[0] || removed[0]
+    opt.target = this._activeObject
+    somethingChanged && this.fire('selection:updated', opt)
+    !somethingChanged && this.fire('selection:active', opt)
+  } else if (objects.length > 0) {
+    // deprecated event
+    if (objects.length === 1) {
+      opt.target = added[0]
+      this.fire('object:selected', opt)
     }
-  }
-
-  /**
-   * @private
-   * Compares the old activeObject with the current one and fires correct events
-   * @param {fabric.Object} obj old activeObject
-   */
-  fabric.Canvas.prototype._fireSelectionEvents = function (oldObjects, e) {
-    var somethingChanged = false
-    var objects = this.getActiveObjects()
-
-    var added = []
-    var removed = []
-    var opt = { e: e }
-    oldObjects.forEach(function (oldObject) {
-      if (objects.indexOf(oldObject) === -1) {
-        somethingChanged = true
-        oldObject.fire('deselected', opt)
-        removed.push(oldObject)
-      }
-    })
-    objects.forEach(function (object) {
-      if (oldObjects.indexOf(object) === -1) {
-        somethingChanged = true
-        object.fire('selected', opt)
-        added.push(object)
-      }
-    })
-    if (oldObjects.length > 0 && objects.length > 0) {
-      opt.selected = added
-      opt.deselected = removed
-      // added for backward compatibility
-      opt.updated = added[0] || removed[0]
-      opt.target = this._activeObject
-      somethingChanged && this.fire('selection:updated', opt)
-      !somethingChanged && this.fire('selection:active', opt)
-    } else if (objects.length > 0) {
-      // deprecated event
-      if (objects.length === 1) {
-        opt.target = added[0]
-        this.fire('object:selected', opt)
-      }
-      opt.selected = added
-      // added for backward compatibility
-      opt.target = this._activeObject
-      this.fire('selection:created', opt)
-    } else if (oldObjects.length > 0) {
-      opt.deselected = removed
-      this.fire('selection:cleared', opt)
-    }
+    opt.selected = added
+    // added for backward compatibility
+    opt.target = this._activeObject
+    this.fire('selection:created', opt)
+  } else if (oldObjects.length > 0) {
+    opt.deselected = removed
+    this.fire('selection:cleared', opt)
   }
 }

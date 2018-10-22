@@ -33,10 +33,11 @@ class Draw {
       preserveObjectStacking: true,
       perPixelTargetFind: true,
       targetFindTolerance: 15,
-      interactive: false
-      // skipTargetFind: false
+      interactive: false,
+      skipTargetFind: false
       // controlsAboveOverlay: true
     })
+    this.toggleSelection(false)
     this.zoomPercent = 1
     this._vm = vm
     this.imgCache = {}
@@ -102,9 +103,6 @@ class Draw {
       //  canvas.interactive = true
     })
 
-    eventEmitter.addListener('on-should-draw-img', (ev) => {
-      this.addImage(ev)
-    })
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -537,6 +535,16 @@ class Draw {
     })
     canvas.on('mouse:down', (e) => {
       that.canDrag = true
+      if (e.target && that.current === 'choose') {
+        window.spaceDown = false
+      } else if (!e.target && that.current === 'choose') {
+        window.spaceDown = true
+      } else if (that.current === 'brush') {
+        window.spaceDown = false
+        canvas.isDrawingMode = true
+      } else {
+        window.spaceDown = false
+      }
       if (browser.versions.ios || browser.versions.android) {
         that.lastPosX = e.e.touches[0].clientX
         that.lastPosY = e.e.touches[0].clientY
@@ -581,8 +589,71 @@ class Draw {
       }
     })
     canvas.on('touch:longpress', (e) => {
-      console.log('longpress')
+      if (that.current !== 'choose') return
+      window.spaceDown = false
+      if (e.target) {
+        that.layerDraw.selection = true
+      } else {
+        // that.layerDraw.skipTargetFind = false
+      }
+      that.layerDraw.isDrawingMode = false
     })
+  }
+  clipImage() {
+    let state = this
+    let activeObject = this.layerDraw.getActiveObject()
+    if (activeObject.type === 'image') {
+      let clipBox = new fabric.Rect({
+        left: activeObject.left,
+        top: activeObject.top,
+        width: activeObject.width,
+        height: activeObject.height,
+        stroke: '#F5A623',
+        strokeWidth: 1,
+        fill: 'rgba(255, 255, 255, 0)',
+        objectCaching: false,
+        scaleX: activeObject.scaleX,
+        scaleY: activeObject.scaleY,
+        selectionBackgroundColor: 'rgba(255, 255, 255, 0)',
+        padding: 0,
+        angle: activeObject.angle
+      })
+      this.clipBox = clipBox
+      this.clipActiveObj = activeObject
+      let url = 'https://cdn.yucircle.com/zukboard/1540046337284'
+      fabric.util.loadImage(url, function (img) {
+        clipBox.fill = new fabric.Pattern({
+          source: img,
+          repeat: 'no-repeat',
+          offsetX: 0,
+          offsetY: 0
+        })
+        state.canvas.add(clipBox)
+
+        activeObject.set({
+          selectable: false,
+          hoverCursor: 'default',
+          evented: false,
+          hasControls: false,
+          perPixelTargetFind: false
+        })
+
+        activeObject.clone(function (clonedObj) {
+          state.canvas.discardActiveObject()
+          clonedObj.set({
+            left: clonedObj.left,
+            top: clonedObj.top,
+            evented: false,
+            opacity: 0.8
+          })
+          clipBox.clipClone = clonedObj
+          state.canvas.add(clonedObj)
+        })
+
+        activeObject.visible = false
+        state.canvas.renderAll()
+      })
+    }
   }
 }
 Draw.getInstance = function () {
