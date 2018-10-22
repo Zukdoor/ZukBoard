@@ -6,7 +6,7 @@
   "browserslist": "> 0.25%, not dead",
   "scripts": {
     "test": "exit 0",
-    "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development OSS_ID=LTAI194eJ8P280mG OSS_SECRET=ntANyAsse3W4gpIFUcy8YuYtJqMRxz && supervisor -w server, src/**/server/*.js app.js",
+    "dev": "export DEBUG=router:*,middleware:* NODE_ENV=development && supervisor -w server, src/**/server/*.js app.js",
     "build": "node build/build.js",
     "lint": "eslint src/* server/middleware/* server/tools/* server/routes/* tests/* build/* app.js",
     "lint-staged": "lint-staged",
