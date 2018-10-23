@@ -18,7 +18,7 @@ fabric.Canvas.prototype.getObjectById = function (id) {
 fabric.Object.prototype._setCornerCoords = function () {
   const coords = this.oCoords
   const newTheta = fabric.util.degreesToRadians(45 - this.angle)
-  const cornerHypotenuse = this.cornerSize * 1.5
+  const cornerHypotenuse = this.cornerSize * 2
   const cosHalfOffset = cornerHypotenuse * fabric.util.cos(newTheta)
   const sinHalfOffset = cornerHypotenuse * fabric.util.sin(newTheta)
   let x, y
@@ -71,12 +71,16 @@ fabric.util.addListener(container, 'keydown', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = true
     eventEmitter.emit('set-cursor', true)
+  } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+    window.shiftDown = true
   }
 })
 fabric.util.addListener(container, 'keyup', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = false
     eventEmitter.emit('set-cursor', false)
+  } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+    window.shiftDown = false
   }
 })
 fabric.Canvas.prototype.__onLongPress = function (e, self) {
@@ -85,34 +89,36 @@ fabric.Canvas.prototype.__onLongPress = function (e, self) {
   })
 }
 fabric.util.object.extend(fabric.Object.prototype, {
-  toActive: null
+  toActive: false,
+  isMoved: false
 })
 
 fabric.Object.prototype.onDeselect = function (opt) {
-  this.toActive = null
+  this.toActive = false
+  this.isMoved = false
 }
 
 /**
  * @private
  */
-fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
-  if (!corner || (corner && !this.interactive)) {
-    return 'drag'
-  }
-
-  switch (corner) {
-    case 'mtr':
-      return 'rotate'
-    case 'ml':
-    case 'mr':
-      return e[this.altActionKey] ? 'skewY' : 'scaleX'
-    case 'mt':
-    case 'mb':
-      return e[this.altActionKey] ? 'skewX' : 'scaleY'
-    default:
-      return 'scale'
-  }
-}
+// fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
+//   if (!corner || (corner && !this.interactive)) {
+//     return 'drag'
+//   }
+//
+//   switch (corner) {
+//     case 'mtr':
+//       return 'rotate'
+//     case 'ml':
+//     case 'mr':
+//       return e[this.altActionKey] ? 'skewY' : 'scaleX'
+//     case 'mt':
+//     case 'mb':
+//       return e[this.altActionKey] ? 'skewX' : 'scaleY'
+//     default:
+//       return 'scale'
+//   }
+// }
 
 /**
  * @private
@@ -162,4 +168,29 @@ fabric.Canvas.prototype._fireSelectionEvents = function (oldObjects, e) {
     opt.deselected = removed
     this.fire('selection:cleared', opt)
   }
+}
+
+/**
+ * Translates object by "setting" its left/top
+ * @private
+ * @param {Number} x pointer's x coordinate
+ * @param {Number} y pointer's y coordinate
+ * @return {Boolean} true if the translation occurred
+ */
+fabric.Canvas.prototype._translateObject = function (x, y) {
+  const transform = this._currentTransform
+
+  const target = transform.target
+
+  const newLeft = x - transform.offsetX
+
+  const newTop = y - transform.offsetY
+
+  const moveX = !!(!target.get('lockMovementX') && Math.abs(target.left - newLeft) > 5)
+
+  const moveY = !!(!target.get('lockMovementY') && Math.abs(target.top - newTop) > 5)
+
+  moveX && target.set('left', newLeft)
+  moveY && target.set('top', newTop)
+  return moveX || moveY
 }

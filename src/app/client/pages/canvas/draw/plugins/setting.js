@@ -9,6 +9,7 @@ export default {
   'choose': {
     title: '选择',
     icon: '&#xe67b;',
+    // useInFollowing: true,
     setting: {
     }
   },

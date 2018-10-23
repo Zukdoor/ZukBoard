@@ -1499,7 +1499,7 @@ eventjs.proxy = (function (root) {
   }
 
   root.tap = function (conf) {
-    conf.delay = conf.delay || 500
+    conf.delay = conf.delay || 300
     conf.timeout = conf.timeout || 250
     conf.driftDeviance = conf.driftDeviance || 10
     conf.gesture = conf.gesture || 'tap'

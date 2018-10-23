@@ -33,6 +33,7 @@ class Draw {
       preserveObjectStacking: true,
       perPixelTargetFind: true,
       targetFindTolerance: 15,
+      selectionFullyContained: true,
       interactive: false,
       skipTargetFind: false
       // controlsAboveOverlay: true
@@ -74,21 +75,14 @@ class Draw {
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
+
     canvas.on('object:moving', (e) => {
-      console.warn('object:moving')
       if (canvas.isDrawingMode) return
-      canvas.interactive = false
-      if (e.target.type !== 'activeSelection' && e.target.type !== 'group' && !e.target.toActive) {
-        canvas.discardActiveObject(e)
-        this._vm.canDelete = false
-      }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
 
     canvas.on('object:moved', (e) => {
-      if (canvas.getActiveObjects().length > 0 || (e.target && e.target.toActive)) {
-        canvas.interactive = true
-      }
+      e.target && (e.target.isMoved = true)
     })
 
     canvas.on('object:modified', (e) => {
@@ -99,8 +93,7 @@ class Draw {
     })
 
     canvas.on('object:selected', (e) => {
-      // interactive
-      //  canvas.interactive = true
+
     })
 
     eventEmitter.addListener('on-brush-update', (width, color) => {
@@ -218,7 +211,6 @@ class Draw {
       imgObj.set(o)
       o.setCoords()
       this.layerDraw.moveTo(o, o.zIndex)
-      // this.layerDraw.add(img)
       return
     }
     img = new Image()
@@ -262,6 +254,7 @@ class Draw {
     canvas.renderOnAddRemove = true
     canvas.renderAll()
     canvas.calcOffset()
+    this.klassSetting(false)
   }
   initBrush() {
     const canvas = this.layerDraw
@@ -272,18 +265,9 @@ class Draw {
   initSelect() {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
+      this._vm.canDelete = true
       // Specify style of control, 'rect' or 'circle'
-      if (e.selected && e.selected.length > 0) {
-        console.warn('selection:created')
-        setTimeout(() => {
-          console.warn('------', this._vm.canDelete)
-          this._vm.canDelete = true
-          canvas.interactive = true
-          canvas.drawControls(canvas.getContext())
-        }, 50)
-
-        this.setCornerStyle('circle')
-      }
+      this.setCornerStyle()
       // this.setControlsVisibility({ tl: true,
       //   tr: true,
       //   br: true,
@@ -296,56 +280,64 @@ class Draw {
     })
 
     canvas.on('selection:updated', (e) => {
-      // Specify style of control, 'rect' or 'circle'
-      if (e.selected && e.selected.length > 0) {
-        this.setCornerStyle('circle')
-      }
+      this.setCornerStyle()
+      this.setActiveObjControl(false, e.deselected)
     })
 
     canvas.on('selection:active', (e) => {
-      e.target && (e.target.toActive = true)
+      // e.target && (e.target.toActive = false)
     })
 
     canvas.on('before:selection:cleared', (e) => {
-      // if (!canvas.getActiveObject()) {
-      //   return
-      // }
-      // if (canvas.getActiveObject().type !== 'group') {
-      //   return
-      // }
-      // canvas.getActiveObject().()
+      // canvas.perPixelTargetFind = true
     })
 
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
-      canvas.interactive = false
+      this.setActiveObjControl(false, e.deselected)
     })
   }
+
+  setActiveObjControl(flag, objs) {
+    const canvas = this.layerDraw
+    const activeObjs = objs || canvas.getActiveObjects()
+    for (let i = 0, len = activeObjs.length; i < len; i++) {
+      if (activeObjs[i].isMoved) {
+        activeObjs[i].isMoved = false
+        return
+      }
+      activeObjs[i].hasControls = flag
+      activeObjs[i].hasBorders = flag
+      activeObjs[i].hasRotatingPoint = flag
+    }
+    canvas.drawControls(canvas.getContext())
+  }
+
+  klassSetting(flag) {
+    const canvas = this.layerDraw
+    canvas.forEachObject(item => {
+      item.hasControls = flag
+      item.hasBorders = flag
+      item.hasRotatingPoint = flag
+      item.transparentCorners = false
+      item.cornerSize = 10
+      item.cornerStyle = 'circle'
+      item.cornerColor = 'rgba(102,153,255,1)'
+    })
+  }
+
   toggleSelection(flag) {
     this.layerDraw.selection = flag
-    this.layerDraw.forEachObject(o => {
-      o.hasControls = flag
-      o.selectable = flag
-      o.evented = flag
-      o.hasBorders = flag
-      o.lockMovementX = !flag
-      o.lockMovementY = !flag
-    })
+    this.layerDraw.interactive = flag
+    this.layerDraw.skipTargetFind = !flag
   }
-  setCornerStyle(style) {
+  setCornerStyle() {
     const canvas = this.layerDraw
-    // canvas.forEachObject(function (o) {
-    //   o.cornerStyle = style
-    // })
-    //
-    // if (!canvas.getActiveObject()) {
-    //   return
-    // }
-    // if (canvas.getActiveObject().type !== 'activeSelection') {
-    //   return
-    // }
     let activeObject = canvas.getActiveObject()
+    activeObject.transparentCorners = false
+    activeObject.cornerSize = 10
     activeObject.cornerStyle = 'circle'
+    activeObject.cornerColor = 'rgba(102,153,255,1)'
   }
   setControlsVisibility(opt) {
     this.layerDraw.forEachObject(function (o) {
@@ -360,14 +352,11 @@ class Draw {
       panning = false
       canvas.defaultCursor = '-webkit-grab'
     })
+
     canvas.on('mouse:out', (e) => {
       if (this.current !== 'pan') return
       panning = false
       canvas.defaultCursor = '-webkit-grab'
-    })
-
-    canvas.on('mouse:down:before', (e) => {
-
     })
 
     canvas.on('mouse:down', (e) => {
@@ -427,7 +416,6 @@ class Draw {
         tmpState = ''
         isTmpChangeState = false
       }
-      // canvas.perPixelTargetFind = true
     })
   }
   initZoom() {
@@ -462,8 +450,6 @@ class Draw {
     vpt[4] = x
     vpt[5] = y
     this.layerDraw.setViewportTransform(vpt)
-    // var delta = new fabric.Point(x, y)
-    // this.layerDraw.relativePan(delta)
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
@@ -487,9 +473,6 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
-    // if (canvas.getActiveObject().type === 'group') {
-    //   canvas.getActiveObject().toActiveSelection()
-    // }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
@@ -515,6 +498,7 @@ class Draw {
     // this.callUnInstall(this.current)
     this.current = key
     if (key === 'brush') {
+      window.spaceDown = false
       this.toggleSelection(true)
       canvas.defaultCursor = 'crosshair'
       if (!window.spaceDown) {
@@ -535,20 +519,17 @@ class Draw {
   registerCanvasEvents() {
     const canvas = this.layerDraw
     const that = this
-    canvas.on('mouse:down:before', () => {
+    canvas.on('mouse:down:before', (e) => {
       if (window.spaceDown) {
         canvas.isDrawingMode = false
       }
     })
     canvas.on('mouse:down', (e) => {
       that.canDrag = true
-      if (e.target && that.current === 'choose') {
-        window.spaceDown = false
-      } else if (!e.target && that.current === 'choose') {
-        window.spaceDown = true
-      } else if (that.current === 'brush') {
-        window.spaceDown = false
-        canvas.isDrawingMode = true
+      if (!e.target && that.current === 'choose' && !window.shiftDown && !this.longpress) {
+        // window.spaceDown = true
+        canvas.isDrawingMode = false
+        this.toggleSelection(false)
       } else {
         window.spaceDown = false
       }
@@ -558,8 +539,8 @@ class Draw {
       }
     })
     canvas.on('mouse:move', (e) => {
-      if (that.canDrag && window.spaceDown) {
-        that.toggleSelection(false)
+      if (that.canDrag && (window.spaceDown || (!e.target && that.current === 'choose' && !window.shiftDown && !this.longpress))) {
+        // that.toggleSelection(false)
         canvas.defaultCursor = '-webkit-grab'
         if (browser.versions.ios || browser.versions.android) {
           e = e.e
@@ -581,15 +562,21 @@ class Draw {
         }
       }
     })
-    canvas.on('mouse:up', () => {
+    canvas.on('mouse:up', (e) => {
       that.canDrag = false
+      that.longpress = false
+      canvas.forEachObject(item => {
+        item.evented = true
+      })
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
+        this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
+        that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
@@ -597,16 +584,11 @@ class Draw {
     })
     canvas.on('touch:longpress', (e) => {
       if (that.current !== 'choose') return
-      window.spaceDown = false
-      if (e.target) {
-        that.layerDraw.selection = true
-      } else {
-        // that.layerDraw.skipTargetFind = false
-      }
-      that.layerDraw.isDrawingMode = false
-    })
-    canvas.on('canvas:drag', () => {
-      console.log(12)
+      this.toggleSelection(true)
+      this.longpress = true
+      canvas.forEachObject(item => {
+        item.evented = false
+      })
     })
   }
   clipImage() {
