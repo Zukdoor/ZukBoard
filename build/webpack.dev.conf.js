@@ -5,8 +5,6 @@ const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const config = require(CURRENT_PATH + '/config').webpackConfig
 const utils = require(CURRENT_PATH + '/build/utils')
 const baseWebpackConfig = require(CURRENT_PATH + '/build/webpack.base.conf')
-// const VueLoaderPlugin = require('vue-loader/lib/plugin')
-// var ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 Object.keys(baseWebpackConfig.entry).forEach(name => {
   baseWebpackConfig.entry[name] = ['./build/dev-client'].concat(
@@ -32,9 +30,7 @@ module.exports = merge(baseWebpackConfig, {
     //     NODE_ENV: '"development"'
     //   }
     // }),
-    // new VueLoaderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    // new webpack.NoEmitOnErrorsPlugin(),
     new FriendlyErrorsPlugin()
   ]
 })
