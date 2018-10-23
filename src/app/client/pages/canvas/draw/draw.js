@@ -38,7 +38,7 @@ class Draw {
       skipTargetFind: false
       // controlsAboveOverlay: true
     })
-    this.toggleSelection(false)
+    // this.toggleSelection(false)
     this.zoomPercent = 1
     this._vm = vm
     this.imgCache = {}
@@ -254,7 +254,9 @@ class Draw {
     canvas.renderOnAddRemove = true
     canvas.renderAll()
     canvas.calcOffset()
-    this.klassSetting(false)
+    setTimeout(() => {
+      this.klassSetting(false)
+    }, 500)
   }
   initBrush() {
     const canvas = this.layerDraw
@@ -540,7 +542,7 @@ class Draw {
     })
     canvas.on('mouse:move', (e) => {
       if (that.canDrag && (window.spaceDown || (!e.target && that.current === 'choose' && !window.shiftDown && !this.longpress))) {
-        // that.toggleSelection(false)
+        that.toggleSelection(false)
         canvas.defaultCursor = '-webkit-grab'
         if (browser.versions.ios || browser.versions.android) {
           e = e.e
