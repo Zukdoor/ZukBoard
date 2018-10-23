@@ -169,3 +169,28 @@ fabric.Canvas.prototype._fireSelectionEvents = function (oldObjects, e) {
     this.fire('selection:cleared', opt)
   }
 }
+
+/**
+ * Translates object by "setting" its left/top
+ * @private
+ * @param {Number} x pointer's x coordinate
+ * @param {Number} y pointer's y coordinate
+ * @return {Boolean} true if the translation occurred
+ */
+fabric.Canvas.prototype._translateObject = function (x, y) {
+  const transform = this._currentTransform
+
+  const target = transform.target
+
+  const newLeft = x - transform.offsetX
+
+  const newTop = y - transform.offsetY
+
+  const moveX = !!(!target.get('lockMovementX') && Math.abs(target.left - newLeft) > 5)
+
+  const moveY = !!(!target.get('lockMovementY') && Math.abs(target.top - newTop) > 5)
+
+  moveX && target.set('left', newLeft)
+  moveY && target.set('top', newTop)
+  return moveX || moveY
+}
