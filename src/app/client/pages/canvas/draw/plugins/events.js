@@ -1156,7 +1156,7 @@ eventjs.proxy = (function (root) {
         self.state = 'start'
         var sids = '' // - FIXME(mud): can generate duplicate IDs.
         for (var key in conf.tracker) sids += key
-        self.identifier = parseInt(sids)
+        self.identifier = parseInt('10', sids)
         getCentroid(self, conf.tracker)
         conf.listener(event, self)
       }
@@ -1260,7 +1260,7 @@ eventjs.proxy = (function (root) {
     root.pointermove =
       root.pointerup = function (conf) {
         conf.gesture = conf.gesture || 'pointer'
-        if (conf.target.isPointerEmitter) return
+        if (conf.target.isPointerEmitter) return null
         // Tracking the events.
         var isDown = true
         conf.onPointerDown = function (event) {
@@ -1339,7 +1339,7 @@ eventjs.proxy = (function (root) {
       self.acceleration.z = o.z - gravity.z
       if (conf.gesture === 'devicemotion') {
         conf.listener(e, self)
-        return
+        return false
       }
       var data = 'xyz'
       var now = (new Date()).getTime()
@@ -1515,7 +1515,13 @@ eventjs.proxy = (function (root) {
         // Make sure this is a "longpress" event.
         if (conf.gesture !== 'longpress') return
         timeout = setTimeout(function () {
-          if (event.cancelBubble && ++event.cancelBubbleCount > 1) return
+          if (event.cancelBubble) {
+            ++event.cancelBubbleCount
+            if (event.cancelBubbleCount > 1) {
+              return null
+            }
+          }
+          // if (event.cancelBubble && ++event.cancelBubbleCount > 1) return
           // Make sure no fingers have been changed.
           var fingers = 0
           for (var key in conf.tracker) {
@@ -1647,7 +1653,8 @@ eventjs.proxy = (function (root) {
     // Tracking the events.
     var onMouseWheel = function (event) {
       event = event || window.event
-      self.state = count++ ? 'change' : 'start'
+      count++
+      self.state = count ? 'change' : 'start'
       self.wheelDelta = event.detail ? event.detail * -20 : event.wheelDelta
       conf.listener(event, self)
       clearTimeout(interval)
