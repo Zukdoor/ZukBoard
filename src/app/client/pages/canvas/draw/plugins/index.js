@@ -1,4 +1,3 @@
-import brushPlugin from './brush/plugin'
 import brushSetting from './brush/setting.vue'
 
 import kbTextSetting from './kb-text/setting.vue'
@@ -12,7 +11,6 @@ import uploadImgSetting from './upload-img/setting.vue'
 import uploadImgAction from './upload-img/action.vue'
 
 export const plugins = {
-  brush: brushPlugin,
   uploadImg: uploadImgPlugin,
   choose: choosePlugin
 }

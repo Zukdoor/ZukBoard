@@ -1,5 +1,5 @@
-import Vue from 'vue'
 import '@babel/polyfill'
+import Vue from 'vue'
 import ElementUI from 'element-ui'
 import './assets/element-variables.scss'
 import VueResource from 'vue-resource'
