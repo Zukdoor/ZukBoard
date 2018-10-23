@@ -113,6 +113,7 @@
 import socket from '../plugins/socket.js'
 import uuid from 'uuid'
 import Draw from '../draw.js'
+import {} from '../plugins/events.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
