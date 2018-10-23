@@ -1,4 +1,5 @@
 import { fabric } from 'fabric'
+import { eventEmitter } from './util'
 /**
  * Sets the coordinates of the draggable boxes in the corners of
  * the image used to scale/rotate it.
@@ -69,14 +70,20 @@ const container = document.querySelector('body')
 fabric.util.addListener(container, 'keydown', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = true
+    eventEmitter.emit('set-cursor', true)
   }
 })
 fabric.util.addListener(container, 'keyup', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = false
+    eventEmitter.emit('set-cursor', false)
   }
 })
-
+fabric.Canvas.prototype.__onLongPress = function (e, self) {
+  this.fire('touch:longpress', {
+    e: e, self: self
+  })
+}
 fabric.util.object.extend(fabric.Object.prototype, {
   toActive: null
 })
@@ -113,9 +120,12 @@ fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
  * @param {fabric.Object} obj old activeObject
  */
 fabric.Canvas.prototype._fireSelectionEvents = function (oldObjects, e) {
-  var somethingChanged = false; var objects = this.getActiveObjects()
+  var somethingChanged = false
+  var objects = this.getActiveObjects()
 
-  var added = []; var removed = []; var opt = { e: e }
+  var added = []
+  var removed = []
+  var opt = { e: e }
   oldObjects.forEach(function (oldObject) {
     if (objects.indexOf(oldObject) === -1) {
       somethingChanged = true
