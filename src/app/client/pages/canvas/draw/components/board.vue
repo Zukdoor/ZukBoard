@@ -4,8 +4,8 @@
       <div class="tools">
         <ul>
           <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
-          <li 
-            @click="() => { !notPresenter && refresh()}" 
+          <li
+            @click="() => { !notPresenter && refresh()}"
             title="清空画板"
           >
             <i class="iconfont" :class="{'disabled': renderList.length === 0 || notPresenter}">&#xe6a4;</i>
@@ -21,11 +21,11 @@
           </li>
           <li class="tools-item zoom no-hover">
             <i class="iconfont" @click="changeZoom(true)">&#xe85b;</i>
-            <el-input 
+            <el-input
               disabled="disabled"
-              @change="onZoomChange" 
+              @change="onZoomChange"
               :value="zoomPercent"
-              @keyup="changeZoom" 
+              @keyup="changeZoom"
               @keyup.up.native="changeZoom(true)"
               @keyup.down.native="changeZoom()"
             >
@@ -33,12 +33,12 @@
             <i class="iconfont" @click="changeZoom()">&#xe663;</i>
           </li>
         </ul>
-        
+
       </div>
       <div class="tools">
         <ul>
           <li v-for="(plugin, key) in plugins"
-             :key="plugin.name" 
+             :key="plugin.name"
              @click="choose(key)"
              :class="{'selected': plugin.active}"
              class="plugin-tools-item"
@@ -54,18 +54,18 @@
               :is="key + '-action'" >
               </component>
             </template>
-            
+
           </li>
           <!-- <li><i class="icon ion-md-brush"></i></li> -->
         </ul>
-        
+
       </div>
       <div class="tools props">
         <template v-for="(item, key) in plugins" >
           <component
            v-show="item.active"
            :config="item.setting"
-           :is="key" 
+           :is="key"
            :key="key">
           </component>
         </template>
@@ -78,29 +78,29 @@
       <canvas id="layer-draw"></canvas>
     </div>
     <ul class="content-menu" v-show="contextMenu.show" :style="'top:' + contextMenu.y + 'px;left:' + contextMenu.x  + 'px;'">
-        <li 
-          @click="(e) => { !notPresenter && undo(e)}" 
-          title="撤销" 
+        <li
+          @click="(e) => { !notPresenter && undo(e)}"
+          title="撤销"
           :class="{'disabled': renderList.length === 0 || notPresenter}"
         >
           <i class="iconfont" >&#xe822;</i>撤销
         </li>
-        <li 
-          @click="(e) => { !notPresenter && redo(e)}" 
-          title="重做" 
+        <li
+          @click="(e) => { !notPresenter && redo(e)}"
+          title="重做"
           :class="{'disabled': redoList.length === 0 || notPresenter}"
         >
           <i class="iconfont">&#xe7cf;</i>重做
         </li>
-        <li 
-          @click="(e) => { !notPresenter && refresh(e)}" 
-          title="清空画板" 
+        <li
+          @click="(e) => { !notPresenter && refresh(e)}"
+          title="清空画板"
           :class="{'disabled': renderList.length === 0 || notPresenter}">
             <i class="iconfont" >&#xe6a4;</i>清空画板
         </li>
-        <li 
-          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}" 
-          title="清空画板" 
+        <li
+          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}"
+          title="清空画板"
           :class="{'disabled': !canDelete || notPresenter}">
             <i class="iconfont" >&#xe603;</i>删除
         </li>
@@ -565,7 +565,7 @@ export default {
       background-color: rgba(1,1,1,.1);
     }
   }
-  
+
 }
 
 .masker {
@@ -690,13 +690,13 @@ export default {
     canvas {
       cursor: none !important;
     }
-    
+
   }
   &.choose {
     canvas {
       cursor: initial;
     }
-    
+
   }
   canvas {
      width: 500px;

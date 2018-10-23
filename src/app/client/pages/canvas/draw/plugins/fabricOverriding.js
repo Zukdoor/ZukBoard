@@ -17,7 +17,7 @@ fabric.Canvas.prototype.getObjectById = function (id) {
 fabric.Object.prototype._setCornerCoords = function () {
   const coords = this.oCoords
   const newTheta = fabric.util.degreesToRadians(45 - this.angle)
-  const cornerHypotenuse = this.cornerSize * 1.5
+  const cornerHypotenuse = this.cornerSize * 2
   const cosHalfOffset = cornerHypotenuse * fabric.util.cos(newTheta)
   const sinHalfOffset = cornerHypotenuse * fabric.util.sin(newTheta)
   let x, y
@@ -65,47 +65,54 @@ fabric.Canvas.prototype._shouldClearSelection = function (e, target) {
       activeObject !== target)
   )
 }
+
 const container = document.querySelector('body')
 fabric.util.addListener(container, 'keydown', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = true
+  } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+    window.shiftDown = true
   }
 })
 fabric.util.addListener(container, 'keyup', function (e) {
   if (e.code === 'Space') {
     window.spaceDown = false
+  } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+    window.shiftDown = false
   }
 })
 
 fabric.util.object.extend(fabric.Object.prototype, {
-  toActive: null
+  toActive: false,
+  isMoved: false
 })
 
 fabric.Object.prototype.onDeselect = function (opt) {
-  this.toActive = null
+  this.toActive = false
+  this.isMoved = false
 }
 
 /**
  * @private
  */
-fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
-  if (!corner || (corner && !this.interactive)) {
-    return 'drag'
-  }
-
-  switch (corner) {
-    case 'mtr':
-      return 'rotate'
-    case 'ml':
-    case 'mr':
-      return e[this.altActionKey] ? 'skewY' : 'scaleX'
-    case 'mt':
-    case 'mb':
-      return e[this.altActionKey] ? 'skewX' : 'scaleY'
-    default:
-      return 'scale'
-  }
-}
+// fabric.Canvas.prototype._getActionFromCorner = function (target, corner, e) {
+//   if (!corner || (corner && !this.interactive)) {
+//     return 'drag'
+//   }
+//
+//   switch (corner) {
+//     case 'mtr':
+//       return 'rotate'
+//     case 'ml':
+//     case 'mr':
+//       return e[this.altActionKey] ? 'skewY' : 'scaleX'
+//     case 'mt':
+//     case 'mb':
+//       return e[this.altActionKey] ? 'skewX' : 'scaleY'
+//     default:
+//       return 'scale'
+//   }
+// }
 
 /**
  * @private
