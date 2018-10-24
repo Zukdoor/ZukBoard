@@ -35,14 +35,14 @@ var eventjs = {};
   }
 
   root.stop = function (event) {
-    if (!event) return
+    if (!event) return null
     if (event.stopPropagation) event.stopPropagation()
     event.cancelBubble = true // <= IE8
     event.cancelBubbleCount = 0
   }
 
   root.prevent = function (event) {
-    if (!event) return
+    if (!event) return null
     if (event.preventDefault) {
       event.preventDefault()
     } else if (event.preventManipulation) {
@@ -59,7 +59,7 @@ var eventjs = {};
 
   root.blur = function () { // Blurs the focused element. Useful when using eventjs.cancel as canceling will prevent focused elements from being blurred.
     var node = document.activeElement
-    if (!node) return
+    if (!node) return null
     var nodeName = document.activeElement.nodeName
     if (nodeName === 'INPUT' || nodeName === 'TEXTAREA' || node.contentEditable === 'true') {
       if (node.blur) node.blur()
@@ -142,7 +142,7 @@ var eventjs = {};
         return ret
       }
     }
-    if (!target || !type || !listener) return
+    if (!target || !type || !listener) return null
     // Check for element to load on interval (before onload).
     if (typeof (target) === 'string' && type === 'ready') {
       if (window.eventjs_stallOnReady) { /// force stall for scripts to load
@@ -161,7 +161,7 @@ var eventjs = {};
             setTimeout(listener, 1)
           }
         }, ms)
-        return
+        return null
       }
     }
     // Get DOM element from Query Selector.
@@ -227,7 +227,7 @@ var eventjs = {};
     if (root.Gesture && root.Gesture._gestureHandlers[type]) { // Fire custom event.
       id = type + id
       if (trigger === 'remove') { // Remove event listener.
-        if (!wrappers[id]) return // Already removed.
+        if (!wrappers[id]) return null // Already removed.
         wrappers[id].remove()
         delete wrappers[id]
       } else if (trigger === 'add') { // Attach event listener.
@@ -301,8 +301,8 @@ var eventjs = {};
 
   /// Display error message in console.
   var createError = function (message, data) {
-    if (typeof (console) === 'undefined') return
-    if (typeof (console.error) === 'undefined') return
+    if (typeof (console) === 'undefined') return null
+    if (typeof (console.error) === 'undefined') return null
     console.error(message, data)
   }
 
@@ -406,7 +406,7 @@ var eventjs = {};
   var eventListenersAgumented = false
   var augmentEventListeners = function () {
     /// Allows *EventListener to use custom event proxies.
-    if (!window.HTMLElement) return
+    if (!window.HTMLElement) return null
     var augmentEventListener = function (proto) {
       var recall = function (trigger) { // overwrite native *EventListener's
         var handle = trigger + 'EventListener'
@@ -503,14 +503,14 @@ eventjs.proxy = (function (root) {
       listener(conf.event, self)
     }
     self.add = function () {
-      if (self.enabled === true) return
+      if (self.enabled === true) return null
       if (conf.onPointerDown) eventjs.add(conf.target, type + 'down', conf.onPointerDown)
       if (conf.onPointerMove) eventjs.add(conf.doc, type + 'move', conf.onPointerMove)
       if (conf.onPointerUp) eventjs.add(conf.doc, type + 'up', conf.onPointerUp)
       self.enabled = true
     }
     self.remove = function () {
-      if (self.enabled === false) return
+      if (self.enabled === false) return null
       if (conf.onPointerDown) eventjs.remove(conf.target, type + 'down', conf.onPointerDown)
       if (conf.onPointerMove) eventjs.remove(conf.doc, type + 'move', conf.onPointerMove)
       if (conf.onPointerUp) eventjs.remove(conf.doc, type + 'up', conf.onPointerUp)
@@ -1177,7 +1177,7 @@ eventjs.proxy = (function (root) {
         pt.move.x = (touch.pageX - bbox.x1)
         pt.move.y = (touch.pageY - bbox.y1)
       }
-      if (conf.fingers < conf.minFingers) return
+      if (conf.fingers < conf.minFingers) return null
       touches = []
       var scale = 0
       var rotation = 0
@@ -1375,7 +1375,7 @@ eventjs.proxy = (function (root) {
       }
     }
     // Attach events.
-    if (!window.addEventListener) return
+    if (!window.addEventListener) return null
     window.addEventListener('devicemotion', onDeviceMotion, false)
     // Return this object.
     return self
@@ -1453,7 +1453,7 @@ eventjs.proxy = (function (root) {
             degree1 = (degree1 + degree2) / 2
             velocity1 = (velocity1 + velocity2) / 2
           } else {
-            return
+            return null
           }
         }
         var fingers = conf.gestureFingers
@@ -1513,7 +1513,7 @@ eventjs.proxy = (function (root) {
         eventjs.add(conf.doc, 'mousemove', conf.onPointerMove).listener(event)
         eventjs.add(conf.doc, 'mouseup', conf.onPointerUp)
         // Make sure this is a "longpress" event.
-        if (conf.gesture !== 'longpress') return
+        if (conf.gesture !== 'longpress') return null
         timeout = setTimeout(function () {
           if (event.cancelBubble) {
             ++event.cancelBubbleCount
@@ -1526,8 +1526,8 @@ eventjs.proxy = (function (root) {
           var fingers = 0
           for (var key in conf.tracker) {
             var point = conf.tracker[key]
-            if (point.end === true) return
-            if (conf.cancel) return
+            if (point.end === true) return null
+            if (conf.cancel) return null
             fingers++
           }
           // Send callback.
@@ -1561,7 +1561,7 @@ eventjs.proxy = (function (root) {
           // Cancel out this listener.
           eventjs.remove(conf.doc, 'mousemove', conf.onPointerMove)
           conf.cancel = true
-          return
+          return null
         }
       }
     }
@@ -1570,19 +1570,25 @@ eventjs.proxy = (function (root) {
         clearTimeout(timeout)
         eventjs.remove(conf.doc, 'mousemove', conf.onPointerMove)
         eventjs.remove(conf.doc, 'mouseup', conf.onPointerUp)
-        if (event.cancelBubble && ++event.cancelBubbleCount > 1) return
+        if (event.cancelBubble) {
+          ++event.cancelBubbleCount
+          if (event.cancelBubbleCount > 1) {
+            return null
+          }
+        }
+        // if (event.cancelBubble && ++event.cancelBubbleCount > 1) return
         // Callback release on longpress.
         if (conf.gesture === 'longpress') {
           if (self.state === 'start') {
             self.state = 'end'
             conf.listener(event, self)
           }
-          return
+          return null
         }
         // Cancel event due to movement.
-        if (conf.cancel) return
+        if (conf.cancel) return null
         // Ensure delay is within margins.
-        if ((new Date()).getTime() - timestamp > conf.timeout) return
+        if ((new Date()).getTime() - timestamp > conf.timeout) return null
         // Send callback.
         var fingers = conf.gestureFingers
         if (conf.minFingers <= fingers && conf.maxFingers >= fingers) {
@@ -1614,7 +1620,7 @@ eventjs.proxy = (function (root) {
   'use strict'
 
   root.wheelPreventElasticBounce = function (el) {
-    if (!el) return
+    if (!el) return null
     if (typeof (el) === 'string') el = document.querySelector(el)
     eventjs.add(el, 'wheel', function (event, self) {
       self.preventElasticBounce()
