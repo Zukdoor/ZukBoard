@@ -3,15 +3,6 @@ import { plugins } from './plugins'
 import {} from './plugins/fabricOverriding'
 import HandleImage from './plugins/upload-img/handleImage'
 import { genKey, eventEmitter, getSystem, browser } from './plugins/util'
-fabric.Canvas.prototype.getObjectById = function (id) {
-  var objs = this.getObjects()
-  for (var i = 0, len = objs.length; i < len; i++) {
-    if (objs[i].id === id) {
-      return objs[i]
-    }
-  }
-  return 0
-}
 
 const SYNC_TYPE = {
   INSERT: 'create',
@@ -48,10 +39,13 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      targetFindTolerance: 15
-      // skipTargetFind: false,
+      targetFindTolerance: 15,
+      selectionFullyContained: true,
+      interactive: false,
+      skipTargetFind: false
       // controlsAboveOverlay: true
     })
+    // this.toggleSelection(false)
     this.zoomPercent = 1
     this._vm = vm
     this.imgCache = {}
@@ -88,19 +82,27 @@ class Draw {
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
+
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
+
+    canvas.on('object:moved', (e) => {
+      e.target && (e.target.isMoved = true)
+    })
+
     canvas.on('object:modified', (e) => {
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
     canvas.on('after:render', () => {
       this._vm.hideLoading()
     })
-    // eventEmitter.addListener('on-should-draw-img', (ev) => {
-    //   this.addImage(ev)
-    // })
+
+    canvas.on('object:selected', (e) => {
+
+    })
+
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -112,6 +114,13 @@ class Draw {
         canvas.renderAll()
       })
       // canvas.freeDrawingBrush.width = +width
+    })
+    eventEmitter.addListener('set-cursor', (flag) => {
+      if (flag) {
+        canvas.defaultCursor = '-webkit-grab'
+      } else {
+        canvas.defaultCursor = 'default'
+      }
     })
     this._vm.$nextTick(() => {
       this.resizeCanvas()
@@ -209,7 +218,6 @@ class Draw {
       imgObj.set(o)
       o.setCoords()
       this.layerDraw.moveTo(o, o.zIndex)
-      // this.layerDraw.add(img)
       return
     }
     img = new Image()
@@ -253,6 +261,9 @@ class Draw {
     canvas.renderOnAddRemove = true
     canvas.renderAll()
     canvas.calcOffset()
+    setTimeout(() => {
+      this.klassSetting(false)
+    }, 500)
   }
   initBrush() {
     const canvas = this.layerDraw
@@ -264,47 +275,78 @@ class Draw {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
       this._vm.canDelete = true
-      this.setCornerStyle('circle')
+      // Specify style of control, 'rect' or 'circle'
+      this.setCornerStyle()
+      // this.setControlsVisibility({ tl: true,
+      //   tr: true,
+      //   br: true,
+      //   bl: true,
+      //   ml: false,
+      //   mt: false,
+      //   mr: false,
+      //   mb: false,
+      //   mtr: true })
     })
+
+    canvas.on('selection:updated', (e) => {
+      this.setCornerStyle()
+      this.setActiveObjControl(false, e.deselected)
+    })
+
+    canvas.on('selection:active', (e) => {
+      // e.target && (e.target.toActive = false)
+    })
+
     canvas.on('before:selection:cleared', (e) => {
-      if (!canvas.getActiveObject()) {
-        return
-      }
-      if (canvas.getActiveObject().type !== 'group') {
-        return
-      }
-      canvas.getActiveObject().toActiveSelection()
+      // canvas.perPixelTargetFind = true
     })
 
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
+      this.setActiveObjControl(false, e.deselected)
     })
   }
+
+  setActiveObjControl(flag, objs) {
+    const canvas = this.layerDraw
+    const activeObjs = objs || canvas.getActiveObjects()
+    for (let i = 0, len = activeObjs.length; i < len; i++) {
+      if (activeObjs[i].isMoved) {
+        activeObjs[i].isMoved = false
+        return
+      }
+      activeObjs[i].hasControls = flag
+      activeObjs[i].hasBorders = flag
+      activeObjs[i].hasRotatingPoint = flag
+    }
+    canvas.drawControls(canvas.getContext())
+  }
+
+  klassSetting(flag) {
+    const canvas = this.layerDraw
+    canvas.forEachObject(item => {
+      item.hasControls = flag
+      item.hasBorders = flag
+      item.hasRotatingPoint = flag
+      item.transparentCorners = false
+      item.cornerSize = 10
+      item.cornerStyle = 'circle'
+      item.cornerColor = 'rgba(102,153,255,1)'
+    })
+  }
+
   toggleSelection(flag) {
     this.layerDraw.selection = flag
-    this.layerDraw.forEachObject(o => {
-      o.hasControls = flag
-      o.selectable = flag
-      o.evented = flag
-      o.hasBorders = flag
-      o.lockMovementX = !flag
-      o.lockMovementY = !flag
-    })
+    this.layerDraw.interactive = flag
+    this.layerDraw.skipTargetFind = !flag
   }
-  setCornerStyle(style) {
+  setCornerStyle() {
     const canvas = this.layerDraw
-    canvas.forEachObject(function (o) {
-      o.cornerStyle = style
-    })
-
-    if (!canvas.getActiveObject()) {
-      return
-    }
-    if (canvas.getActiveObject().type !== 'activeSelection') {
-      return
-    }
-    let group = canvas.getActiveObject().toGroup()
-    group.cornerStyle = 'circle'
+    let activeObject = canvas.getActiveObject()
+    activeObject.transparentCorners = false
+    activeObject.cornerSize = 10
+    activeObject.cornerStyle = 'circle'
+    activeObject.cornerColor = 'rgba(102,153,255,1)'
   }
   setControlsVisibility(opt) {
     this.layerDraw.forEachObject(function (o) {
@@ -319,11 +361,13 @@ class Draw {
       panning = false
       canvas.defaultCursor = '-webkit-grab'
     })
+
     canvas.on('mouse:out', (e) => {
       if (this.current !== 'pan') return
       panning = false
       canvas.defaultCursor = '-webkit-grab'
     })
+
     canvas.on('mouse:down', (e) => {
       if (this.current !== 'pan') return
       canvas.defaultCursor = '-webkit-grabbing'
@@ -381,7 +425,6 @@ class Draw {
         tmpState = ''
         isTmpChangeState = false
       }
-      // canvas.perPixelTargetFind = true
     })
   }
   initZoom() {
@@ -416,8 +459,6 @@ class Draw {
     vpt[4] = x
     vpt[5] = y
     this.layerDraw.setViewportTransform(vpt)
-    // var delta = new fabric.Point(x, y)
-    // this.layerDraw.relativePan(delta)
   }
   setZoom(zoom) {
     const canvas = this.layerDraw
@@ -441,9 +482,6 @@ class Draw {
   deleteSelected() {
     if (this.textEditing) return
     const canvas = this.layerDraw
-    if (canvas.getActiveObject().type === 'group') {
-      canvas.getActiveObject().toActiveSelection()
-    }
     const deleteIds = canvas.getActiveObjects().map(o => o.id)
     const activeObjects = canvas.getActiveObjects()
     canvas.discardActiveObject()
@@ -469,6 +507,7 @@ class Draw {
     // this.callUnInstall(this.current)
     this.current = key
     if (key === 'brush') {
+      window.spaceDown = false
       this.toggleSelection(true)
       canvas.defaultCursor = 'crosshair'
       if (!window.spaceDown) {
@@ -489,20 +528,27 @@ class Draw {
   registerCanvasEvents() {
     const canvas = this.layerDraw
     const that = this
-    canvas.on('mouse:down:before', () => {
+    canvas.on('mouse:down:before', (e) => {
       if (window.spaceDown) {
         canvas.isDrawingMode = false
       }
     })
     canvas.on('mouse:down', (e) => {
       that.canDrag = true
+      if (!e.target && that.current === 'choose' && !window.shiftDown && !this.longpress) {
+        // window.spaceDown = true
+        canvas.isDrawingMode = false
+        this.toggleSelection(false)
+      } else {
+        window.spaceDown = false
+      }
       if (browser.versions.ios || browser.versions.android) {
         that.lastPosX = e.e.touches[0].clientX
         that.lastPosY = e.e.touches[0].clientY
       }
     })
     canvas.on('mouse:move', (e) => {
-      if (that.canDrag && window.spaceDown) {
+      if (that.canDrag && (window.spaceDown || (!e.target && that.current === 'choose' && !window.shiftDown && !this.longpress))) {
         that.toggleSelection(false)
         canvas.defaultCursor = '-webkit-grab'
         if (browser.versions.ios || browser.versions.android) {
@@ -525,20 +571,90 @@ class Draw {
         }
       }
     })
-    canvas.on('mouse:up', () => {
+    canvas.on('mouse:up', (e) => {
       that.canDrag = false
+      that.longpress = false
+      canvas.forEachObject(item => {
+        item.evented = true
+      })
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
+        this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
+        that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
       }
     })
+    canvas.on('touch:longpress', (e) => {
+      if (that.current !== 'choose') return
+      this.toggleSelection(true)
+      this.longpress = true
+      canvas.forEachObject(item => {
+        item.evented = false
+      })
+    })
+  }
+  clipImage() {
+    let state = this
+    let activeObject = this.layerDraw.getActiveObject()
+    if (activeObject.type === 'image') {
+      let clipBox = new fabric.Rect({
+        left: activeObject.left,
+        top: activeObject.top,
+        width: activeObject.width,
+        height: activeObject.height,
+        stroke: '#F5A623',
+        strokeWidth: 1,
+        fill: 'rgba(255, 255, 255, 0)',
+        objectCaching: false,
+        scaleX: activeObject.scaleX,
+        scaleY: activeObject.scaleY,
+        selectionBackgroundColor: 'rgba(255, 255, 255, 0)',
+        padding: 0,
+        angle: activeObject.angle
+      })
+      this.clipBox = clipBox
+      this.clipActiveObj = activeObject
+      let url = 'https://cdn.yucircle.com/zukboard/1540046337284'
+      fabric.util.loadImage(url, function (img) {
+        clipBox.fill = new fabric.Pattern({
+          source: img,
+          repeat: 'no-repeat',
+          offsetX: 0,
+          offsetY: 0
+        })
+        state.canvas.add(clipBox)
+
+        activeObject.set({
+          selectable: false,
+          hoverCursor: 'default',
+          evented: false,
+          hasControls: false,
+          perPixelTargetFind: false
+        })
+
+        activeObject.clone(function (clonedObj) {
+          state.canvas.discardActiveObject()
+          clonedObj.set({
+            left: clonedObj.left,
+            top: clonedObj.top,
+            evented: false,
+            opacity: 0.8
+          })
+          clipBox.clipClone = clonedObj
+          state.canvas.add(clonedObj)
+        })
+
+        activeObject.visible = false
+        state.canvas.renderAll()
+      })
+    }
   }
 }
 Draw.getInstance = function () {
