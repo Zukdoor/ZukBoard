@@ -267,6 +267,7 @@ export default {
         if (type !== 'move') {
           this.renderList.push(item)
         }
+        console.log(item)
         this.drawer.syncBoard(type, item)
       })
       this.socket.on('startFollow', (opt) => {

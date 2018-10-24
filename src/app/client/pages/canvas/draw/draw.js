@@ -85,14 +85,38 @@ class Draw {
 
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
+      if ('_objects' in e.target) {
+        const objects = e.target._objects.map(obj => {
+          const json = obj.toJSON(['id', 'btype'])
+          json.top = json.top + e.target.top + e.target.height / 2
+          json.left = json.left + e.target.left + e.target.width / 2
+          return json
+        })
+        this._vm.sync('', SYNC_TYPE.MOVE, objects, true)
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
 
     canvas.on('object:moved', (e) => {
       e.target && (e.target.isMoved = true)
     })
-
     canvas.on('object:modified', (e) => {
+      console.log(e)
+      if ('_objects' in e.target) {
+        const objects = e.target._objects.map(obj => {
+          const json = obj.toJSON(['id', 'btype'])
+          json.top = json.top + e.target.top + e.target.height * e.target.scaleY / 2
+          json.left = json.left + e.target.left + e.target.width * e.target.scaleY / 2
+          json.scaleX = e.target.scaleX
+          json.scaleY = e.target.scaleY
+          // json.width = json.width * e.target.scaleX
+          // json.height = json.height * e.target.scaleY
+          return json
+        })
+        this._vm.sync('', SYNC_TYPE.UPDATE, objects, true)
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
     canvas.on('after:render', () => {
@@ -187,6 +211,13 @@ class Draw {
     type === SYNC_TYPE.MOVE && this.handleSyncUpdate(data)
   }
   handleSyncUpdate(data) {
+    if (Array.isArray(data)) {
+      data.forEach(obj => this.handleSycnUpdateSingle(obj))
+      return
+    }
+    this.handleSycnUpdateSingle(data)
+  }
+  handleSycnUpdateSingle(data) {
     let obj = this.layerDraw.getObjectById(data.id)
     if (!obj) return
     obj.set(data)
