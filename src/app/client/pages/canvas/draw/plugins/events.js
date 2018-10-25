@@ -602,8 +602,8 @@ eventjs.proxy = (function (root) {
     var track = conf.tracker
     var touches = event.changedTouches || root.getCoords(event)
     var length = touches.length
-    var fingers = 0 // Finger ID.
-    console.log(fingers)
+    let fingers = 0 // Finger ID.
+    if (fingers) {}
     // Adding touch events to tracking.
     for (var i = 0; i < length; i++) {
       var touch = touches[i]
