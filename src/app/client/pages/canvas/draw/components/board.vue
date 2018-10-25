@@ -206,6 +206,9 @@ export default {
       Object.keys(this.plugins).forEach(key => {
         plugins[key].showAction = false
       })
+      if (this.plugins['uploadImg'].active) {
+        this.choose('choose')
+      }
     })
     document.oncontextmenu = (ev) => {
       this.contextMenu.x = this.mouseX(ev)
