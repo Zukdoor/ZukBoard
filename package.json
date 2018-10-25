@@ -63,7 +63,6 @@
     "autoprefixer": "9.3.0",
     "babel-eslint": "10.0.1",
     "babel-loader": "8.0.4",
-    "babel-polyfill": "^6.26.0",
     "clipboard": "2.0.1",
     "css-loader": "1.0.0",
     "element-ui": "2.4.8",
