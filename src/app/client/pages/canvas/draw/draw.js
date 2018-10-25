@@ -86,11 +86,12 @@ class Draw {
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
       if ('_objects' in e.target) {
+        const jsons = canvas.toJSON(['id'])
         const objects = e.target._objects.map(obj => {
-          const json = obj.toJSON(['id', 'btype'])
-          json.top = json.top + e.target.top + e.target.height / 2
-          json.left = json.left + e.target.left + e.target.width / 2
-          return json
+          // const json = obj.toJSON(['id', 'btype'])
+          // json.top = json.top + e.target.top + e.target.height / 2
+          // json.left = json.left + e.target.left + e.target.width / 2
+          return jsons.objects.find(j => j.id === obj.id)
         })
         this._vm.sync('', SYNC_TYPE.MOVE, objects, true)
         return
@@ -102,17 +103,10 @@ class Draw {
       e.target && (e.target.isMoved = true)
     })
     canvas.on('object:modified', (e) => {
-      console.log(e)
       if ('_objects' in e.target) {
+        const jsons = canvas.toJSON(['id'])
         const objects = e.target._objects.map(obj => {
-          const json = obj.toJSON(['id', 'btype'])
-          json.top = json.top + e.target.top + e.target.height * e.target.scaleY / 2
-          json.left = json.left + e.target.left + e.target.width * e.target.scaleY / 2
-          json.scaleX = e.target.scaleX
-          json.scaleY = e.target.scaleY
-          // json.width = json.width * e.target.scaleX
-          // json.height = json.height * e.target.scaleY
-          return json
+          return jsons.objects.find(j => j.id === obj.id)
         })
         this._vm.sync('', SYNC_TYPE.UPDATE, objects, true)
         return
