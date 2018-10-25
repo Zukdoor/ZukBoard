@@ -50,7 +50,7 @@ class Draw {
     this.baseWidth = this.canvaswidth
     instance = this
     window.canvas = this.layerDraw
-    this.lastPosX = this.lastPosY = null
+    this.lastPosX = this.lastPosY = 0
   }
   init() {
     this.initBrush()
@@ -543,8 +543,14 @@ class Draw {
         window.spaceDown = false
       }
       if (browser.versions.ios || browser.versions.android) {
-        that.lastPosX = e && e.e && e.e.touches ? e.e.touches[0].clientX : 0
-        that.lastPosY = e && e.e && e.e.touches ? e.e.touches[0].clientY : 0
+        if (e && e.e && e.e.touches) {
+          let clientParam = e.e.touches[0]
+          that.lastPosX = clientParam.clientX
+          that.lastPosY = clientParam.clientY
+        } else {
+          that.lastPosX = 0
+          that.lastPosY = 0
+        }
       }
     })
     canvas.on('mouse:move', (e) => {
