@@ -8,9 +8,7 @@ function register(io) {
     })
     registerSync(socket)
     registerFollow(socket)
-    socket.on('disconnect', () => {
-
-    })
+    socket.on('disconnect', () => {})
   })
 }
 module.exports = register

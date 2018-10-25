@@ -86,14 +86,7 @@ class Draw {
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
       if ('_objects' in e.target) {
-        const jsons = canvas.toJSON(['id'])
-        const objects = e.target._objects.map(obj => {
-          // const json = obj.toJSON(['id', 'btype'])
-          // json.top = json.top + e.target.top + e.target.height / 2
-          // json.left = json.left + e.target.left + e.target.width / 2
-          return jsons.objects.find(j => j.id === obj.id)
-        })
-        this._vm.sync('', SYNC_TYPE.MOVE, objects, true)
+        this._vm.sync('', SYNC_TYPE.MOVE, this.getModifiedObjects(e.target), true)
         return
       }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
@@ -104,11 +97,7 @@ class Draw {
     })
     canvas.on('object:modified', (e) => {
       if ('_objects' in e.target) {
-        const jsons = canvas.toJSON(['id'])
-        const objects = e.target._objects.map(obj => {
-          return jsons.objects.find(j => j.id === obj.id)
-        })
-        this._vm.sync('', SYNC_TYPE.UPDATE, objects, true)
+        this._vm.sync('', SYNC_TYPE.UPDATE, this.getModifiedObjects(e.target), true)
         return
       }
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
@@ -154,6 +143,12 @@ class Draw {
     this.container.addEventListener('gesturechange', (ev) => {
       this.changeZoom(ev)
     }, false)
+  }
+  getModifiedObjects(target) {
+    const jsons = this.layerDraw.toJSON(['id'])
+    return target._objects.map(obj => {
+      return jsons.objects.find(j => j.id === obj.id)
+    })
   }
   resizeCanvas() {
     const canvas = this.layerDraw

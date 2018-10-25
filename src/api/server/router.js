@@ -33,22 +33,6 @@ module.exports = {
   'get#/': async ctx => {
     ctx.body = 'hello'
   },
-  'post#user/login': async ctx => {
-    // 暂时写死画板ID
-    const { name } = ctx.request.body
-    const insertResult = await db.Board.collection.insertMany([{
-      name: name || '画板',
-      roomId: uuid.v4(),
-      canvas: [],
-      follow: {
-        open: false,
-        config: {}
-      }
-    }])
-    model = insertResult.ops[0]
-    // GenerateScript()
-    createResult(ctx, resCode.OK, '', model)
-  },
   'get#board/list': async ctx => {
     let list = await db.Board.find({})
     createResult(ctx, resCode.OK, '', list)
