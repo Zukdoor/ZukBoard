@@ -99,10 +99,6 @@ class Draw {
       this._vm.hideLoading()
     })
 
-    canvas.on('object:selected', (e) => {
-
-    })
-
     eventEmitter.addListener('on-brush-update', (width, color) => {
       canvas.freeDrawingBrush.color = color
       canvas.freeDrawingBrush.width = +width
@@ -113,15 +109,9 @@ class Draw {
         o.setColor(color)
         canvas.renderAll()
       })
-      // canvas.freeDrawingBrush.width = +width
     })
     eventEmitter.addListener('set-cursor', (flag) => {
-      if (flag) {
-        canvas.defaultCursor = '-webkit-grab'
-      } else {
-        canvas.defaultCursor = 'default'
-      }
-      canvas.setCursor(canvas.defaultCursor)
+      this.setCursor(flag ? '-webkit-grab' : 'default')
     })
     this._vm.$nextTick(() => {
       this.resizeCanvas()
@@ -137,6 +127,9 @@ class Draw {
     this.container.addEventListener('gesturechange', (ev) => {
       this.changeZoom(ev)
     }, false)
+  }
+  setCursor(cursor) {
+    this.layerDraw.setCursor(cursor)
   }
   resizeCanvas() {
     const canvas = this.layerDraw
