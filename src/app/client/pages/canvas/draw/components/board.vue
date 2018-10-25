@@ -295,7 +295,7 @@ export default {
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
-      this.choose('pan')
+      this.choose('choose')
       this.drawer.resizeCanvas()
       this.focusPresenter(opt.pan)
     },
