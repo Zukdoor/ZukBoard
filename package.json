@@ -30,7 +30,7 @@
     "axios": "0.18.0",
     "debug": "4.1.0",
     "jsonwebtoken": "^8.3.0",
-    "koa": "2.5.3",
+    "koa": "2.6.1",
     "koa-bodyparser": "4.2.1",
     "koa-cache-control": "2.0.0",
     "koa-compose": "4.1.0",
