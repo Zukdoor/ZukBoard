@@ -19,6 +19,7 @@ const boardSchema = new Schema({
   name: String,
   roomId: String,
   canvas: Array,
+  follow: Object,
   createTime: {
     type: Date,
     default: Date.now
