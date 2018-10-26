@@ -420,7 +420,7 @@ export default {
         key,
         data,
         type,
-        id: Array.isArray(data) ? data : data.id,
+        // id: Array.isArray(data) ? data : data.id,
         opId: this.genKey(),
         time: new Date().getTime()
       }

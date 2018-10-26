@@ -103,7 +103,7 @@ class Draw {
     })
     canvas.on('object:modified', (e) => {
       if ('_objects' in e.target) {
-        this._vm.sync('', SYNC_TYPE.UPDATE, this.getModifiedObjects(e.target), true)
+        this._vm.sync('', SYNC_TYPE.UPDATE, this.getModifiedObjects(e.target))
         return
       }
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))

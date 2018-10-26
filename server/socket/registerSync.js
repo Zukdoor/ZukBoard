@@ -8,6 +8,6 @@ module.exports = function (socket) {
   })
   socket.on('clear', async (id) => {
     socket.to(id).emit('clear', id)
-    methods.clear()
+    methods.clear(id)
   })
 }
