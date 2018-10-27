@@ -54,7 +54,11 @@ module.exports = {
     const insertResult = await db.Board.collection.insertMany([{
       name: name || '画板',
       roomId: uuid.v4(),
-      canvas: []
+      canvas: [],
+      follow: {
+        open: false,
+        config: {}
+      }
     }])
     model = insertResult.ops[0]
     // GenerateScript()

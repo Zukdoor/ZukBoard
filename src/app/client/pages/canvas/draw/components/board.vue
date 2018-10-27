@@ -187,68 +187,7 @@ export default {
   },
   created() {
     let id = this.$route.params.id
-    this.socket.on('sync', (type, item) => {
-      if (type === 'move_by_presenter') {
-        this.focusPresenter(item.data)
-        this.drawer.resizeCanvas()
-        return
-      }
-      if (type === 'zoom') {
-        this.drawer.presenterZoom = item.data.zoom
-        this.drawer.resizeCanvas()
-        this.focusPresenter()
-        return
-      }
-
-      if (this.drawer.isFollowingMode) {
-        this.drawer.resizeCanvas()
-        this.focusPresenter()
-      }
-
-      if (type === 'undo') {
-        this.undo(item.opId)
-        return
-      }
-      if (type === 'redo') {
-        this.redo(item.opId)
-        return
-      }
-
-      if (type === 'zoom') {
-        this.drawer.presenterZoom = item.data.zoom
-        this.drawer.resizeCanvas()
-        // this.drawer.setZoom(item.data.zoom * 1)
-        return
-      }
-      if (type !== 'move') {
-        this.renderList.push(item)
-      }
-      this.drawer.syncBoard(type, item)
-    })
-    this.socket.on('startFollow', (opt) => {
-      this.drawer.isPresenter = false
-      this.drawer.isFollowingMode = true
-      this.drawer.presenterZoom = opt.zoom
-      this.drawer.baseWidth = opt.width
-      this.drawer.resizeCanvas()
-      this.focusPresenter(opt.pan)
-    })
-    this.socket.on('endFollow', (opt) => {
-      this.drawer.isPresenter = false
-      this.drawer.isFollowingMode = false
-      this.drawer.presenterZoom = 1
-      this.drawer.setZoom(1)
-    })
-
-    this.socket.on('clear', (r) => {
-      this.drawer.clear()
-      this.renderList = []
-      this.redoList = []
-      this.$message({
-        type: 'info',
-        message: '画布已被清空!'
-      })
-    })
+    this.registerSocket()
     if (id) {
       this.socket.emit('joinRoom', id)
       this.getBoard(id)
@@ -267,6 +206,9 @@ export default {
       Object.keys(this.plugins).forEach(key => {
         plugins[key].showAction = false
       })
+      if (this.plugins['uploadImg'].active) {
+        this.choose('choose')
+      }
     })
     document.oncontextmenu = (ev) => {
       this.contextMenu.x = this.mouseX(ev)
@@ -290,6 +232,75 @@ export default {
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
       this.drawer.zoomPercent = percent / 100
+    },
+    registerSocket() {
+      this.socket.on('sync', (type, item) => {
+        if (type === 'move_by_presenter') {
+          this.focusPresenter(item.data)
+          this.drawer.resizeCanvas()
+          return
+        }
+        if (type === 'zoom') {
+          this.drawer.presenterZoom = item.data.zoom
+          this.drawer.resizeCanvas()
+          this.focusPresenter()
+          return
+        }
+
+        if (this.drawer.isFollowingMode) {
+          this.drawer.resizeCanvas()
+          this.focusPresenter()
+        }
+
+        if (type === 'undo') {
+          this.undo(item.opId)
+          return
+        }
+        if (type === 'redo') {
+          this.redo(item.opId)
+          return
+        }
+
+        if (type === 'zoom') {
+          this.drawer.presenterZoom = item.data.zoom
+          this.drawer.resizeCanvas()
+          // this.drawer.setZoom(item.data.zoom * 1)
+          return
+        }
+        if (type !== 'move') {
+          this.renderList.push(item)
+        }
+        console.log(item)
+        this.drawer.syncBoard(type, item)
+      })
+      this.socket.on('startFollow', (opt) => {
+        this.initFollower(opt)
+      })
+      this.socket.on('endFollow', (opt) => {
+        this.drawer.isPresenter = false
+        this.drawer.isFollowingMode = false
+        this.drawer.presenterZoom = 1
+        this.drawer.setZoom(1)
+      })
+
+      this.socket.on('clear', (r) => {
+        this.drawer.clear()
+        this.renderList = []
+        this.redoList = []
+        this.$message({
+          type: 'info',
+          message: '画布已被清空!'
+        })
+      })
+    },
+    initFollower(opt) {
+      this.drawer.isPresenter = false
+      this.drawer.isFollowingMode = true
+      this.drawer.presenterZoom = opt.zoom
+      this.drawer.baseWidth = opt.width
+      this.choose('choose')
+      this.drawer.resizeCanvas()
+      this.focusPresenter(opt.pan)
     },
     toggleFollowing() {
       if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
@@ -386,6 +397,9 @@ export default {
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
           this.initBoard()
+          if (data.follow && data.follow.open) {
+            this.initFollower(data.follow.config)
+          }
         })
         delete data.canvas
         this.board = data
@@ -406,7 +420,7 @@ export default {
         key,
         data,
         type,
-        id: Array.isArray(data) ? data : data.id,
+        // id: Array.isArray(data) ? data : data.id,
         opId: this.genKey(),
         time: new Date().getTime()
       }
