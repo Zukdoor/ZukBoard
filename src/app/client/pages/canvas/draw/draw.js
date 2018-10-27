@@ -518,8 +518,6 @@ class Draw {
       canvas.defaultCursor = '-webkit-grab'
       this.layerDraw.isDrawingMode = false
       return
-    } else {
-      // this.setActiveObjControl(true)
     }
     canvas.defaultCursor = 'default'
     this.toggleSelection(true)
