@@ -76,9 +76,13 @@ class Draw {
   registerEvents() {
     const canvas = this.layerDraw
     canvas.on('path:created', (e) => {
-      if (e.path.id === undefined) {
-        e.path.set('id', genKey())
-        e.path.set('btype', this.current)
+      let pathObj = e.path || {}
+      if (typeof pathObj.id === 'undefined') {
+        pathObj.set('id', genKey())
+        pathObj.set('btype', this.current)
+        pathObj.hasControls = false
+        pathObj.hasBorders = false
+        pathObj.hasRotatingPoint = false
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
@@ -311,7 +315,7 @@ class Draw {
 
     canvas.on('selection:updated', (e) => {
       this.setCornerStyle()
-      this.setActiveObjControl(false, e.deselected, e.target)
+      // this.setActiveObjControl(false, e.deselected, e.target)
       if (e.target && !e.target.hasControls) {
         this._vm.canDelete = false
       }
@@ -326,7 +330,7 @@ class Draw {
     })
 
     canvas.on('selection:cleared', (e) => {
-      this.setActiveObjControl(false, e.deselected, e.target)
+      // this.setActiveObjControl(false, e.deselected, e.target)
       this._vm.canDelete = false
     })
   }
@@ -613,12 +617,12 @@ class Draw {
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
-        this.klassSetting(false)
+        // this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
-        that.setActiveObjControl(true)
+        // that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
