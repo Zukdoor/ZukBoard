@@ -69,9 +69,13 @@ class Draw {
   registerEvents() {
     const canvas = this.layerDraw
     canvas.on('path:created', (e) => {
-      if (e.path.id === undefined) {
-        e.path.set('id', genKey())
-        e.path.set('btype', this.current)
+      let pathObj = e.path || {}
+      if (pathObj.id === undefined) {
+        pathObj.set('id', genKey())
+        pathObj.set('btype', this.current)
+        pathObj.hasControls = false
+        pathObj.hasBorders = false
+        pathObj.hasRotatingPoint = false
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
@@ -279,11 +283,12 @@ class Draw {
       //   mr: false,
       //   mb: false,
       //   mtr: true })
+      console.log('created')
     })
 
     canvas.on('selection:updated', (e) => {
       this.setCornerStyle()
-      this.setActiveObjControl(false, e.deselected)
+      // this.setActiveObjControl(false, e.deselected)
     })
 
     canvas.on('selection:active', (e) => {
@@ -296,7 +301,7 @@ class Draw {
 
     canvas.on('selection:cleared', (e) => {
       this._vm.canDelete = false
-      this.setActiveObjControl(false, e.deselected)
+      // this.setActiveObjControl(false, e.deselected)
     })
   }
 
@@ -513,6 +518,8 @@ class Draw {
       canvas.defaultCursor = '-webkit-grab'
       this.layerDraw.isDrawingMode = false
       return
+    } else {
+      // this.setActiveObjControl(true)
     }
     canvas.defaultCursor = 'default'
     this.toggleSelection(true)
@@ -573,12 +580,12 @@ class Draw {
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
-        this.klassSetting(false)
+        // this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
-        that.setActiveObjControl(true)
+        // that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
