@@ -18,8 +18,16 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
+    this.isPresenter = false
+    this.presenterVp = {
+      x: 0,
+      y: 0
+    }
+    this.presenterZoom = 1
+    this.isFollowingMode = false
     this.container = container
     this.isPresenter = false
+    this.isMobile = !!(browser.versions.ios || browser.versions.android)
     this.presenterVp = {
       x: 0,
       y: 0
@@ -32,13 +40,12 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      targetFindTolerance: 15,
+      targetFindTolerance: this.isMobile ? 45 : 15,
       selectionFullyContained: true,
       interactive: false,
       skipTargetFind: false
       // controlsAboveOverlay: true
     })
-    // this.toggleSelection(false)
     this.zoomPercent = 1
     this._vm = vm
     this.imgCache = {}
@@ -50,7 +57,7 @@ class Draw {
     this.baseWidth = this.canvaswidth
     instance = this
     window.canvas = this.layerDraw
-    this.lastPosX = this.lastPosY = null
+    this.lastPosX = this.lastPosY = 0
   }
   init() {
     this.initBrush()
@@ -69,35 +76,41 @@ class Draw {
   registerEvents() {
     const canvas = this.layerDraw
     canvas.on('path:created', (e) => {
-      let pathObj = e.path || {}
-      if (pathObj.id === undefined) {
-        pathObj.set('id', genKey())
-        pathObj.set('btype', this.current)
-        pathObj.hasControls = false
-        pathObj.hasBorders = false
-        pathObj.hasRotatingPoint = false
+      if (e.path.id === undefined) {
+        e.path.set('id', genKey())
+        e.path.set('btype', this.current)
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
 
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
+      if ('_objects' in e.target) {
+        this._vm.sync('', SYNC_TYPE.MOVE, this.getModifiedObjects(e.target), true)
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
 
     canvas.on('object:moved', (e) => {
-      e.target && (e.target.isMoved = true)
+      const newLeft = e.transform.lastX - e.transform.offsetX
+      const newTop = e.transform.lastY - e.transform.offsetY
+      const moveX = !!(!e.target.get('lockMovementX') && Math.abs(e.target.left - newLeft) > 5)
+      const moveY = !!(!e.target.get('lockMovementY') && Math.abs(e.target.top - newTop) > 5)
+      if (moveX || moveY) {
+        e.target && (e.target.isMoved = true)
+      }
     })
-
     canvas.on('object:modified', (e) => {
+      if ('_objects' in e.target) {
+        this._vm.sync('', SYNC_TYPE.UPDATE, this.getModifiedObjects(e.target))
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
+
     canvas.on('after:render', () => {
       this._vm.hideLoading()
-    })
-
-    canvas.on('object:selected', (e) => {
-
     })
 
     eventEmitter.addListener('on-brush-update', (width, color) => {
@@ -110,14 +123,9 @@ class Draw {
         o.setColor(color)
         canvas.renderAll()
       })
-      // canvas.freeDrawingBrush.width = +width
     })
     eventEmitter.addListener('set-cursor', (flag) => {
-      if (flag) {
-        canvas.defaultCursor = '-webkit-grab'
-      } else {
-        canvas.defaultCursor = 'default'
-      }
+      this.setCursor(flag ? '-webkit-grab' : 'default')
     })
     this._vm.$nextTick(() => {
       this.resizeCanvas()
@@ -133,6 +141,15 @@ class Draw {
     this.container.addEventListener('gesturechange', (ev) => {
       this.changeZoom(ev)
     }, false)
+  }
+  getModifiedObjects(target) {
+    const jsons = this.layerDraw.toJSON(['id'])
+    return target._objects.map(obj => {
+      return jsons.objects.find(j => j.id === obj.id)
+    })
+  }
+  setCursor(cursor) {
+    this.layerDraw.setCursor(cursor)
   }
   resizeCanvas() {
     const canvas = this.layerDraw
@@ -184,6 +201,13 @@ class Draw {
     type === SYNC_TYPE.MOVE && this.handleSyncUpdate(data)
   }
   handleSyncUpdate(data) {
+    if (Array.isArray(data)) {
+      data.forEach(obj => this.handleSycnUpdateSingle(obj))
+      return
+    }
+    this.handleSycnUpdateSingle(data)
+  }
+  handleSycnUpdateSingle(data) {
     let obj = this.layerDraw.getObjectById(data.id)
     if (!obj) return
     obj.set(data)
@@ -271,7 +295,7 @@ class Draw {
   initSelect() {
     const canvas = this.layerDraw
     canvas.on('selection:created', (e) => {
-      this._vm.canDelete = true
+      // this._vm.canDelete = true
       // Specify style of control, 'rect' or 'circle'
       this.setCornerStyle()
       // this.setControlsVisibility({ tl: true,
@@ -283,12 +307,14 @@ class Draw {
       //   mr: false,
       //   mb: false,
       //   mtr: true })
-      console.log('created')
     })
 
     canvas.on('selection:updated', (e) => {
       this.setCornerStyle()
-      // this.setActiveObjControl(false, e.deselected)
+      this.setActiveObjControl(false, e.deselected, e.target)
+      if (e.target && !e.target.hasControls) {
+        this._vm.canDelete = false
+      }
     })
 
     canvas.on('selection:active', (e) => {
@@ -300,12 +326,12 @@ class Draw {
     })
 
     canvas.on('selection:cleared', (e) => {
+      this.setActiveObjControl(false, e.deselected, e.target)
       this._vm.canDelete = false
-      // this.setActiveObjControl(false, e.deselected)
     })
   }
 
-  setActiveObjControl(flag, objs) {
+  setActiveObjControl(flag, objs, target) {
     const canvas = this.layerDraw
     const activeObjs = objs || canvas.getActiveObjects()
     for (let i = 0, len = activeObjs.length; i < len; i++) {
@@ -318,6 +344,9 @@ class Draw {
       activeObjs[i].hasRotatingPoint = flag
     }
     canvas.drawControls(canvas.getContext())
+    if (flag && activeObjs.length > 0) {
+      this._vm.canDelete = true
+    }
   }
 
   klassSetting(flag) {
@@ -541,8 +570,14 @@ class Draw {
         window.spaceDown = false
       }
       if (browser.versions.ios || browser.versions.android) {
-        that.lastPosX = e.e.touches[0].clientX
-        that.lastPosY = e.e.touches[0].clientY
+        if (e && e.e && e.e.touches) {
+          let clientParam = e.e.touches[0]
+          that.lastPosX = clientParam.clientX
+          that.lastPosY = clientParam.clientY
+        } else {
+          that.lastPosX = 0
+          that.lastPosY = 0
+        }
       }
     })
     canvas.on('mouse:move', (e) => {
@@ -578,12 +613,12 @@ class Draw {
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
-        // this.klassSetting(false)
+        this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
-        // that.setActiveObjControl(true)
+        that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
