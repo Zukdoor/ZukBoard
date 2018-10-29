@@ -3,7 +3,9 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
-          <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
+          <li @click="toggleFollowing" title="同步模式" v-if="mode !== 'all'">
+            <i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i>
+          </li>
           <li
             @click="() => { !notPresenter && refresh()}"
             title="清空画板"
@@ -117,6 +119,12 @@ import {} from '../plugins/events.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
+
+const MODE = {
+  SINGLE: 'single',
+  MULTIPLE: 'multiple',
+  ALL: 'all'
+}
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
@@ -125,6 +133,7 @@ export default {
       plugins[key].showAction = false
     })
     return {
+      mode: '',
       board: {
         _id: uuid.v4(),
         name: '',
@@ -176,6 +185,12 @@ export default {
     },
     notPresenter: {
       get: function () {
+        if (this.mode === MODE.ALL) {
+          return false
+        }
+        if (this.mode === MODE.MULTIPLE) {
+          return !this.drawer.isFollowingMode
+        }
         return this.drawer.isFollowingMode && !this.drawer.isPresenter
       }
     }
@@ -187,6 +202,7 @@ export default {
   },
   created() {
     let id = this.$route.params.id
+    this.mode = this.getQueryString('mode') || MODE.SINGLE
     this.registerSocket()
     if (id) {
       this.socket.emit('joinRoom', id)
@@ -229,6 +245,12 @@ export default {
     })
   },
   methods: {
+    initMode() {
+      // const mode = this.mode
+      // if (mode === MODE.ALL) {
+
+      // }
+    },
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
       this.drawer.zoomPercent = percent / 100
@@ -294,7 +316,7 @@ export default {
       })
     },
     initFollower(opt) {
-      this.drawer.isPresenter = false
+      this.drawer.isPresenter = this.mode !== MODE.SINGLE
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
@@ -302,16 +324,7 @@ export default {
       this.drawer.resizeCanvas()
       this.focusPresenter(opt.pan)
     },
-    toggleFollowing() {
-      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
-        return
-      }
-      if (this.drawer.isFollowingMode) {
-        this.drawer.isPresenter = false
-        this.drawer.isFollowingMode = false
-        this.socket.emit('endFollow', null, this.board._id)
-        return
-      }
+    startFollow() {
       const { container } = this.drawer
       this.drawer.isPresenter = true
       this.drawer.isFollowingMode = true
@@ -323,6 +336,18 @@ export default {
           ...this.drawer.getVpPoint()
         }
       }, this.board._id)
+    },
+    toggleFollowing() {
+      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
+        return
+      }
+      if (this.drawer.isFollowingMode) {
+        this.drawer.isPresenter = false
+        this.drawer.isFollowingMode = false
+        this.socket.emit('endFollow', null, this.board._id)
+        return
+      }
+      this.startFollow()
     },
     changeZoom(isUp) {
       let filterArr = this.steps.filter((item) => {
@@ -357,7 +382,7 @@ export default {
       this.drawer.moveToPoint(point.x, point.y)
     },
     createBoard() {
-      this.$http.post('/api/board/create').then(res => {
+      this.$http.post('/api/board/create', { mode: this.mode }).then(res => {
         const { code, msg, data } = res.data
         if (code !== 0) {
           this.$message.error(msg)
@@ -367,7 +392,8 @@ export default {
         delete data.canvas
         this.board = data
         this.socket.emit('joinRoom', data._id)
-        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}`)
+        if (this.mode === MODE.ALL) this.startFollow()
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}?mode=${this.mode}`)
       })
     },
     saveBoard() {
@@ -393,11 +419,16 @@ export default {
               this.createBoard()
             }
           })
+          return
         }
+        this.mode = data.mode || MODE.SINGLE
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}?mode=${this.mode}`)
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
           this.initBoard()
-          if (data.follow && data.follow.open) {
+          this.initMode()
+          if (this.mode === MODE.ALL || (data.follow && data.follow.open)) {
+            console.log(123)
             this.initFollower(data.follow.config)
           }
         })
