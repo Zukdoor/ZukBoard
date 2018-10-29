@@ -315,7 +315,7 @@ class Draw {
 
     canvas.on('selection:updated', (e) => {
       this.setCornerStyle()
-      // this.setActiveObjControl(false, e.deselected, e.target)
+      this.setActiveObjControl(false, e.deselected, e.target)
       if (e.target && !e.target.hasControls) {
         this._vm.canDelete = false
       }
@@ -330,7 +330,7 @@ class Draw {
     })
 
     canvas.on('selection:cleared', (e) => {
-      // this.setActiveObjControl(false, e.deselected, e.target)
+      this.setActiveObjControl(false, e.deselected, e.target)
       this._vm.canDelete = false
     })
   }
@@ -617,15 +617,16 @@ class Draw {
       if (that.current === 'brush') {
         canvas.isDrawingMode = true
         canvas.defaultCursor = 'crosshair'
-        // this.klassSetting(false)
+        this.klassSetting(false)
       } else if (that.current === 'pan') {
         that.toggleSelection(false)
       } else if (that.current === 'choose') {
         that.toggleSelection(true)
-        // that.setActiveObjControl(true)
+        that.setActiveObjControl(true)
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
+        that.setActiveObjControl(true)
       }
     })
     canvas.on('touch:longpress', (e) => {
