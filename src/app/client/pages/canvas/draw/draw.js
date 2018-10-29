@@ -18,6 +18,13 @@ class Draw {
   constructor(vm, selector, width, height) {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
+    this.isPresenter = false
+    this.presenterVp = {
+      x: 0,
+      y: 0
+    }
+    this.presenterZoom = 1
+    this.isFollowingMode = false
     this.container = container
     this.isPresenter = false
     this.isMobile = !!(browser.versions.ios || browser.versions.android)
@@ -69,15 +76,23 @@ class Draw {
   registerEvents() {
     const canvas = this.layerDraw
     canvas.on('path:created', (e) => {
-      if (e.path.id === undefined) {
-        e.path.set('id', genKey())
-        e.path.set('btype', this.current)
+      let pathObj = e.path || {}
+      if (typeof pathObj.id === 'undefined') {
+        pathObj.set('id', genKey())
+        pathObj.set('btype', this.current)
+        pathObj.hasControls = false
+        pathObj.hasBorders = false
+        pathObj.hasRotatingPoint = false
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
 
     canvas.on('object:moving', (e) => {
       if (canvas.isDrawingMode) return
+      if ('_objects' in e.target) {
+        this._vm.sync('', SYNC_TYPE.MOVE, this.getModifiedObjects(e.target), true)
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.MOVE, e.target.toJSON(['id', 'btype']), true)
     })
 
@@ -90,8 +105,11 @@ class Draw {
         e.target && (e.target.isMoved = true)
       }
     })
-
     canvas.on('object:modified', (e) => {
+      if ('_objects' in e.target) {
+        this._vm.sync('', SYNC_TYPE.UPDATE, this.getModifiedObjects(e.target))
+        return
+      }
       this._vm.sync(e.target.btype, SYNC_TYPE.UPDATE, e.target.toJSON(['id', 'btype']))
     })
 
@@ -127,6 +145,12 @@ class Draw {
     this.container.addEventListener('gesturechange', (ev) => {
       this.changeZoom(ev)
     }, false)
+  }
+  getModifiedObjects(target) {
+    const jsons = this.layerDraw.toJSON(['id'])
+    return target._objects.map(obj => {
+      return jsons.objects.find(j => j.id === obj.id)
+    })
   }
   setCursor(cursor) {
     this.layerDraw.setCursor(cursor)
@@ -181,6 +205,13 @@ class Draw {
     type === SYNC_TYPE.MOVE && this.handleSyncUpdate(data)
   }
   handleSyncUpdate(data) {
+    if (Array.isArray(data)) {
+      data.forEach(obj => this.handleSycnUpdateSingle(obj))
+      return
+    }
+    this.handleSycnUpdateSingle(data)
+  }
+  handleSycnUpdateSingle(data) {
     let obj = this.layerDraw.getObjectById(data.id)
     if (!obj) return
     obj.set(data)
@@ -595,6 +626,7 @@ class Draw {
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
+        that.setActiveObjControl(true)
       }
     })
     canvas.on('touch:longpress', (e) => {
