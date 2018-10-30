@@ -266,7 +266,7 @@ class Draw {
       if (item.type !== SYNC_TYPE.DELETE) {
         return
       }
-      deleteIds = deleteIds.concat(item.id)
+      deleteIds = deleteIds.concat(item.data)
     })
     list.forEach(item => {
       if (item.data.type !== 'image' || item.type !== SYNC_TYPE.INSERT) {
