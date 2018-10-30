@@ -2,9 +2,7 @@
 # ---- Base Node ----
 FROM keymetrics/pm2:latest-alpine AS base
 
-RUN apk add --no-cache tini curl
-RUN curl -o- -L https://yarnpkg.com/install.sh | sh -s -- --version 1.12.0 && export PATH=$HOME/.yarn/bin:$PATH
-RUN apk del curl
+RUN apk add --no-cache tini
 # Tini is now available at /sbin/tini
 
 WORKDIR /root/zukboard
@@ -22,7 +20,7 @@ FROM base AS dependencies
 
 # install node modules
 RUN apk add --no-cache python make
-RUN $HOME/.yarn/bin/yarn --production
+RUN yarn install --production
 
 # copy production node_modules aside
 RUN cp -R node_modules prod_node_modules
@@ -32,7 +30,7 @@ RUN rm -rf node_modules
 COPY build ./build
 COPY public ./public
 COPY . .
-RUN $HOME/.yarn/bin/yarn install && $HOME/.yarn/bin/yarn build
+RUN yarn install & yarn build
 
 #
 # ---- Production ----
