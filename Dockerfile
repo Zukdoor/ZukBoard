@@ -30,7 +30,7 @@ RUN rm -rf node_modules
 COPY build ./build
 COPY public ./public
 COPY . .
-RUN yarn install & yarn build
+RUN yarn install && yarn build
 
 #
 # ---- Production ----
