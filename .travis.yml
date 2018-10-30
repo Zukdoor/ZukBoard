@@ -7,11 +7,14 @@ branches:
   - develop
   - production
 cache:
+  yarn: true
   directories:
   - node_modules
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version [version]
 script:
-  - npm run test
-before_deploy: npm install now --no-save # Install Now CLI on Travis
+  - yarn test
+before_deploy: yarn add now --no-save # Install Now CLI on Travis
 deploy:
   - provider: script # Run a custom deployment script which we will define below
     script: sh deploy-staging.sh
