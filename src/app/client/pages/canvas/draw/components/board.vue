@@ -99,7 +99,7 @@
             <i class="iconfont" >&#xe6a4;</i>清空画板
         </li>
         <li
-          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}"
+          @click="(e) => { !notPresenter && deleteSelected(e)}"
           title="清空画板"
           :class="{'disabled': !canDelete || notPresenter}">
             <i class="iconfont" >&#xe603;</i>删除
@@ -420,7 +420,7 @@ export default {
         key,
         data,
         type,
-        // id: Array.isArray(data) ? data : data.id,
+        id: data.id || '',
         opId: this.genKey(),
         time: new Date().getTime()
       }
