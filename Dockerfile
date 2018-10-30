@@ -2,8 +2,9 @@
 # ---- Base Node ----
 FROM keymetrics/pm2:latest-alpine AS base
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini curl
 RUN curl -o- -L https://yarnpkg.com/install.sh | sh -s -- --version 1.12.0 && export PATH=$HOME/.yarn/bin:$PATH
+RUN apk remove curl
 # Tini is now available at /sbin/tini
 
 WORKDIR /root/zukboard
