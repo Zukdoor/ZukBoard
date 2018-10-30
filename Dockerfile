@@ -22,7 +22,7 @@ FROM base AS dependencies
 
 # install node modules
 RUN apk add --no-cache python make
-RUN yarn install --production
+RUN $HOME/.yarn/bin/yarn --production
 
 # copy production node_modules aside
 RUN cp -R node_modules prod_node_modules
@@ -32,7 +32,7 @@ RUN rm -rf node_modules
 COPY build ./build
 COPY public ./public
 COPY . .
-RUN yarn install && yarn build
+RUN $HOME/.yarn/bin/yarn install && $HOME/.yarn/bin/yarn build
 
 #
 # ---- Production ----
