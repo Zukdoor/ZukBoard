@@ -33,13 +33,13 @@ const defaultRoute = async (ctx, info, method) => {
     await addRenderBundle(ctx, page)
 
     debug('page =>' + page)
-    if (page === '' || page === 'ping') {
+    if (page === '' || page === 'ping') { // route /
       debug('which page =>' + page)
       controller = await require(path.join(
         CURRENT_PATH,
         '/server/routes/index'
       ))
-    } else if (existsSync(getPagePath(page))) {
+    } else if (existsSync(getPagePath(page))) { // route /api and /apps
       controller = await require(getPagePath(page))
     } else {
       ctx.status = 404

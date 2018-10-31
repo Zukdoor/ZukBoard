@@ -1,6 +1,6 @@
 module.exports = {
+  // redirect / to a new board
   'get#/': async ctx => {
-    // 勿删，根目录直接给404页
-    ctx.redirect('/app/site')
+    ctx.redirect('/app/canvas/draw')
   }
 }

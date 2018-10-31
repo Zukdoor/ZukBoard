@@ -12,7 +12,7 @@ export default new Router({
   routes: [{
     path: '/app/canvas',
     name: 'canvas',
-    // redirect: '/app/canvas',
+    redirect: '/app/canvas/draw',
     component: loadPage('canvas/index'),
     children: [
       {

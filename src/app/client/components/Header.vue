@@ -1,33 +1,4 @@
 <template>
-  <el-menu
-    class="el-menu-header"
-    mode="horizontal"
-    @select="handleSelect"
-    background-color="#fff"
-    text-color="#333"
-    active-text-color="#ffd04b"
-    :default-active="defaultActive"
-    :router="true">
-    <el-submenu index="#">
-      <template slot="title">File</template>
-      <el-menu-item index="#">Test</el-menu-item>
-      <el-menu-item index="#">Test</el-menu-item>
-      <el-menu-item index="#">Test</el-menu-item>
-    </el-submenu>
-     <el-submenu index="#">
-      <template slot="title">Edit</template>
-      <el-menu-item index="#">Test</el-menu-item>
-      <el-menu-item index="#">Test</el-menu-item>
-      <el-menu-item index="#">Test</el-menu-item>
-    </el-submenu>
-    <!-- <el-submenu index="#"  class="align-right">
-      <template slot="title"><img  class="avaror" src="../assets/default-avator.jpeg"/>{{this.user.name}}</template>
-      <el-menu-item index="#" :disabled="true">{{this.user.name}}</el-menu-item>
-      <el-menu-item index="#">设置</el-menu-item>
-      <el-menu-item index="#" @click="logout">退出</el-menu-item>
-    </el-submenu> -->
-    <el-menu-item index="#" :route="null"  class="align-right" ><i class="el-icon-bell"></i></el-menu-item>
-  </el-menu>
 </template>
 <script>
 import { mapState } from 'vuex'
