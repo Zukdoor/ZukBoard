@@ -483,7 +483,9 @@ export default {
       !opid && this.socket.emit('sync', 'undo', item, this.board._id, this.board._id)
     },
     deleteSelected() {
-      this.drawer.deleteSelected()
+      if (this.canDelete) {
+        this.drawer.deleteSelected()
+      }
     },
     choose(chooseKey, hiddenAction) {
       if (!this.plugins[chooseKey].useInFollowing && this.notPresenter) {
