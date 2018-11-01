@@ -113,7 +113,6 @@
 import socket from '../plugins/socket.js'
 import uuid from 'uuid'
 import Draw from '../draw.js'
-import {} from '../plugins/events.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
@@ -473,7 +472,6 @@ export default {
         index = this.renderList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.renderList.splice(index, 1)[0] : this.renderList.pop()
-      console.log(item)
       if (!item) return
       this.redoList.push(item)
       this.$nextTick(() => {
