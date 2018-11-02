@@ -116,6 +116,7 @@ import Draw from '../draw.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
+import { eventEmitter } from '../plugins/util'
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
@@ -223,8 +224,23 @@ export default {
         this.deleteSelected()
       }
     })
-    window.addEventListener('resize', () => {
-
+    document.addEventListener('paste', (event) => {
+      if (event.clipboardData || event.originalEvent) {
+        let clipboardData = (event.clipboardData || event.originalEvent.clipboardData)
+        if (clipboardData.items) {
+          let items = clipboardData.items
+          let blob = null
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              blob = items[i].getAsFile()
+            }
+          }
+          if (blob != null) {
+            eventEmitter.emit('copyAction', blob)
+            this.choose('uploadImg')
+          }
+        }
+      }
     })
   },
   methods: {

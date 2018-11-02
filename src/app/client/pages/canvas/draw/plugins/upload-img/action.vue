@@ -1,6 +1,6 @@
 <template>
   <div class="action-upload-img" @click.stop>
-    <div class="drag-area" 
+    <div class="drag-area"
     :class="{'hover': isHover}"
     @drop="dragFile"
     @dragover="dragOver"
@@ -8,11 +8,11 @@
     @dragleave="hover(false)"
     @click="showUploadDialog">
       <template v-if="!src">
-        请拖拽或点击此处上传图片  
+        请拖拽或点击此处上传图片
       </template>
       <img :src="src" alt="" srcset="" v-else>
-      
-    </div> 
+
+    </div>
     <el-button class="drag-btn" @click="drawFile">插入该图片</el-button>
     <input type="file" @change="upload" :accept="imgTypes.join(',')" name="" style="display:none" ref="fileInput" id="">
     <div class="upload-loading" v-show="isUploading"><img src="../../../../../assets/50.gif"></div>
@@ -35,6 +35,10 @@ export default {
   mounted() {
     eventEmitter.addListener('imageRenderAfter', () => {
       this.isUploading = false
+    })
+    eventEmitter.addListener('copyAction', (file) => {
+      this.src = window.URL.createObjectURL(file)
+      this.file = file
     })
   },
   methods: {
@@ -114,7 +118,7 @@ export default {
     }
   }
 }
-</script> 
+</script>
 
 <style lang="scss">
   .action-upload-img {
