@@ -178,6 +178,15 @@ export default {
     }
   },
   computed: {
+    isAllMode: function () {
+      return this.mode === MODE.ALL
+    },
+    isSingleMode: function () {
+      return this.mode === MODE.SINGLE
+    },
+    isMultipleMode: function () {
+      return this.mode === MODE.MULTIPLE
+    },
     zoomPercent: {
       get: function (val) {
         return (this.drawer.zoomPercent * 100).toFixed(0) + '%'
@@ -245,11 +254,10 @@ export default {
     })
   },
   methods: {
-    initMode() {
-      // const mode = this.mode
-      // if (mode === MODE.ALL) {
-
-      // }
+    checkMode(data) {
+      if (this.isAllMode) {
+        this.initFollower()
+      }
     },
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
@@ -328,14 +336,18 @@ export default {
       const { container } = this.drawer
       this.drawer.isPresenter = true
       this.drawer.isFollowingMode = true
-      this.socket.emit('startFollow', {
+      this.socket.emit('startFollow', this.getVpInfo(), this.board._id)
+    },
+    getVpInfo() {
+      const { container } = this.drawer
+      return {
         width: container.offsetWidth,
         height: container.offsetHeight,
         zoom: this.drawer.zoomPercent,
         pan: {
           ...this.drawer.getVpPoint()
         }
-      }, this.board._id)
+      }
     },
     toggleFollowing() {
       if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
@@ -428,7 +440,6 @@ export default {
           this.initBoard()
           this.initMode()
           if (this.mode === MODE.ALL || (data.follow && data.follow.open)) {
-            console.log(123)
             this.initFollower(data.follow.config)
           }
         })
@@ -451,6 +462,7 @@ export default {
         key,
         data,
         type,
+        vp: this.getVpInfo(),
         // id: Array.isArray(data) ? data : data.id,
         opId: this.genKey(),
         time: new Date().getTime()
