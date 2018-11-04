@@ -48,6 +48,11 @@ const methods = {
   clear: (id) => {
     update(id, '$set', { canvas: [] })
   },
+  updateVp: (id, vp) => {
+    update(id, '$set', {
+      'follow.config': vp
+    })
+  },
   get: async (id) => {
     return await db.Board.findOne({
       _id: ObjectId(id)

@@ -19,14 +19,6 @@ class Draw {
     this.current = 'choose'
     const container = document.querySelector('.canvas-container')
     this.isPresenter = false
-    this.presenterVp = {
-      x: 0,
-      y: 0
-    }
-    this.presenterZoom = 1
-    this.isFollowingMode = false
-    this.container = container
-    this.isPresenter = false
     this.isMobile = !!(browser.versions.ios || browser.versions.android)
     this.presenterVp = {
       x: 0,
@@ -160,6 +152,7 @@ class Draw {
       canvas.setHeight(canvasHeight)
     }
     if (this.isFollowingMode) {
+      console.log(canvasWidth / this.baseWidth, canvasWidth, this.baseWidth, canvasWidth / this.baseWidth * this.presenterZoom)
       this.setZoom(canvasWidth / this.baseWidth * this.presenterZoom)
     }
   }

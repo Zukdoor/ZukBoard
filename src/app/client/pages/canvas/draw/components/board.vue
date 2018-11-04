@@ -107,7 +107,7 @@
             <i class="iconfont" >&#xe603;</i>删除
         </li>
     </ul>
-    <sync-status-notify :class="{'show': drawer.isFollowingMode}" ></sync-status-notify>
+    <sync-status-notify :class="{'show': drawer.isFollowingMode && !isAllMode}" ></sync-status-notify>
   </div>
 </template>
 
@@ -122,7 +122,7 @@ import SyncStatusNotify from './SyncStatusNotify'
 
 const MODE = {
   SINGLE: 'single',
-  MULTIPLE: 'multiple',
+  MULTIPLE: '',
   ALL: 'all'
 }
 export default {
@@ -265,8 +265,12 @@ export default {
     },
     registerSocket() {
       this.socket.on('sync', (type, item) => {
+        console.log(type)
+        if (this.isAllMode) {
+          this.initFollower(item.vp)
+        }
         if (type === 'move_by_presenter') {
-          this.focusPresenter(item.data)
+          this.focusPresenter(item.vp.pan)
           this.drawer.resizeCanvas()
           return
         }
@@ -279,7 +283,7 @@ export default {
 
         if (this.drawer.isFollowingMode) {
           this.drawer.resizeCanvas()
-          this.focusPresenter()
+          this.focusPresenter(item.vp.pan)
         }
 
         if (type === 'undo') {
@@ -300,7 +304,7 @@ export default {
         if (type !== 'move') {
           this.renderList.push(item)
         }
-        console.log(item)
+        console.log('sync object', item)
         this.drawer.syncBoard(type, item)
       })
       this.socket.on('startFollow', (opt) => {
@@ -333,7 +337,7 @@ export default {
       this.focusPresenter(opt.pan)
     },
     startFollow() {
-      const { container } = this.drawer
+      // const { container } = this.drawer
       this.drawer.isPresenter = true
       this.drawer.isFollowingMode = true
       this.socket.emit('startFollow', this.getVpInfo(), this.board._id)
@@ -350,7 +354,10 @@ export default {
       }
     },
     toggleFollowing() {
-      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
+      if (
+        this.drawer.isFollowingMode &&
+        !this.drawer.isPresenter &&
+        !this.isMultipleMode) {
         return
       }
       if (this.drawer.isFollowingMode) {
@@ -380,7 +387,8 @@ export default {
         this.socket.emit('sync', 'zoom', {
           data: {
             zoom: this.drawer.zoomPercent
-          }
+          },
+          vp: this.getVpInfo()
         }, this.board._id, this.board._id)
       }
     },
@@ -438,7 +446,7 @@ export default {
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
           this.initBoard()
-          this.initMode()
+          // this.initMode()
           if (this.mode === MODE.ALL || (data.follow && data.follow.open)) {
             this.initFollower(data.follow.config)
           }
