@@ -4,7 +4,12 @@
       <div class="tools">
         <ul>
           <li @click="toggleFollowing" title="同步模式" v-if="mode !== 'all'">
-            <i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i>
+            <i 
+              class="iconfont" 
+              :class="{
+                'following-mode': isMultipleMode ? !!(drawer.isFollowingMode && drawer.isPresenter) : drawer.isFollowingMode
+              }"
+            >&#xe6b3;</i>
           </li>
           <li
             @click="() => { !notPresenter && refresh()}"
@@ -122,7 +127,7 @@ import SyncStatusNotify from './SyncStatusNotify'
 
 const MODE = {
   SINGLE: 'single',
-  MULTIPLE: '',
+  MULTIPLE: 'multiple',
   ALL: 'all'
 }
 export default {
@@ -150,7 +155,7 @@ export default {
       hPercent: 1,
       baseWidth: 1080,
       baseHeight: 720,
-      uid: '', // temp uid
+      uid: new Date().getTime(), // temp uid
       renderList: [],
       redoList: [],
       canRedo: true,
@@ -197,9 +202,9 @@ export default {
         if (this.mode === MODE.ALL) {
           return false
         }
-        if (this.mode === MODE.MULTIPLE) {
-          return !this.drawer.isFollowingMode
-        }
+        // if (this.mode === MODE.MULTIPLE) {
+        //   return !this.drawer.isFollowingMode
+        // }
         return this.drawer.isFollowingMode && !this.drawer.isPresenter
       }
     }
@@ -269,6 +274,9 @@ export default {
         if (this.isAllMode) {
           this.initFollower(item.vp)
         }
+        if (this.isMultipleMode && this.isFollowingMode) {
+          this.initFollower(item.vp)
+        }
         if (type === 'move_by_presenter') {
           this.focusPresenter(item.vp.pan)
           this.drawer.resizeCanvas()
@@ -311,6 +319,7 @@ export default {
         this.initFollower(opt)
       })
       this.socket.on('endFollow', (opt) => {
+        console.log(1212)
         this.drawer.isPresenter = false
         this.drawer.isFollowingMode = false
         this.drawer.presenterZoom = 1
@@ -328,7 +337,8 @@ export default {
       })
     },
     initFollower(opt) {
-      this.drawer.isPresenter = this.mode !== MODE.SINGLE
+      if (this.isAllMode) this.drawer.isPresenter = true
+      if (this.isSingleMode) this.drawer.isPresenter = false
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
@@ -345,6 +355,7 @@ export default {
     getVpInfo() {
       const { container } = this.drawer
       return {
+        user: this.uid,
         width: container.offsetWidth,
         height: container.offsetHeight,
         zoom: this.drawer.zoomPercent,
@@ -354,16 +365,24 @@ export default {
       }
     },
     toggleFollowing() {
+      const { isFollowingMode, isPresenter } = this.drawer
+      console.log(isFollowingMode, isPresenter, this.isMultipleMode)
       if (
-        this.drawer.isFollowingMode &&
-        !this.drawer.isPresenter &&
+        isFollowingMode &&
+        !isPresenter &&
         !this.isMultipleMode) {
+        return
+      }
+      if (isFollowingMode && !isPresenter && this.isMultipleMode) {
+        this.startFollow()
         return
       }
       if (this.drawer.isFollowingMode) {
         this.drawer.isPresenter = false
-        this.drawer.isFollowingMode = false
-        this.socket.emit('endFollow', null, this.board._id)
+        // this.drawer.isFollowingMode = false
+        this.socket.emit('endFollow', {
+          user: this.uid
+        }, this.board._id)
         return
       }
       this.startFollow()

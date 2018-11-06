@@ -57,6 +57,7 @@ module.exports = {
       canvas: [],
       mode: mode || 'single',
       follow: {
+        users: [],
         open: false,
         config: {}
       }
