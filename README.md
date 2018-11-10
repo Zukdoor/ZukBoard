@@ -1,4 +1,4 @@
-# [ZukBoard](https://zukboard.now.sh/) ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg) ![Slack](https://slack.zukdoor.cloud/badge.svg)
+# [ZukBoard](https://zukboard.now.sh/) ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg) [![Slack](https://slack.zukdoor.cloud/badge.svg)](https://slack.zukdoor.cloud)
 
 ---
 
