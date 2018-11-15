@@ -100,7 +100,7 @@
     "prettier-eslint": "8.8.2",
     "reload": "2.3.1",
     "sass-loader": "7.1.0",
-    "shelljs": "0.8.2",
+    "shelljs": "0.8.3",
     "socket.io-client": "2.1.1",
     "supertest": "3.3.0",
     "url-loader": "1.1.2",
