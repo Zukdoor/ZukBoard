@@ -342,6 +342,7 @@ export default {
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
+      this.drawer.baseHeight = opt.height
       this.choose('choose')
       this.drawer.resizeCanvas()
       this.focusPresenter(opt.pan)
@@ -382,7 +383,7 @@ export default {
         // this.drawer.isFollowingMode = false
         this.socket.emit('endFollow', {
           user: this.uid
-        }, this.board._id)
+        }, this.board._id, this.board._id)
         return
       }
       this.startFollow()

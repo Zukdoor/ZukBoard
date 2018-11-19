@@ -7,6 +7,7 @@ function registerFollow(socket) {
   })
   socket.on('endFollow', async (item, id) => {
     const isLastOne = await methods.endFollow(item, id)
+    console.log('isLastOne', isLastOne)
     if (isLastOne) {
       socket.nsp.to(id).emit('endFollow', item)
       // socket.to(id).emit('endFollow', item)

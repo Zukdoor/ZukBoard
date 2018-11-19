@@ -47,6 +47,8 @@ class Draw {
     this.canvaswidth = container.offsetWidth
     this.canvasHeight = container.offsetHeight
     this.baseWidth = this.canvaswidth
+    this.baseHeight = this.canvasHeight
+    // this.aspectRatio = this.canvaswidth / this.canvasHeight
     instance = this
     window.canvas = this.layerDraw
     this.lastPosX = this.lastPosY = 0
@@ -145,8 +147,13 @@ class Draw {
   }
   resizeCanvas() {
     const canvas = this.layerDraw
-    const canvasWidth = this.container.offsetWidth
-    const canvasHeight = this.container.offsetHeight // 800 / 1080 * canvasWidth
+    const { baseWidth, baseHeight, container } = this
+    const { offsetWidth, offsetHeight } = container
+    const aspectRatio = baseWidth / baseHeight
+    console.log(aspectRatio)
+    const canvasWidth = offsetWidth
+    const canvasHeight = offsetHeight // 800 / 1080 * canvasWidth
+    // const canvs
     if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
       canvas.setWidth(canvasWidth)
       canvas.setHeight(canvasHeight)
@@ -476,8 +483,9 @@ class Draw {
   }
   moveToPoint(x, y, isMobile) {
     var vpt = this.layerDraw.viewportTransform.slice(0)
-    vpt[4] = x
-    vpt[5] = y
+    const percent = this.container.offsetWidth / this.baseWidth
+    vpt[4] = x * percent
+    vpt[5] = y * percent
     this.layerDraw.setViewportTransform(vpt)
   }
   setZoom(zoom) {
