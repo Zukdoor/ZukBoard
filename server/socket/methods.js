@@ -40,7 +40,7 @@ const methods = {
   },
   endFollow: async (item, id) => {
     const data = await methods.get(id)
-    const users = data.follow.users.filter(user => user !== item.user)
+    const users = (data.follow.users || []).filter(user => user !== item.user)
     if (users.length > 0) {
       update(id, '$set', {
         'follow.users': users
