@@ -20,7 +20,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       sourceMap: config.dev.cssSourceMap
     })
   },
-  devtool: config.build.productionSourceMap ? '#source-map' : false,
+  devtool: false,
   optimization: {
     runtimeChunk: {
       name: 'manifest'
