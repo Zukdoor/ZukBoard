@@ -30,23 +30,39 @@ const methods = {
   [SYNC_TYPE.MOVE]: () => {},
   startFollow: (item, id) => {
     update(id, '$set', {
-      follow: {
-        open: true,
-        uid: '',
-        config: item
+      'follow.open': true,
+      'follow.config': item
+    }, {
+      $push: {
+        'follow.users': item.user
       }
     })
   },
-  endFollow: (id) => {
+  endFollow: async (item, id) => {
+    const data = await methods.get(id)
+    const users = (data.follow.users || []).filter(user => user !== item.user)
+    if (users.length > 0) {
+      update(id, '$set', {
+        'follow.users': users
+      })
+      return false
+    }
     update(id, '$set', {
       follow: {
         open: false,
+        users: [],
         config: {}
       }
     })
+    return true
   },
   clear: (id) => {
     update(id, '$set', { canvas: [] })
+  },
+  updateVp: (id, vp) => {
+    update(id, '$set', {
+      'follow.config': vp
+    })
   },
   get: async (id) => {
     return await db.Board.findOne({
@@ -55,11 +71,12 @@ const methods = {
   }
 }
 
-async function update(id, op, config) {
+async function update(id, op, config, more = {}) {
   await db.Board.updateOne({
     _id: ObjectId(id)
   }, {
-    [op]: config
+    [op]: config,
+    ...more
   })
 }
 

@@ -6,17 +6,21 @@ function registerFollow(socket) {
     socket.to(id).emit('startFollow', item)
   })
   socket.on('endFollow', async (item, id) => {
-    methods.endFollow(id)
-    socket.to(id).emit('endFollow', item)
+    const isLastOne = await methods.endFollow(item, id)
+    console.log('isLastOne', isLastOne)
+    if (isLastOne) {
+      socket.nsp.to(id).emit('endFollow', item)
+      // socket.to(id).emit('endFollow', item)
+    }
   })
 }
 
-registerFollow.endFollow = async function (id, userid) {
+registerFollow.endFollow = async function (id, item, userid) {
   const board = await methods.get(id)
   if (!board.follow.id === userid) {
     // todo: add user syetem
     return
   }
-  methods.endFollow(id)
+  methods.endFollow(item, id)
 }
 module.exports = registerFollow

@@ -3,7 +3,14 @@
     <div class="actions" @click.stop>
       <div class="tools">
         <ul>
-          <li @click="toggleFollowing" title="同步模式"><i class="iconfont" :class="{'following-mode': drawer.isFollowingMode}">&#xe6b3;</i></li>
+          <li @click="toggleFollowing" title="同步模式" v-if="mode !== 'all'">
+            <i 
+              class="iconfont" 
+              :class="{
+                'following-mode': isMultipleMode ? !!(drawer.isFollowingMode && drawer.isPresenter) : drawer.isFollowingMode
+              }"
+            >&#xe6b3;</i>
+          </li>
           <li
             @click="() => { !notPresenter && refresh()}"
             title="清空画板"
@@ -105,7 +112,7 @@
             <i class="iconfont" >&#xe603;</i>删除
         </li>
     </ul>
-    <sync-status-notify :class="{'show': drawer.isFollowingMode}" ></sync-status-notify>
+    <sync-status-notify :class="{'show': drawer.isFollowingMode && !isAllMode}" ></sync-status-notify>
   </div>
 </template>
 
@@ -117,6 +124,12 @@ import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
 import { eventEmitter } from '../plugins/util'
+
+const MODE = {
+  SINGLE: 'single',
+  MULTIPLE: 'multiple',
+  ALL: 'all'
+}
 export default {
   data() {
     Object.keys(plugins).forEach(key => {
@@ -125,6 +138,7 @@ export default {
       plugins[key].showAction = false
     })
     return {
+      mode: '',
       board: {
         _id: uuid.v4(),
         name: '',
@@ -141,7 +155,7 @@ export default {
       hPercent: 1,
       baseWidth: 1080,
       baseHeight: 720,
-      uid: '', // temp uid
+      uid: new Date().getTime(), // temp uid
       renderList: [],
       redoList: [],
       canRedo: true,
@@ -169,6 +183,15 @@ export default {
     }
   },
   computed: {
+    isAllMode: function () {
+      return this.mode === MODE.ALL
+    },
+    isSingleMode: function () {
+      return this.mode === MODE.SINGLE
+    },
+    isMultipleMode: function () {
+      return this.mode === MODE.MULTIPLE
+    },
     zoomPercent: {
       get: function (val) {
         return (this.drawer.zoomPercent * 100).toFixed(0) + '%'
@@ -176,6 +199,12 @@ export default {
     },
     notPresenter: {
       get: function () {
+        if (this.mode === MODE.ALL) {
+          return false
+        }
+        // if (this.mode === MODE.MULTIPLE) {
+        //   return !this.drawer.isFollowingMode
+        // }
         return this.drawer.isFollowingMode && !this.drawer.isPresenter
       }
     }
@@ -187,9 +216,10 @@ export default {
   },
   created() {
     let id = this.$route.params.id
+    this.mode = this.getQueryString('mode') || MODE.SINGLE
     this.registerSocket()
     if (id) {
-      this.socket.emit('joinRoom', id)
+      this.socket.emit('joinRoom', id, this.uid)
       this.getBoard(id)
       return
     }
@@ -244,27 +274,39 @@ export default {
     })
   },
   methods: {
+    checkMode(data) {
+      if (this.isAllMode) {
+        this.initFollower()
+      }
+    },
     onZoomChange(value) {
       const percent = +value.substring(0, value.length - 1)
       this.drawer.zoomPercent = percent / 100
     },
     registerSocket() {
       this.socket.on('sync', (type, item) => {
+        console.log(type)
+        if (this.isAllMode) {
+          this.initFollower(item.vp)
+        }
+        if (this.isMultipleMode && this.isFollowingMode) {
+          this.initFollower(item.vp)
+        }
         if (type === 'move_by_presenter') {
-          this.focusPresenter(item.data)
+          this.focusPresenter(item.vp.pan)
           this.drawer.resizeCanvas()
           return
         }
         if (type === 'zoom') {
           this.drawer.presenterZoom = item.data.zoom
           this.drawer.resizeCanvas()
-          this.focusPresenter()
+          this.focusPresenter(item.vp.pan)
           return
         }
 
         if (this.drawer.isFollowingMode) {
           this.drawer.resizeCanvas()
-          this.focusPresenter()
+          this.focusPresenter(item.vp.pan)
         }
 
         if (type === 'undo') {
@@ -285,13 +327,14 @@ export default {
         if (type !== 'move') {
           this.renderList.push(item)
         }
-        console.log(item)
+        console.log('sync object', item)
         this.drawer.syncBoard(type, item)
       })
       this.socket.on('startFollow', (opt) => {
         this.initFollower(opt)
       })
       this.socket.on('endFollow', (opt) => {
+        console.log(1212)
         this.drawer.isPresenter = false
         this.drawer.isFollowingMode = false
         this.drawer.presenterZoom = 1
@@ -309,35 +352,56 @@ export default {
       })
     },
     initFollower(opt) {
-      this.drawer.isPresenter = false
+      if (this.isAllMode) this.drawer.isPresenter = true
+      if (this.isSingleMode) this.drawer.isPresenter = false
       this.drawer.isFollowingMode = true
       this.drawer.presenterZoom = opt.zoom
       this.drawer.baseWidth = opt.width
+      this.drawer.baseHeight = opt.height
       this.choose('choose')
       this.drawer.resizeCanvas()
       this.focusPresenter(opt.pan)
     },
-    toggleFollowing() {
-      if (this.drawer.isFollowingMode && !this.drawer.isPresenter) {
-        return
-      }
-      if (this.drawer.isFollowingMode) {
-        this.drawer.isPresenter = false
-        this.drawer.isFollowingMode = false
-        this.socket.emit('endFollow', null, this.board._id)
-        return
-      }
-      const { container } = this.drawer
+    startFollow() {
+      // const { container } = this.drawer
       this.drawer.isPresenter = true
       this.drawer.isFollowingMode = true
-      this.socket.emit('startFollow', {
+      this.socket.emit('startFollow', this.getVpInfo(), this.board._id)
+    },
+    getVpInfo() {
+      const { container } = this.drawer
+      return {
+        user: this.uid,
         width: container.offsetWidth,
         height: container.offsetHeight,
         zoom: this.drawer.zoomPercent,
         pan: {
           ...this.drawer.getVpPoint()
         }
-      }, this.board._id)
+      }
+    },
+    toggleFollowing() {
+      const { isFollowingMode, isPresenter } = this.drawer
+      console.log(isFollowingMode, isPresenter, this.isMultipleMode)
+      if (
+        isFollowingMode &&
+        !isPresenter &&
+        !this.isMultipleMode) {
+        return
+      }
+      if (isFollowingMode && !isPresenter && this.isMultipleMode) {
+        this.startFollow()
+        return
+      }
+      if (this.drawer.isFollowingMode) {
+        this.drawer.isPresenter = false
+        // this.drawer.isFollowingMode = false
+        this.socket.emit('endFollow', {
+          user: this.uid
+        }, this.board._id, this.board._id)
+        return
+      }
+      this.startFollow()
     },
     changeZoom(isUp) {
       let filterArr = this.steps.filter((item) => {
@@ -355,14 +419,18 @@ export default {
 
       this.drawer.zoomPercent = this.steps[this.pIndex] / 100
       if (this.drawer.isPresenter) {
-        this.socket.emit('sync', 'zoom', {
-          data: {
-            zoom: this.drawer.zoomPercent
-          }
-        }, this.board._id, this.board._id)
+        this.$nextTick(() => {
+          this.socket.emit('sync', 'zoom', {
+            data: {
+              zoom: this.drawer.zoomPercent
+            },
+            vp: this.getVpInfo()
+          }, this.board._id, this.board._id)
+        })
       }
     },
     focusPresenter(point) {
+      console.log(point, this.drawer.presenterPan)
       if (!point) {
         point = this.drawer.presenterPan
       } else {
@@ -372,7 +440,7 @@ export default {
       this.drawer.moveToPoint(point.x, point.y)
     },
     createBoard() {
-      this.$http.post('/api/board/create').then(res => {
+      this.$http.post('/api/board/create', { mode: this.mode }).then(res => {
         const { code, msg, data } = res.data
         if (code !== 0) {
           this.$message.error(msg)
@@ -381,8 +449,9 @@ export default {
         this.initBoard()
         delete data.canvas
         this.board = data
-        this.socket.emit('joinRoom', data._id)
-        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}`)
+        this.socket.emit('joinRoom', data._id, this.uid)
+        if (this.mode === MODE.ALL) this.startFollow()
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}?mode=${this.mode}`)
       })
     },
     saveBoard() {
@@ -408,11 +477,15 @@ export default {
               this.createBoard()
             }
           })
+          return
         }
+        this.mode = data.mode || MODE.SINGLE
+        window.history.replaceState({}, '', `/app/canvas/draw/${data._id}?mode=${this.mode}`)
         this.renderList = Object.assign([], data.canvas)
         this.$nextTick(() => {
           this.initBoard()
-          if (data.follow && data.follow.open) {
+          // this.initMode()
+          if (this.mode === MODE.ALL || (data.follow && data.follow.open)) {
             this.initFollower(data.follow.config)
           }
         })
@@ -435,6 +508,8 @@ export default {
         key,
         data,
         type,
+        vp: this.getVpInfo(),
+        // id: Array.isArray(data) ? data : data.id,
         id: data.id || '',
         opId: this.genKey(),
         time: new Date().getTime()
