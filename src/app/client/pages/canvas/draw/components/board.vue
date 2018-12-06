@@ -219,7 +219,7 @@ export default {
     this.mode = this.getQueryString('mode') || MODE.SINGLE
     this.registerSocket()
     if (id) {
-      this.socket.emit('joinRoom', id)
+      this.socket.emit('joinRoom', id, this.uid)
       this.getBoard(id)
       return
     }
@@ -300,7 +300,7 @@ export default {
         if (type === 'zoom') {
           this.drawer.presenterZoom = item.data.zoom
           this.drawer.resizeCanvas()
-          this.focusPresenter()
+          this.focusPresenter(item.vp.pan)
           return
         }
 
@@ -419,15 +419,18 @@ export default {
 
       this.drawer.zoomPercent = this.steps[this.pIndex] / 100
       if (this.drawer.isPresenter) {
-        this.socket.emit('sync', 'zoom', {
-          data: {
-            zoom: this.drawer.zoomPercent
-          },
-          vp: this.getVpInfo()
-        }, this.board._id, this.board._id)
+        this.$nextTick(() => {
+          this.socket.emit('sync', 'zoom', {
+            data: {
+              zoom: this.drawer.zoomPercent
+            },
+            vp: this.getVpInfo()
+          }, this.board._id, this.board._id)
+        })
       }
     },
     focusPresenter(point) {
+      console.log(point, this.drawer.presenterPan)
       if (!point) {
         point = this.drawer.presenterPan
       } else {
@@ -446,7 +449,7 @@ export default {
         this.initBoard()
         delete data.canvas
         this.board = data
-        this.socket.emit('joinRoom', data._id)
+        this.socket.emit('joinRoom', data._id, this.uid)
         if (this.mode === MODE.ALL) this.startFollow()
         window.history.replaceState({}, '', `/app/canvas/draw/${data._id}?mode=${this.mode}`)
       })
