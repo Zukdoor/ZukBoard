@@ -1,6 +1,6 @@
 #
 # ---- Base Node ----
-FROM keymetrics/pm2:latest-alpine AS base
+FROM keymetrics/pm2:8-alpine AS base
 
 RUN apk add --no-cache tini
 # Tini is now available at /sbin/tini
@@ -20,7 +20,7 @@ FROM base AS dependencies
 
 # install node modules
 RUN apk add --no-cache python make
-RUN yarn install --production --ignore-engines
+RUN yarn install --production
 
 # copy production node_modules aside
 RUN cp -R node_modules prod_node_modules
@@ -30,7 +30,7 @@ RUN rm -rf node_modules
 COPY build ./build
 COPY public ./public
 COPY . .
-RUN yarn install --ignore-engines && yarn build
+RUN yarn install && yarn build
 
 #
 # ---- Production ----
