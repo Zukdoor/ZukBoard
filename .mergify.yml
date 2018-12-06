@@ -7,4 +7,4 @@ rules:
         contexts:
         - codebeat
     merge_strategy: 
-      method: 'squash'
+      method: 'merge'

@@ -106,7 +106,7 @@
             <i class="iconfont" >&#xe6a4;</i>清空画板
         </li>
         <li
-          @click="(e) => { !notPresenter && undeleteSelecteddo(e)}"
+          @click="(e) => { !notPresenter && deleteSelected(e)}"
           title="清空画板"
           :class="{'disabled': !canDelete || notPresenter}">
             <i class="iconfont" >&#xe603;</i>删除
@@ -120,10 +120,10 @@
 import socket from '../plugins/socket.js'
 import uuid from 'uuid'
 import Draw from '../draw.js'
-import {} from '../plugins/events.js'
 import plugins from '../plugins/setting.js'
 import { settings, actions } from '../plugins'
 import SyncStatusNotify from './SyncStatusNotify'
+import { eventEmitter } from '../plugins/util'
 
 const MODE = {
   SINGLE: 'single',
@@ -254,8 +254,23 @@ export default {
         this.deleteSelected()
       }
     })
-    window.addEventListener('resize', () => {
-
+    document.addEventListener('paste', (event) => {
+      if (event.clipboardData || event.originalEvent) {
+        let clipboardData = (event.clipboardData || event.originalEvent.clipboardData)
+        if (clipboardData.items) {
+          let items = clipboardData.items
+          let blob = null
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              blob = items[i].getAsFile()
+            }
+          }
+          if (blob != null) {
+            eventEmitter.emit('copyAction', blob)
+            this.choose('uploadImg')
+          }
+        }
+      }
     })
   },
   methods: {
@@ -492,6 +507,7 @@ export default {
         type,
         vp: this.getVpInfo(),
         // id: Array.isArray(data) ? data : data.id,
+        id: data.id || '',
         opId: this.genKey(),
         time: new Date().getTime()
       }
@@ -544,7 +560,6 @@ export default {
         index = this.renderList.findIndex(e => e.opId === opid)
       }
       const item = opid ? this.renderList.splice(index, 1)[0] : this.renderList.pop()
-      console.log(item)
       if (!item) return
       this.redoList.push(item)
       this.$nextTick(() => {
@@ -554,7 +569,9 @@ export default {
       !opid && this.socket.emit('sync', 'undo', item, this.board._id, this.board._id)
     },
     deleteSelected() {
-      this.drawer.deleteSelected()
+      if (this.canDelete) {
+        this.drawer.deleteSelected()
+      }
     },
     choose(chooseKey, hiddenAction) {
       if (!this.plugins[chooseKey].useInFollowing && this.notPresenter) {

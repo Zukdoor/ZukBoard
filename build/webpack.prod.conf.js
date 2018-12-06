@@ -7,6 +7,7 @@ const config = require(CURRENT_PATH + '/config').webpackConfig
 const utils = require(CURRENT_PATH + '/build/utils')
 const baseWebpackConfig = require(CURRENT_PATH + '/build/webpack.base.conf')
 const GetBundleHash = require(CURRENT_PATH + '/build/getBundleHash')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
   output: {
@@ -19,7 +20,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       sourceMap: config.dev.cssSourceMap
     })
   },
-  devtool: config.build.productionSourceMap ? '#source-map' : false,
+  devtool: false,
   optimization: {
     runtimeChunk: {
       name: 'manifest'
@@ -33,7 +34,16 @@ const webpackConfig = merge(baseWebpackConfig, {
           chunks: 'all'
         }
       }
-    }
+    },
+    minimizer: [
+      new UglifyJSPlugin({
+        uglifyOptions: {
+          compress: {
+            drop_console: true
+          }
+        }
+      })
+    ]
   },
   plugins: [
     new ExtractTextPlugin({

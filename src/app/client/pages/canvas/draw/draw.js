@@ -1,4 +1,5 @@
 import { fabric } from 'fabric'
+import * as Hammer from 'hammerjs'
 import { plugins } from './plugins'
 import {} from './plugins/fabricOverriding'
 import HandleImage from './plugins/upload-img/handleImage'
@@ -32,7 +33,7 @@ class Draw {
       height: container.offsetHeight,
       preserveObjectStacking: true,
       perPixelTargetFind: true,
-      targetFindTolerance: this.isMobile ? 45 : 15,
+      targetFindTolerance: this.isMobile ? 20 : 15,
       selectionFullyContained: true,
       interactive: false,
       skipTargetFind: false
@@ -52,6 +53,7 @@ class Draw {
     instance = this
     window.canvas = this.layerDraw
     this.lastPosX = this.lastPosY = 0
+    this.touchEvent = new Hammer(this.layerDraw.upperCanvasEl)
   }
   init() {
     this.initBrush()
@@ -70,9 +72,13 @@ class Draw {
   registerEvents() {
     const canvas = this.layerDraw
     canvas.on('path:created', (e) => {
-      if (e.path.id === undefined) {
-        e.path.set('id', genKey())
-        e.path.set('btype', this.current)
+      let pathObj = e.path || {}
+      if (typeof pathObj.id === 'undefined') {
+        pathObj.set('id', genKey())
+        pathObj.set('btype', this.current)
+        pathObj.hasControls = false
+        pathObj.hasBorders = false
+        pathObj.hasRotatingPoint = false
       }
       this._vm.sync(e.path.btype, SYNC_TYPE.INSERT, e.path.toJSON(['id', 'btype']))
     })
@@ -262,7 +268,7 @@ class Draw {
       if (item.type !== SYNC_TYPE.DELETE) {
         return
       }
-      deleteIds = deleteIds.concat(item.id)
+      deleteIds = deleteIds.concat(item.data)
     })
     list.forEach(item => {
       if (item.data.type !== 'image' || item.type !== SYNC_TYPE.INSERT) {
@@ -623,9 +629,10 @@ class Draw {
         canvas.defaultCursor = 'default'
       } else {
         that.toggleSelection(true)
+        that.setActiveObjControl(true)
       }
     })
-    canvas.on('touch:longpress', (e) => {
+    this.touchEvent.on('press', (e) => {
       if (that.current !== 'choose') return
       this.toggleSelection(true)
       this.longpress = true
