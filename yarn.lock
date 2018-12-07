@@ -7353,10 +7353,10 @@ relateurl@0.2.x:
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
   integrity sha1-VNvzd+UUQKypCkzSdGANP/LYiKk=
 
-reload@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/reload/-/reload-2.3.1.tgz#72515e579410e7ca9f035344570ab67a92be1b02"
-  integrity sha512-rA4/5yDh4B60igmGMOP9wIEHrZz8XQu2Y65+XBY8Kkn5WT1h/iYvLr7R8rSwKeCfyA0jyjY8dAsJfvYmYfJ13Q==
+reload@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/reload/-/reload-2.4.0.tgz#7cdab8456c905e5d13b135544233ea1df28c2c3d"
+  integrity sha512-sNlfGgQbysnqYuj15/aHvDlIBpDCI73cIdx5gphlAZ0yKvW/hrMhqGG4/MYPpf3jQ6wJntOqzl/6TTantFp61g==
   dependencies:
     cli-color "~1.2.0"
     commander "~2.9.0"
