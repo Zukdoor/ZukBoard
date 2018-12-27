@@ -115,7 +115,7 @@
     "vuex": "3.0.1",
     "webpack": "4.28.0",
     "webpack-hot-middleware": "2.24.3",
-    "webpack-merge": "4.1.4",
+    "webpack-merge": "4.1.5",
     "wolfy87-eventemitter": "5.2.5"
   },
   "engines": {
