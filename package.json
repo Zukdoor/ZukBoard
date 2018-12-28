@@ -26,7 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "7.2.5",
-    "@koa/cors": "2.2.2",
+    "@koa/cors": "2.2.3",
     "axios": "0.18.0",
     "debug": "4.1.0",
     "hammerjs": "2.0.8",
