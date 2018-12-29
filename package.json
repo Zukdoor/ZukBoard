@@ -28,7 +28,7 @@
     "@babel/polyfill": "7.2.5",
     "@koa/cors": "2.2.3",
     "axios": "0.18.0",
-    "debug": "4.1.0",
+    "debug": "4.1.1",
     "hammerjs": "2.0.8",
     "jsonwebtoken": "8.4.0",
     "koa": "2.6.2",
