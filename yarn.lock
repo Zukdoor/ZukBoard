@@ -4409,10 +4409,10 @@ invert-kv@^1.0.0:
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
   integrity sha1-EEqOSqym09jNFXqO+L+rLXo//bY=
 
-ionicons@4.5.2:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.5.2.tgz#e50c701427f2c5a28ad6e256cad5bcedf77e0fd0"
-  integrity sha512-/zekmyXm6oe6o0/BXeIUIS1ZzmkjHjx99fiCsRA/QaAxRQRz6ezIf+0UCvgn7862R8RkHNK1t0XMEq7MPKoqiw==
+ionicons@4.5.5:
+  version "4.5.5"
+  resolved "https://registry.yarnpkg.com/ionicons/-/ionicons-4.5.5.tgz#b059958a54dd45cfa127acc0baf11503b8671e51"
+  integrity sha512-dIGI73XG6Fg2Ps77ry5Ywe36Pq7wUGkDkl0pBhC4uhsiyoW+oXe+pplmarXEnKEcB5fmlkRrBOxYYzZaoRiUGw==
 
 is-absolute-url@^2.0.0:
   version "2.1.0"
