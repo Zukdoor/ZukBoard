@@ -116,7 +116,7 @@
     "webpack": "4.29.3",
     "webpack-hot-middleware": "2.24.3",
     "webpack-merge": "4.2.1",
-    "wolfy87-eventemitter": "5.2.5"
+    "wolfy87-eventemitter": "5.2.6"
   },
   "engines": {
     "node": ">= 8.0.0",
