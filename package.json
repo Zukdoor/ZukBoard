@@ -30,7 +30,7 @@
     "axios": "0.18.0",
     "debug": "4.1.1",
     "hammerjs": "2.0.8",
-    "jsonwebtoken": "8.4.0",
+    "jsonwebtoken": "8.5.1",
     "koa": "2.7.0",
     "koa-bodyparser": "4.2.1",
     "koa-cache-control": "2.0.0",
