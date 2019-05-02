@@ -18,7 +18,7 @@ function registerFollow(socket) {
 registerFollow.endFollow = async function (id, item, userid) {
   const board = await methods.get(id)
   if (!board.follow.id === userid) {
-    // todo: add user syetem
+    // todo: add user system
     return
   }
   methods.endFollow(item, id)
