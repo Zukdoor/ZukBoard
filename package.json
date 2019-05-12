@@ -48,7 +48,7 @@
     "multiparty": "4.2.1",
     "nunjucks": "3.2.0",
     "path-to-regexp": "3.0.0",
-    "read-pkg-up": "5.0.0",
+    "read-pkg-up": "6.0.0",
     "redis": "2.8.0",
     "socket.io": "2.2.0",
     "uuid": "3.3.2",
