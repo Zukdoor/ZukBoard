@@ -1,7 +1,7 @@
 const CURRENT_PATH = process.cwd()
 
 const { join } = require('path')
-const port = require('read-pkg-up').sync().pkg.port
+const port = require('read-pkg-up').sync().package.port
 
 const mongoBaseUri = process.env.MONGODB_URI
 

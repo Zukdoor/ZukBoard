@@ -1,7 +1,7 @@
 const devServer = function (app) {
   const CURRENT_PATH = process.cwd()
   const opn = require('opn')
-  const port = require('read-pkg-up').sync().pkg.port
+  const port = require('read-pkg-up').sync().package.port
   const webpack = require('webpack')
   const config = require(CURRENT_PATH + '/config').webpackConfig
   const webpackConfig = require(CURRENT_PATH + '/build/webpack.dev.conf')
