@@ -87,7 +87,7 @@
     "ionicons": "4.5.8",
     "json-loader": "0.5.7",
     "koa-webpack-middleware": "1.0.7",
-    "lint-staged": "8.1.7",
+    "lint-staged": "8.2.1",
     "mini-css-extract-plugin": "0.7.0",
     "node-sass": "4.12.0",
     "opn": "6.0.0",
