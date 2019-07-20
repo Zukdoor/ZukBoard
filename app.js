@@ -5,7 +5,7 @@ const app = new Koa()
 const cors = require('@koa/cors')
 const server = require('http').createServer(app.callback())
 const io = require('socket.io')(server, {
-  transports: [ 'websocket', 'polling' ]
+  transports: ['websocket', 'polling']
 })
 const registerSocket = require(CURRENT_PATH + '/server/socket')
 const views = require('koa-views')

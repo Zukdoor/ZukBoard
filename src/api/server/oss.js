@@ -6,8 +6,8 @@ const host = 'https://cdn.yucircle.com'
 console.log('oss: config:', id, secret)
 
 function getOSSParams(dirPath, filename) {
-  let end = new Date().getTime() + 300000
-  let expiration = new Date(end).toISOString()
+  const end = new Date().getTime() + 300000
+  const expiration = new Date(end).toISOString()
   let policyString = {
     expiration,
     conditions: [

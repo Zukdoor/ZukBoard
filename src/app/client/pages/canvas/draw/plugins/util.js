@@ -9,16 +9,16 @@ export const genKey = () => {
 }
 
 export const getSystem = () => {
-  let platform = navigator.platform
+  const platform = navigator.platform
   return platform.indexOf('Win') === 0 ? 'win' : 'mac'
 }
 
 export const LoadImageAsync = (url) => {
   return new Promise((resolve, reject) => {
-    let img = new Image()
+    const img = new Image()
     img.onload = function () {
-      let width = this.width
-      let height = this.height
+      const width = this.width
+      const height = this.height
       img.setAttribute('crossOrigin', 'anonymous')
       resolve({ width: width, height: height })
     }
@@ -31,7 +31,7 @@ export const LoadImageAsync = (url) => {
 
 export const browser = {
   versions: (function () {
-    let u = navigator.userAgent
+    const u = navigator.userAgent
     return {
       mobile: !!u.match(/AppleWebKit.*Mobile.*/) || u.indexOf('iPad') > -1,
       ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
@@ -43,7 +43,7 @@ export const browser = {
 }
 
 export const compress = (data, opt, callback) => {
-  let img = new Image()
+  const img = new Image()
   img.onload = function () {
     var w = this.width
     var h = this.height
@@ -55,18 +55,18 @@ export const compress = (data, opt, callback) => {
       h = opt.maxWidth
       w = opt.maxWidth * scale
     }
-    let quality = opt.quality || 0.5
-    let canvas = document.createElement('canvas')
-    let ctx = canvas.getContext('2d')
-    let anw = document.createAttribute('width')
+    const quality = opt.quality || 0.5
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const anw = document.createAttribute('width')
     anw.nodeValue = w
-    let anh = document.createAttribute('height')
+    const anh = document.createAttribute('height')
     anh.nodeValue = h
     canvas.setAttributeNode(anw)
     canvas.setAttributeNode(anh)
     ctx.drawImage(this, 0, 0, w, h)
-    let base64 = canvas.toDataURL('image/jpeg', quality)
-    let file = dataURLtoFile(base64)
+    const base64 = canvas.toDataURL('image/jpeg', quality)
+    const file = dataURLtoFile(base64)
     callback(file)
   }
   img.src = data
@@ -75,8 +75,8 @@ export const compress = (data, opt, callback) => {
 var dataURLtoFile = function (base64Data) {
   let byteString
   if (base64Data.split(',')[0].indexOf('base64') >= 0) { byteString = atob(base64Data.split(',')[1]) } else { byteString = unescape(base64Data.split(',')[1]) }
-  let mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0]
-  let ia = new Uint8Array(byteString.length)
+  const mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0]
+  const ia = new Uint8Array(byteString.length)
   for (var i = 0; i < byteString.length; i++) {
     ia[i] = byteString.charCodeAt(i)
   }

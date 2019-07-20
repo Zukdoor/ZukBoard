@@ -7,7 +7,7 @@ const getters = {
 }
 
 const mutations = {
-  'setUser': (state, user) => {
+  setUser: (state, user) => {
     state.uid = user.uid
   }
 }

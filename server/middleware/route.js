@@ -15,7 +15,7 @@ const addRenderBundle = async (ctx, page) => {
     const _render = ctx.render
     let renderArguments = []
     ctx.render = function () {
-      let options = arguments[1] || {}
+      const options = arguments[1] || {}
       renderArguments = renderArguments.concat(arguments[0], options)
       // 给webpack构建添加bundle
       renderArguments[1].bundle = page
@@ -27,7 +27,7 @@ const addRenderBundle = async (ctx, page) => {
 const defaultRoute = async (ctx, info, method) => {
   try {
     let controller = ''
-    let page = info[1]
+    const page = info[1]
     let match = false
     const action = info.splice(2).join('/') || '/'
     await addRenderBundle(ctx, page)
@@ -45,14 +45,14 @@ const defaultRoute = async (ctx, info, method) => {
       ctx.status = 404
       ctx.throw(404)
     }
-    let keys = Object.keys(controller)
+    const keys = Object.keys(controller)
     debug('keys => ' + keys)
     for (var i = 0, len = keys.length; i < len; i++) {
-      let f = keys[i]
-      let mid = f.split('#')
-      let len = mid.length
-      let httpMethod = len === 1 ? 'get' : mid[0]
-      let router = mid[len - 1]
+      const f = keys[i]
+      const mid = f.split('#')
+      const len = mid.length
+      const httpMethod = len === 1 ? 'get' : mid[0]
+      const router = mid[len - 1]
       debug('router => ' + router)
       let regex = ''
       if (page === '') {

@@ -15,7 +15,7 @@ exports.assetsPath = _path => {
 // 获取所有入口文件
 exports.getEntries = globPath => {
   const files = glob.sync(globPath)
-  let entries = {}
+  const entries = {}
   files.forEach(filepath => {
     var split = filepath.split('/')
     var name = split[split.length - 3]

@@ -23,7 +23,7 @@ fabric.Object.prototype._setCornerCoords = function () {
   const sinHalfOffset = cornerHypotenuse * fabric.util.sin(newTheta)
   let x, y
 
-  for (let point in coords) {
+  for (const point in coords) {
     x = coords[point].x
     y = coords[point].y
     coords[point].corner = {
@@ -47,9 +47,9 @@ fabric.Object.prototype._setCornerCoords = function () {
   }
 }
 fabric.Canvas.prototype._shouldClearSelection = function (e, target) {
-  let activeObjects = this.getActiveObjects()
+  const activeObjects = this.getActiveObjects()
 
-  let activeObject = this._activeObject
+  const activeObject = this._activeObject
 
   return (
     (!target && !e.shiftKey) ||

@@ -14,11 +14,13 @@ class HandleImage {
     this.globalCanvas = canvas
     this.registerEvents()
   }
+
   registerEvents() {
     eventEmitter.addListener('on-should-draw-img', (ev) => {
       this.addImage(ev)
     })
   }
+
   addImage(url) {
     const canvas = this.globalCanvas.layerDraw
     const vpt = canvas.viewportTransform.slice(0)
@@ -41,6 +43,7 @@ class HandleImage {
       }, { crossOrigin: 'Anonymous' })
     })
   }
+
   log() {
 
   }

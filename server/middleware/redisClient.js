@@ -27,7 +27,7 @@ const redisErrorHandler = err => {
 }
 
 const connectRedis = (app, redisConfig) => {
-  let redisClient = redis.createClient(
+  const redisClient = redis.createClient(
     Object.assign(redisConfig, defaultOptions)
   )
   redisClient.on('error', redisErrorHandler)

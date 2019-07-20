@@ -13,10 +13,10 @@ const env = process.env.NODE_ENV
  * @param  {[String]} options.redirect [description]
  */
 function rate(ctx, options) {
-  let Time = Date.now()
+  const Time = Date.now()
     .toString()
     .substr(0, 10)
-  let currentSecond = 'act01Activity-' + env + '-' + Time
+  const currentSecond = 'act01Activity-' + env + '-' + Time
   return new Promise(function (resolve, reject) {
     ctx.redisClient.incr(currentSecond, (err, count) => {
       'use strict'
@@ -36,7 +36,7 @@ function rate(ctx, options) {
 
 const ratelimte = options => {
   return async (ctx, next) => {
-    let answerUrl = '/error'
+    const answerUrl = '/error'
     try {
       await rate(ctx, options)
       ctx.redirect(answerUrl)

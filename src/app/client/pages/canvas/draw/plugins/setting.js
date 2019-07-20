@@ -1,12 +1,12 @@
 export default {
-  'choose': {
+  choose: {
     title: '选择',
     icon: '&#xe67b;',
     // useInFollowing: true,
     setting: {
     }
   },
-  'brush': {
+  brush: {
     title: '画笔',
     icon: '&#xe617;',
     setting: {
@@ -14,7 +14,7 @@ export default {
       width: 2
     }
   },
-  'kbText': {
+  kbText: {
     title: '插入文字',
     icon: '&#xe830;',
     setting: {
@@ -22,7 +22,7 @@ export default {
       color: '#000'
     }
   },
-  'uploadImg': {
+  uploadImg: {
     title: '上传图片',
     icon: '&#xe651;',
     setting: {
