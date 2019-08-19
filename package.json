@@ -51,7 +51,7 @@
     "read-pkg-up": "6.0.0",
     "redis": "2.8.0",
     "socket.io": "2.2.0",
-    "uuid": "3.3.2",
+    "uuid": "3.3.3",
     "vue-analytics": "5.17.0",
     "vue-color": "2.7.0"
   },
