@@ -23,6 +23,7 @@ fabric.Object.prototype._setCornerCoords = function () {
   const sinHalfOffset = cornerHypotenuse * fabric.util.sin(newTheta)
   let x, y
 
+  // eslint-disable-next-line no-unused-vars
   for (const point in coords) {
     x = coords[point].x
     y = coords[point].y
