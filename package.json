@@ -99,7 +99,7 @@
     "prettier": "1.18.2",
     "prettier-eslint": "9.0.0",
     "reload": "3.0.1",
-    "sass-loader": "7.3.1",
+    "sass-loader": "8.0.0",
     "shelljs": "0.8.3",
     "socket.io-client": "2.2.0",
     "supertest": "4.0.2",
