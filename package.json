@@ -104,7 +104,7 @@
     "socket.io-client": "2.2.0",
     "supertest": "4.0.2",
     "uglifyjs-webpack-plugin": "2.2.0",
-    "url-loader": "2.1.0",
+    "url-loader": "2.3.0",
     "vue": "2.6.10",
     "vue-hot-reload-api": "2.3.4",
     "vue-loader": "15.7.1",
