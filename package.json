@@ -100,7 +100,7 @@
     "prettier-eslint": "9.0.0",
     "reload": "3.0.1",
     "sass-loader": "8.0.0",
-    "shelljs": "0.8.3",
+    "shelljs": "0.8.5",
     "socket.io-client": "2.2.0",
     "supertest": "4.0.2",
     "uglifyjs-webpack-plugin": "2.2.0",
