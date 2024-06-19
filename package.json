@@ -50,7 +50,7 @@
     "path-to-regexp": "3.1.0",
     "read-pkg-up": "6.0.0",
     "redis": "2.8.0",
-    "socket.io": "2.2.0",
+    "socket.io": "2.5.1",
     "uuid": "3.3.3",
     "vue-analytics": "5.17.2",
     "vue-color": "2.7.0"
@@ -101,7 +101,7 @@
     "reload": "3.0.1",
     "sass-loader": "8.0.0",
     "shelljs": "0.8.3",
-    "socket.io-client": "2.2.0",
+    "socket.io-client": "2.5.0",
     "supertest": "4.0.2",
     "uglifyjs-webpack-plugin": "2.2.0",
     "url-loader": "2.1.0",
