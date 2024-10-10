@@ -25,7 +25,7 @@
   "author": "qianyuchang@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@babel/polyfill": "7.6.0",
+    "@babel/polyfill": "7.12.1",
     "@koa/cors": "3.0.0",
     "axios": "0.19.0",
     "debug": "4.1.1",
@@ -56,10 +56,10 @@
     "vue-color": "2.7.0"
   },
   "devDependencies": {
-    "@babel/core": "7.6.0",
-    "@babel/plugin-transform-runtime": "7.6.0",
-    "@babel/preset-env": "7.6.0",
-    "@babel/runtime": "7.6.0",
+    "@babel/core": "7.25.8",
+    "@babel/plugin-transform-runtime": "7.25.7",
+    "@babel/preset-env": "7.25.8",
+    "@babel/runtime": "7.25.7",
     "autoprefixer": "9.6.1",
     "babel-eslint": "10.0.3",
     "babel-loader": "8.0.6",
